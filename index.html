@@ -483,8 +483,12 @@ let scanEnabled = false;      // Nur aktiv wenn Benutzer Knopf gedrückt hat
 let cooldownTimer = null;
 let countdownInterval = null;
 
-function onScanBtnClick(){
-  if(scanEnabled) return; // schon aktiv
+async function onScanBtnClick(){
+  // Kamera starten falls noch nicht aktiv (wichtig für iOS: User-Geste nötig!)
+  if(!cameraActive && (getCurrentMode() === 'camera' || getCurrentMode() === 'auto')){
+    await startCamera();
+  }
+  if(scanEnabled) return;
   enableScan();
 }
 
@@ -752,6 +756,7 @@ async function applyMode(m){
 }
 
 let html5Scanner = null;
+const isIOS = /iphone|ipad|ipod/i.test(navigator.userAgent);
 
 async function startCamera(){
   const cc = document.getElementById('cameraContainer');
@@ -762,25 +767,23 @@ async function startCamera(){
       throw new Error('NO_HTTPS');
     }
 
-    // Alten Scanner stoppen falls vorhanden
+    // Vorherigen Scanner sauber stoppen
     await stopCamera();
 
     setStatus('Kamera wird gestartet...');
     cc.style.display = 'block';
 
-    // html5-qrcode: einfachste und zuverlässigste Methode für Android
     html5Scanner = new Html5Qrcode('videoEl', { verbose: false });
 
-    // Kameras auflisten
+    // Kameras auflisten (nach getUserMedia-Permission)
     let cameras = [];
-    try {
-      cameras = await Html5Qrcode.getCameras();
-    } catch(e) {}
+    try { cameras = await Html5Qrcode.getCameras(); } catch(e){}
     allDevices = cameras;
     populateCameraSelect(cameras);
     if(cameras.length > 1) sw.style.display = 'block';
 
-    // Rückkamera bevorzugen
+    // iOS: immer facingMode verwenden (deviceId exact funktioniert auf iOS nicht zuverlässig)
+    // Android: deviceId wenn vorhanden, sonst environment
     let camId = localStorage.getItem('dexis_cameraId') || null;
     if(!camId && cameras.length){
       const back = cameras.find(c => /back|rear|environment/i.test(c.label));
@@ -788,48 +791,53 @@ async function startCamera(){
     }
     currentDeviceId = camId;
 
+    // Konfiguration – OHNE supportedScanTypes (iOS Safari kompatibel)
     const config = {
       fps: 10,
-      qrbox: { width: 260, height: 160 },
-      aspectRatio: 1.5,
-      supportedScanTypes: [
-        Html5QrcodeScanType.SCAN_TYPE_CAMERA
-      ]
+      qrbox: { width: 250, height: 150 },
+      aspectRatio: 1.5
     };
 
-    const cameraConfig = camId
-      ? { deviceId: { exact: camId } }
-      : { facingMode: { ideal: 'environment' } };
+    // iOS braucht facingMode, kein deviceId exact
+    const cameraConfig = isIOS
+      ? { facingMode: { ideal: 'environment' } }
+      : (camId ? { deviceId: { exact: camId } } : { facingMode: { ideal: 'environment' } });
 
     await html5Scanner.start(
       cameraConfig,
       config,
       (decodedText) => {
-        addBarcode(decodedText);
-        vibrateCamera();
+        if(scanEnabled){          // Nur verarbeiten wenn Scan erlaubt
+          addBarcode(decodedText);
+          vibrateCamera();
+        }
       },
-      null
+      null  // Fehler beim Scan ignorieren (kein Barcode sichtbar = normal)
     );
 
     cameraActive = true;
-    setStatus('Kamera aktiv – Barcode vor die Kamera halten.');
+    setStatus('Kamera bereit – SCANNEN drücken.');
     document.getElementById('scanInput').placeholder = 'Oder Barcode manuell eingeben...';
 
   } catch(err){
     cameraActive = false;
     cc.style.display = 'none';
     sw.style.display = 'none';
-    const msg = (err.message || String(err)).toLowerCase();
+    const msg = (err.message || String(err));
 
     if(/denied|notallowed|permission/i.test(msg)){
-      setStatus('Kamera-Zugriff verweigert! In Chrome: oben auf das Kamera-Symbol tippen → Zulassen → Seite neu laden.');
-      showToast('Kamera-Erlaubnis fehlt! Siehe Statuszeile.', 'error');
-    } else if(/no_https|https/i.test(msg)){
-      setStatus('Kamera braucht HTTPS – läuft die App über https://ferdl1000.github.io/dexis-scanner ?');
+      if(isIOS){
+        setStatus('Kamera gesperrt! iPhone: Einstellungen → Safari → Kamera → Zulassen → Seite neu laden.');
+      } else {
+        setStatus('Kamera gesperrt! Chrome: Adressleiste → Schloss → Kamera → Zulassen → Neu laden.');
+      }
+      showToast('Kamera-Erlaubnis fehlt!', 'error');
+    } else if(/no_https/i.test(msg)){
+      setStatus('Kamera benötigt HTTPS. Bitte über https://ferdl1000.github.io/dexis-scanner öffnen.');
       showToast('Kein HTTPS – Kamera nicht verfügbar', 'warn');
     } else {
-      setStatus('Kamera-Fehler: ' + (err.message || err).toString().slice(0,120));
-      showToast('Kamera konnte nicht gestartet werden', 'warn');
+      setStatus('Kamera-Fehler: ' + msg.slice(0,100) + ' – Manuelle Eingabe möglich.');
+      showToast('Kamera nicht verfügbar – manuelle Eingabe nutzen', 'warn');
     }
     saveSetting('mode','usb');
     document.getElementById('setMode').value = 'usb';
@@ -837,25 +845,19 @@ async function startCamera(){
       document.getElementById('btnMode'+x.charAt(0).toUpperCase()+x.slice(1))
       .classList.toggle('active', x==='usb')
     );
-    document.getElementById('scanInput').placeholder = 'Barcode eingeben oder USB-Scanner...';
+    document.getElementById('scanInput').placeholder = 'Barcode manuell eingeben...';
     document.getElementById('scanInput').focus();
   }
 }
 
 async function stopCamera(){
   if(html5Scanner){
-    try {
-      const state = html5Scanner.getState();
-      if(state === Html5QrcodeScannerState.SCANNING ||
-         state === Html5QrcodeScannerState.PAUSED){
-        await html5Scanner.stop();
-      }
-    } catch(e){}
+    // Ohne Html5QrcodeScannerState (nicht auf allen Plattformen verfügbar)
+    try { await html5Scanner.stop(); } catch(e){}
     try { html5Scanner.clear(); } catch(e){}
     html5Scanner = null;
   }
   cameraActive = false;
-  currentDeviceId = null;
 }
 
 async function switchCamera(){
@@ -1097,7 +1099,20 @@ document.addEventListener('DOMContentLoaded', async () => {
     .classList.toggle('active', x===m)
   );
 
-  await applyMode(m);
+  if(m === 'usb'){
+    // USB-Modus: direkt bereit
+    await applyMode('usb');
+  } else {
+    // Kamera-Modus: NICHT automatisch starten auf iOS (braucht User-Geste)
+    // Kamera startet erst wenn SCANNEN gedrückt wird
+    if(isIOS){
+      setStatus('SCANNEN drücken um Kamera zu starten (iPhone).');
+    } else {
+      // Android/PC: Kamera sofort starten
+      await applyMode(m);
+    }
+  }
+
   document.getElementById('scanInput').focus();
 });
 </script>
