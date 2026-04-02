@@ -1009,22 +1009,20 @@ async function onFertig(){
     body += 'Datum: ' + dateStr + ' ' + timeStr + '\n\n';
     body += 'Kundenname: ' + name + '\n';
     if(addr) body += 'Adresse: ' + addr + '\n';
-    // Spaltenbreiten
-    const W = { nr:12, b1:30, b2:28, bc:14, qty:5 };
-    function pad(s, w){ s = String(s||''); return s.length > w ? s.slice(0,w-1)+'.' : s.padEnd(w); }
-    const sep = '+' + '-'.repeat(W.nr+2) + '+' + '-'.repeat(W.b1+2) + '+' +
-                '-'.repeat(W.b2+2) + '+' + '-'.repeat(W.bc+2) + '+' + '-'.repeat(W.qty+2) + '+';
+    const trennlinie = '--------------------------------------------\n';
     body += '\nGescannte Artikel:\n';
-    body += sep + '\n';
-    body += '| ' + pad('Art.Nr.',W.nr) + ' | ' + pad('Bezeichnung 1',W.b1) + ' | ' +
-            pad('Bezeichnung 2',W.b2) + ' | ' + pad('Barcode',W.bc) + ' | ' + pad('Stk',W.qty) + ' |\n';
-    body += sep + '\n';
-    scannedItems.forEach(item => {
-      body += '| ' + pad(item.number,W.nr) + ' | ' + pad(item.bez1||item.description,W.b1) + ' | ' +
-              pad(item.bez2||'',W.b2) + ' | ' + pad(item.barcode,W.bc) + ' | ' + pad(item.qty||1,W.qty) + ' |\n';
+    body += trennlinie;
+    scannedItems.forEach((item, i) => {
+      const bez = (item.bez1 && item.bez1.trim()) || '';
+      const det = (item.bez2 && item.bez2.trim()) || '';
+      body += `${i+1}) Art.Nr.: ${item.number}    Stueck: ${item.qty||1}\n`;
+      if(bez) body += `   Bezeichnung:  ${bez}\n`;
+      if(det) body += `   Details:      ${det}\n`;
+      body += `   Barcode:      ${item.barcode}\n`;
+      body += '\n';
     });
-    body += sep + '\n';
-    body += '\nGesamt: ' + scannedItems.reduce((s,i)=>s+(i.qty||1),0) + ' Stück';
+    body += trennlinie;
+    body += 'Gesamt: ' + scannedItems.reduce((s,i)=>s+(i.qty||1),0) + ' Stueck';
 
     let mailto = 'mailto:' + to + '?subject=' + sub + '&body=' + encodeURIComponent(body);
     if(cc) mailto += '&cc=' + encodeURIComponent(cc);
