@@ -652,22 +652,42 @@ async function startCamera(){
   const sw = document.getElementById('switchCameraBtn');
 
   try {
-    if(!navigator.mediaDevices){
-      throw new Error('Kein HTTPS – Kamera nicht verfügbar');
+    if(!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia){
+      throw new Error('NO_HTTPS');
     }
+
+    setStatus('Bitte Kamera-Zugriff erlauben...');
+
+    // Schritt 1: Erst explizit Permission anfordern (Android braucht das!)
+    let permStream = null;
+    try {
+      permStream = await navigator.mediaDevices.getUserMedia({
+        video: { facingMode: { ideal: 'environment' } }
+      });
+      // Stream sofort stoppen - ZXing macht seinen eigenen
+      permStream.getTracks().forEach(t => t.stop());
+    } catch(permErr) {
+      const msg = permErr.message || String(permErr);
+      if(/denied|permission|notallowed/i.test(msg.toLowerCase()) ||
+         permErr.name === 'NotAllowedError') {
+        throw new Error('PERMISSION_DENIED');
+      }
+      throw permErr;
+    }
+
     if(codeReader) codeReader.reset();
     codeReader = new ZXing.BrowserMultiFormatReader();
 
+    // Schritt 2: Geraete auflisten (nach Permission klappt das)
     const devices = await ZXing.BrowserMultiFormatReader.listVideoInputDevices();
     allDevices = devices;
     populateCameraSelect(devices);
-
     if(devices.length > 1) sw.style.display = 'block';
 
     cc.style.display = 'block';
     cameraActive = true;
 
-    // Bevorzuge Rückkamera
+    // Rückkamera bevorzugen
     let preferredId = localStorage.getItem('dexis_cameraId') || null;
     if(!preferredId){
       const back = devices.find(d => /back|rear|environment/i.test(d.label));
@@ -675,37 +695,46 @@ async function startCamera(){
     }
     currentDeviceId = preferredId;
 
-    await codeReader.decodeFromVideoDevice(preferredId, 'videoEl', (result, err) => {
-      if(result){
-        const code = result.getText();
-        addBarcode(code);
-        vibrateCamera();
-        // Kurze Pause um Doppelscans zu vermeiden
-        codeReader.reset();
-        setTimeout(() => {
-          if(cameraActive) codeReader.decodeFromVideoDevice(currentDeviceId, 'videoEl', arguments.callee);
-        }, 800);
-      }
-    });
+    // Schritt 3: ZXing Scan starten
+    function startDecode() {
+      codeReader.decodeFromVideoDevice(currentDeviceId, 'videoEl', (result, err) => {
+        if(result){
+          const code = result.getText();
+          addBarcode(code);
+          vibrateCamera();
+          codeReader.reset();
+          setTimeout(() => { if(cameraActive) startDecode(); }, 900);
+        }
+      });
+    }
+    startDecode();
+
     setStatus('Kamera aktiv – Barcode vor die Kamera halten.');
     document.getElementById('scanInput').placeholder = 'Oder Barcode manuell eingeben...';
+
   } catch(err){
     cameraActive = false;
     cc.style.display = 'none';
     sw.style.display = 'none';
     const msg = err.message || String(err);
-    if(/permission|denied/i.test(msg)){
-      setStatus('Kamera-Zugriff verweigert – bitte Berechtigung erteilen.');
-      showToast('Kamera gesperrt – USB-Modus aktiv', 'warn');
-    } else if(/https/i.test(msg)){
-      setStatus('Kamera benötigt HTTPS – USB-Modus aktiv. Siehe "Erste Schritte".');
-      showToast('Kein HTTPS – Kamera deaktiviert', 'warn');
+
+    if(msg === 'PERMISSION_DENIED' || /denied|notallowed/i.test(msg)){
+      setStatus('Kamera-Zugriff verweigert! Bitte in Chrome: Adressleiste → Schloss-Symbol → Kamera → Zulassen → Seite neu laden.');
+      showToast('Kamera verweigert – Berechtigung erteilen!', 'error');
+    } else if(msg === 'NO_HTTPS' || /https/i.test(msg)){
+      setStatus('Kamera benötigt HTTPS. Bitte deploy_github.py verwenden.');
+      showToast('Kein HTTPS – Kamera nicht verfügbar', 'warn');
     } else {
-      setStatus('Kamera nicht verfügbar – USB-Modus aktiv.');
+      setStatus('Kamera-Fehler: ' + msg.slice(0,80));
+      showToast('Kamera-Fehler – siehe Statuszeile', 'warn');
     }
     saveSetting('mode','usb');
     document.getElementById('setMode').value = 'usb';
-    document.getElementById('scanInput').placeholder = 'USB-Scanner: Barcode scannen...';
+    ['auto','camera','usb'].forEach(x =>
+      document.getElementById('btnMode'+x.charAt(0).toUpperCase()+x.slice(1))
+      .classList.toggle('active', x==='usb')
+    );
+    document.getElementById('scanInput').placeholder = 'Barcode manuell eingeben oder USB-Scanner...';
     document.getElementById('scanInput').focus();
     throw err;
   }
