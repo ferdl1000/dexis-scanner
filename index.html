@@ -270,9 +270,8 @@ html,body{height:100%;background:var(--bg);color:var(--text);font-family:'Segoe 
     </div>
 
     <div id="cameraContainer">
-      <video id="videoEl" autoplay muted playsinline></video>
-      <div id="scanOverlay"><div id="scanLine"></div></div>
-      <button id="switchCameraBtn" onclick="switchCamera()">🔄</button>
+      <div id="videoEl" style="width:100%;border-radius:12px;overflow:hidden;"></div>
+      <button id="switchCameraBtn" onclick="switchCamera()">🔄 Kamera wechseln</button>
     </div>
 
     <div id="scanInputWrap">
@@ -392,7 +391,7 @@ html,body{height:100%;background:var(--bg);color:var(--text);font-family:'Segoe 
 </div>
 </div>
 
-<script src="https://unpkg.com/@zxing/library@0.21.3/umd/index.min.js"></script>
+<script src="https://unpkg.com/html5-qrcode@2.3.8/html5-qrcode.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.6.0/jspdf.plugin.autotable.min.js"></script>
 
@@ -647,6 +646,8 @@ async function applyMode(m){
   }
 }
 
+let html5Scanner = null;
+
 async function startCamera(){
   const cc = document.getElementById('cameraContainer');
   const sw = document.getElementById('switchCameraBtn');
@@ -656,59 +657,56 @@ async function startCamera(){
       throw new Error('NO_HTTPS');
     }
 
-    setStatus('Bitte Kamera-Zugriff erlauben...');
+    // Alten Scanner stoppen falls vorhanden
+    await stopCamera();
 
-    // Schritt 1: Erst explizit Permission anfordern (Android braucht das!)
-    let permStream = null;
-    try {
-      permStream = await navigator.mediaDevices.getUserMedia({
-        video: { facingMode: { ideal: 'environment' } }
-      });
-      // Stream sofort stoppen - ZXing macht seinen eigenen
-      permStream.getTracks().forEach(t => t.stop());
-    } catch(permErr) {
-      const msg = permErr.message || String(permErr);
-      if(/denied|permission|notallowed/i.test(msg.toLowerCase()) ||
-         permErr.name === 'NotAllowedError') {
-        throw new Error('PERMISSION_DENIED');
-      }
-      throw permErr;
-    }
-
-    if(codeReader) codeReader.reset();
-    codeReader = new ZXing.BrowserMultiFormatReader();
-
-    // Schritt 2: Geraete auflisten (nach Permission klappt das)
-    const devices = await ZXing.BrowserMultiFormatReader.listVideoInputDevices();
-    allDevices = devices;
-    populateCameraSelect(devices);
-    if(devices.length > 1) sw.style.display = 'block';
-
+    setStatus('Kamera wird gestartet...');
     cc.style.display = 'block';
-    cameraActive = true;
+
+    // html5-qrcode: einfachste und zuverlässigste Methode für Android
+    html5Scanner = new Html5Qrcode('videoEl', { verbose: false });
+
+    // Kameras auflisten
+    let cameras = [];
+    try {
+      cameras = await Html5Qrcode.getCameras();
+    } catch(e) {}
+    allDevices = cameras;
+    populateCameraSelect(cameras);
+    if(cameras.length > 1) sw.style.display = 'block';
 
     // Rückkamera bevorzugen
-    let preferredId = localStorage.getItem('dexis_cameraId') || null;
-    if(!preferredId){
-      const back = devices.find(d => /back|rear|environment/i.test(d.label));
-      preferredId = back ? back.deviceId : (devices[0]?.deviceId || undefined);
+    let camId = localStorage.getItem('dexis_cameraId') || null;
+    if(!camId && cameras.length){
+      const back = cameras.find(c => /back|rear|environment/i.test(c.label));
+      camId = back ? back.id : cameras[cameras.length - 1].id;
     }
-    currentDeviceId = preferredId;
+    currentDeviceId = camId;
 
-    // Schritt 3: ZXing Scan starten
-    function startDecode() {
-      codeReader.decodeFromVideoDevice(currentDeviceId, 'videoEl', (result, err) => {
-        if(result){
-          const code = result.getText();
-          addBarcode(code);
-          vibrateCamera();
-          codeReader.reset();
-          setTimeout(() => { if(cameraActive) startDecode(); }, 900);
-        }
-      });
-    }
-    startDecode();
+    const config = {
+      fps: 10,
+      qrbox: { width: 260, height: 160 },
+      aspectRatio: 1.5,
+      supportedScanTypes: [
+        Html5QrcodeScanType.SCAN_TYPE_CAMERA
+      ]
+    };
 
+    const cameraConfig = camId
+      ? { deviceId: { exact: camId } }
+      : { facingMode: { ideal: 'environment' } };
+
+    await html5Scanner.start(
+      cameraConfig,
+      config,
+      (decodedText) => {
+        addBarcode(decodedText);
+        vibrateCamera();
+      },
+      null
+    );
+
+    cameraActive = true;
     setStatus('Kamera aktiv – Barcode vor die Kamera halten.');
     document.getElementById('scanInput').placeholder = 'Oder Barcode manuell eingeben...';
 
@@ -716,17 +714,17 @@ async function startCamera(){
     cameraActive = false;
     cc.style.display = 'none';
     sw.style.display = 'none';
-    const msg = err.message || String(err);
+    const msg = (err.message || String(err)).toLowerCase();
 
-    if(msg === 'PERMISSION_DENIED' || /denied|notallowed/i.test(msg)){
-      setStatus('Kamera-Zugriff verweigert! Bitte in Chrome: Adressleiste → Schloss-Symbol → Kamera → Zulassen → Seite neu laden.');
-      showToast('Kamera verweigert – Berechtigung erteilen!', 'error');
-    } else if(msg === 'NO_HTTPS' || /https/i.test(msg)){
-      setStatus('Kamera benötigt HTTPS. Bitte deploy_github.py verwenden.');
+    if(/denied|notallowed|permission/i.test(msg)){
+      setStatus('Kamera-Zugriff verweigert! In Chrome: oben auf das Kamera-Symbol tippen → Zulassen → Seite neu laden.');
+      showToast('Kamera-Erlaubnis fehlt! Siehe Statuszeile.', 'error');
+    } else if(/no_https|https/i.test(msg)){
+      setStatus('Kamera braucht HTTPS – läuft die App über https://ferdl1000.github.io/dexis-scanner ?');
       showToast('Kein HTTPS – Kamera nicht verfügbar', 'warn');
     } else {
-      setStatus('Kamera-Fehler: ' + msg.slice(0,80));
-      showToast('Kamera-Fehler – siehe Statuszeile', 'warn');
+      setStatus('Kamera-Fehler: ' + (err.message || err).toString().slice(0,120));
+      showToast('Kamera konnte nicht gestartet werden', 'warn');
     }
     saveSetting('mode','usb');
     document.getElementById('setMode').value = 'usb';
@@ -734,55 +732,52 @@ async function startCamera(){
       document.getElementById('btnMode'+x.charAt(0).toUpperCase()+x.slice(1))
       .classList.toggle('active', x==='usb')
     );
-    document.getElementById('scanInput').placeholder = 'Barcode manuell eingeben oder USB-Scanner...';
+    document.getElementById('scanInput').placeholder = 'Barcode eingeben oder USB-Scanner...';
     document.getElementById('scanInput').focus();
-    throw err;
   }
 }
 
-function stopCamera(){
-  if(codeReader){ codeReader.reset(); }
+async function stopCamera(){
+  if(html5Scanner){
+    try {
+      const state = html5Scanner.getState();
+      if(state === Html5QrcodeScannerState.SCANNING ||
+         state === Html5QrcodeScannerState.PAUSED){
+        await html5Scanner.stop();
+      }
+    } catch(e){}
+    try { html5Scanner.clear(); } catch(e){}
+    html5Scanner = null;
+  }
   cameraActive = false;
   currentDeviceId = null;
 }
 
 async function switchCamera(){
   if(!allDevices.length) return;
-  const idx = allDevices.findIndex(d => d.deviceId === currentDeviceId);
-  const next = allDevices[(idx+1) % allDevices.length];
-  currentDeviceId = next.deviceId;
+  const idx = allDevices.findIndex(d => d.id === currentDeviceId);
+  const next = allDevices[(idx + 1) % allDevices.length];
+  currentDeviceId = next.id;
   localStorage.setItem('dexis_cameraId', currentDeviceId);
-  if(codeReader) codeReader.reset();
-  codeReader = new ZXing.BrowserMultiFormatReader();
-  await codeReader.decodeFromVideoDevice(currentDeviceId, 'videoEl', (result) => {
-    if(result){ addBarcode(result.getText()); vibrateCamera(); }
-  });
-  showToast('Kamera gewechselt: ' + (next.label || next.deviceId));
+  await stopCamera();
+  await startCamera();
+  showToast('Kamera gewechselt: ' + (next.label || next.id.slice(0,8)));
 }
 
 async function changeCamera(deviceId){
   if(!deviceId) return;
   localStorage.setItem('dexis_cameraId', deviceId);
-  if(cameraActive) await switchCameraTo(deviceId);
+  if(cameraActive){ await stopCamera(); await startCamera(); }
 }
 
-async function switchCameraTo(deviceId){
-  currentDeviceId = deviceId;
-  if(codeReader) codeReader.reset();
-  codeReader = new ZXing.BrowserMultiFormatReader();
-  await codeReader.decodeFromVideoDevice(deviceId, 'videoEl', (result) => {
-    if(result){ addBarcode(result.getText()); vibrateCamera(); }
-  });
-}
-
-function populateCameraSelect(devices){
+function populateCameraSelect(cameras){
   const sel = document.getElementById('setCameraSelect');
   sel.innerHTML = '<option value="">– Standardkamera –</option>';
-  devices.forEach(d => {
+  cameras.forEach(c => {
     const opt = document.createElement('option');
-    opt.value = d.deviceId;
-    opt.textContent = d.label || ('Kamera ' + d.deviceId.slice(0,8));
-    if(d.deviceId === currentDeviceId) opt.selected = true;
+    opt.value = c.id;
+    opt.textContent = c.label || ('Kamera ' + c.id.slice(0,8));
+    if(c.id === currentDeviceId) opt.selected = true;
     sel.appendChild(opt);
   });
 }
