@@ -128,8 +128,12 @@ html,body{height:100%;background:var(--bg);color:var(--text);font-family:'Segoe 
 .unknownBadge{font-size:12px;color:#f57c00;font-weight:700;}
 
 /* Menge + Löschen */
-.cardRight{display:flex;flex-direction:column;align-items:center;
-  justify-content:space-between;padding:8px 10px;gap:6px;flex-shrink:0;}
+.cardRight{
+  display:flex;flex-direction:column;align-items:center;
+  justify-content:center;padding:8px 10px;gap:10px;
+  flex-shrink:0;border-left:1px solid var(--border);
+  background:#fafbff;
+}
 .qtyBadge{display:flex;align-items:center;gap:4px;}
 .qtyMinus,.qtyPlus{
   width:34px;height:34px;border:none;border-radius:8px;
@@ -140,9 +144,11 @@ html,body{height:100%;background:var(--bg);color:var(--text);font-family:'Segoe 
 .qtyPlus{background:#e8f5e9;color:var(--success);}
 .qtyNum{min-width:28px;text-align:center;font-size:20px;font-weight:700;color:var(--text);}
 .deleteBtn{
-  width:36px;height:36px;border:none;background:#ffebee;color:var(--danger);
-  border-radius:8px;font-size:18px;font-weight:700;cursor:pointer;
+  width:40px;height:40px;border:none;
+  background:#ffebee;color:var(--danger);
+  border-radius:8px;font-size:20px;cursor:pointer;
   display:flex;align-items:center;justify-content:center;
+  flex-shrink:0;
 }
 .deleteBtn:active{background:var(--danger);color:#fff;}
 
@@ -613,18 +619,23 @@ function renderList(){
   count.textContent = scannedItems.length + ' Artikel | ' +
     scannedItems.reduce((s,i) => s + (i.qty||1), 0) + ' Stück gesamt';
 
+  // Mindestens 3 echte Buchstaben zählen (keine Zahlen/Leerzeichen)
+  function hatBuchstaben(str){
+    return str && (str.match(/[a-zA-Z\u00c0-\u024f]/g)||[]).length >= 3;
+  }
+
   list.innerHTML = scannedItems.map(item => {
-    // Beste Bezeichnung wählen: bez1 wenn vorhanden, sonst bez2, sonst description
-    const name = (item.bez1 && item.bez1.trim().length >= 3)
-      ? item.bez1
-      : (item.bez2 && item.bez2.trim().length >= 3)
-        ? item.bez2
-        : (item.description || '–');
+    // Bezeichnung: bez1 wenn >=3 Buchstaben, sonst bez2, sonst nur Barcode-Nummer
+    let name;
+    if(hatBuchstaben(item.bez1))       name = item.bez1;
+    else if(hatBuchstaben(item.bez2))  name = item.bez2;
+    else                               name = item.barcode; // keine echte Bez. → nur Nummer
+
     return `
     <div class="articleCard ${item.unknown?'unknown':''}" data-barcode="${esc(item.barcode)}">
       <div class="cardStripe"></div>
       <div class="cardBody">
-        <div class="cardNum">${esc(item.number)} ${item.unknown?'<span class="unknownBadge">⚠ Unbekannt</span>':''}</div>
+        <div class="cardNum">${esc(item.number)}${item.unknown?' <span class="unknownBadge">⚠ Unbekannt</span>':''}</div>
         <div class="cardName" title="${esc(name)}">${esc(name)}</div>
         <div class="cardBC">Barcode: ${esc(item.barcode)}</div>
       </div>
@@ -634,7 +645,7 @@ function renderList(){
           <span class="qtyNum">${item.qty||1}</span>
           <button class="qtyPlus" onclick="changeQty('${esc(item.barcode)}',+1)">+</button>
         </div>
-        <button class="deleteBtn" onclick="removeItem('${esc(item.barcode)}')" title="Entfernen">✕</button>
+        <button class="deleteBtn" onclick="removeItem('${esc(item.barcode)}')" title="Löschen">🗑</button>
       </div>
     </div>`; }).join('');
 }
