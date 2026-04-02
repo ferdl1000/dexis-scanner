@@ -87,86 +87,64 @@ html,body{height:100%;background:var(--bg);color:var(--text);font-family:'Segoe 
 
 #scanStatus{margin-top:8px;font-size:16px;color:var(--muted);min-height:22px;}
 
+/* SCAN-BUTTON */
+#scanBtn{
+  width:100%;min-height:62px;font-size:22px;font-weight:700;
+  background:var(--primary);color:#fff;border:none;border-radius:12px;
+  cursor:pointer;margin-bottom:12px;letter-spacing:.5px;
+  box-shadow:0 4px 14px rgba(26,35,126,.3);
+  transition:.2s;display:flex;align-items:center;justify-content:center;gap:10px;
+}
+#scanBtn.ready{background:var(--primary);}
+#scanBtn.waiting{background:#78909c;cursor:not-allowed;}
+#scanBtn.scanned{background:var(--success);}
+#scanCountdown{font-size:14px;font-weight:400;opacity:.85;}
+
 /* ARTIKEL LISTE */
 #articleCount{font-size:16px;color:var(--muted);margin-bottom:10px;}
 #emptyHint{text-align:center;padding:24px 0;color:#aaa;font-size:17px;display:block;}
 
 .articleCard{
-  background:var(--card);border-radius:12px;padding:0;
-  margin-bottom:10px;border:2px solid var(--border);
+  background:var(--card);border-radius:12px;
+  margin-bottom:8px;border:2px solid var(--border);
   box-shadow:0 1px 6px rgba(26,35,126,.08);
-  overflow:hidden;transition:border-color .2s;
+  display:flex;align-items:stretch;overflow:hidden;
+  transition:border-color .2s;
 }
-.articleCard.unknown{border-color:#ffa726;}
-.articleCard.new-flash{animation:cardFlash .5s ease;}
-@keyframes cardFlash{0%{background:#e3f2fd}100%{background:var(--card)}}
+.articleCard.unknown{border-color:#ffa726;background:#fffbf0;}
+.articleCard.new-flash{animation:cardFlash .4s ease;}
+@keyframes cardFlash{0%{background:#c8e6ff}100%{background:var(--card)}}
 
-/* Kompakte Tabellenzeile */
-.cardRow{
-  display:grid;
-  grid-template-columns: 90px 1fr 1fr 110px 70px 44px;
-  align-items:center;
-  gap:0;
-  min-height:52px;
-}
-.cardCell{
-  padding:10px 10px;font-size:15px;color:var(--text);
-  border-right:1px solid var(--border);overflow:hidden;
-  white-space:nowrap;text-overflow:ellipsis;
-}
-.cardCell:last-child{border-right:none;}
-.cardCell.cell-num{font-weight:700;color:var(--primary);font-size:14px;}
-.cardCell.cell-bez1{font-size:14px;}
-.cardCell.cell-bez2{font-size:13px;color:var(--muted);}
-.cardCell.cell-bc{font-size:12px;color:var(--muted);font-family:monospace;}
-.cardCell.cell-qty{text-align:center;padding:4px 6px;}
-.cardCell.cell-del{text-align:center;padding:4px;}
+/* Linker farbiger Streifen */
+.cardStripe{width:6px;background:var(--primary);flex-shrink:0;}
+.articleCard.unknown .cardStripe{background:#ffa726;}
 
-/* Tabellen-Header */
-.cardHeader{
-  display:grid;
-  grid-template-columns: 90px 1fr 1fr 110px 70px 44px;
-  background:var(--primary);color:#fff;
-  font-size:12px;font-weight:700;letter-spacing:.3px;
-}
-.cardHeader span{padding:6px 10px;border-right:1px solid rgba(255,255,255,.2);}
-.cardHeader span:last-child{border-right:none;}
+/* Hauptinhalt */
+.cardBody{flex:1;padding:10px 12px;min-width:0;}
+.cardNum{font-size:15px;font-weight:800;color:var(--primary);letter-spacing:.3px;}
+.cardName{font-size:16px;font-weight:600;color:var(--text);margin-top:2px;
+  white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+.cardBC{font-size:12px;color:var(--muted);font-family:monospace;margin-top:2px;}
+.unknownBadge{font-size:12px;color:#f57c00;font-weight:700;}
 
-.qtyBadge{
-  display:flex;align-items:center;gap:4px;justify-content:center;
-  background:#fff;border:1px solid var(--border);border-radius:8px;
-  padding:3px 4px;
-}
+/* Menge + Löschen */
+.cardRight{display:flex;flex-direction:column;align-items:center;
+  justify-content:space-between;padding:8px 10px;gap:6px;flex-shrink:0;}
+.qtyBadge{display:flex;align-items:center;gap:4px;}
 .qtyMinus,.qtyPlus{
-  width:28px;height:28px;border:none;border-radius:6px;
-  font-size:18px;font-weight:700;cursor:pointer;
-  display:flex;align-items:center;justify-content:center;
-}
-.qtyMinus{background:#ffebee;color:var(--danger);}
-.qtyPlus{background:#e8f5e9;color:var(--success);}
-.qtyNum{min-width:22px;text-align:center;font-size:17px;font-weight:700;}
-.unknownBadge{font-size:11px;color:#f57c00;font-weight:700;display:block;}
-
-.qtyBadge{
-  display:flex;align-items:center;gap:6px;
-  background:#fff;border:2px solid var(--border);border-radius:10px;
-  padding:4px 6px;flex-shrink:0;
-}
-.qtyMinus,.qtyPlus{
-  width:34px;height:34px;border:none;border-radius:7px;
+  width:34px;height:34px;border:none;border-radius:8px;
   font-size:22px;font-weight:700;cursor:pointer;
   display:flex;align-items:center;justify-content:center;
 }
 .qtyMinus{background:#ffebee;color:var(--danger);}
 .qtyPlus{background:#e8f5e9;color:var(--success);}
-.qtyNum{min-width:28px;text-align:center;font-size:20px;font-weight:700;}
-
+.qtyNum{min-width:28px;text-align:center;font-size:20px;font-weight:700;color:var(--text);}
 .deleteBtn{
-  width:44px;height:44px;border:none;background:#ffebee;color:var(--danger);
-  border-radius:10px;font-size:22px;font-weight:700;cursor:pointer;
-  flex-shrink:0;display:flex;align-items:center;justify-content:center;
+  width:36px;height:36px;border:none;background:#ffebee;color:var(--danger);
+  border-radius:8px;font-size:18px;font-weight:700;cursor:pointer;
+  display:flex;align-items:center;justify-content:center;
 }
-.deleteBtn:hover{background:var(--danger);color:#fff;}
+.deleteBtn:active{background:var(--danger);color:#fff;}
 
 /* KUNDENDATEN */
 .formRow{display:flex;flex-direction:column;gap:6px;margin-bottom:14px;}
@@ -314,13 +292,18 @@ html,body{height:100%;background:var(--bg);color:var(--text);font-family:'Segoe 
       <button id="switchCameraBtn" onclick="switchCamera()">🔄 Kamera wechseln</button>
     </div>
 
+    <button id="scanBtn" class="ready" onclick="onScanBtnClick()">
+      📷 SCANNEN
+      <span id="scanCountdown"></span>
+    </button>
+
     <div id="scanInputWrap">
-      <input type="text" id="scanInput" placeholder="Barcode scannen oder eingeben..."
+      <input type="text" id="scanInput" placeholder="Barcode manuell eingeben..."
              autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false"
              inputmode="none">
       <button id="clearScanBtn" onclick="clearScanInput()" title="Leeren">✕</button>
     </div>
-    <div id="scanStatus">Bereit zum Scannen.</div>
+    <div id="scanStatus">Bereit – SCANNEN drücken.</div>
   </div>
 
   <!-- ARTIKEL LISTE -->
@@ -488,20 +471,63 @@ function saveCustomer(){
 }
 
 // ===== ARTIKEL HINZUFÜGEN =====
-// Scan-Sperre: 2 Sekunden Pause nach jedem Scan
-let lastScanTime = 0;
-const SCAN_COOLDOWN_MS = 2000;
+// ===== SCAN-BUTTON LOGIK =====
+const SCAN_COOLDOWN_SEC = 10;
+let scanEnabled = false;      // Nur aktiv wenn Benutzer Knopf gedrückt hat
+let cooldownTimer = null;
+let countdownInterval = null;
+
+function onScanBtnClick(){
+  if(scanEnabled) return; // schon aktiv
+  enableScan();
+}
+
+function enableScan(){
+  scanEnabled = true;
+  const btn = document.getElementById('scanBtn');
+  const cd  = document.getElementById('scanCountdown');
+  btn.className = 'ready';
+  btn.childNodes[0].textContent = '📷 BEREIT – jetzt scannen! ';
+  cd.textContent = '';
+  setStatus('Jetzt Barcode scannen!');
+
+  // Nach 10 Sekunden automatisch wieder sperren
+  clearTimeout(cooldownTimer);
+  clearInterval(countdownInterval);
+  let sec = SCAN_COOLDOWN_SEC;
+  countdownInterval = setInterval(() => {
+    sec--;
+    cd.textContent = '(' + sec + 's)';
+    if(sec <= 0){
+      clearInterval(countdownInterval);
+      disableScan();
+    }
+  }, 1000);
+}
+
+function disableScan(){
+  scanEnabled = false;
+  clearInterval(countdownInterval);
+  clearTimeout(cooldownTimer);
+  const btn = document.getElementById('scanBtn');
+  const cd  = document.getElementById('scanCountdown');
+  btn.className = 'waiting';
+  btn.childNodes[0].textContent = '📷 SCANNEN ';
+  cd.textContent = '';
+  setStatus('SCANNEN drücken um nächsten Artikel zu scannen.');
+}
+
+function afterScan(){
+  // Nach erfolgreichem Scan: Sperre sofort
+  disableScan();
+}
 
 function addBarcode(raw){
   const code = String(raw).trim();
   if(!code) return;
 
-  // Cooldown prüfen
-  const now = Date.now();
-  if(now - lastScanTime < SCAN_COOLDOWN_MS){
-    return; // Zu schnell – ignorieren
-  }
-  lastScanTime = now;
+  // Scan nur erlaubt wenn Button gedrückt
+  if(!scanEnabled) return;
 
   let article = BARCODE_MAP[code] || NUMBER_MAP[code] || null;
   const existing = scannedItems.find(i => i.barcode === code || (article && i.number === article.number));
@@ -549,6 +575,7 @@ function addBarcode(raw){
     showToast('OK: ' + article.number, 'success');
     vibrate([50]);
   }
+  afterScan(); // Scan sperren bis nächster Knopfdruck
 }
 
 function removeItem(barcode){
@@ -586,42 +613,30 @@ function renderList(){
   count.textContent = scannedItems.length + ' Artikel | ' +
     scannedItems.reduce((s,i) => s + (i.qty||1), 0) + ' Stück gesamt';
 
-  // Tabellen-Header (einmalig)
-  const header = `
-    <div class="cardHeader">
-      <span>Art.Nr.</span>
-      <span>Bezeichnung 1</span>
-      <span>Bezeichnung 2</span>
-      <span>Barcode</span>
-      <span>Stück</span>
-      <span></span>
-    </div>`;
-
-  const rows = scannedItems.map(item => `
+  list.innerHTML = scannedItems.map(item => {
+    // Beste Bezeichnung wählen: bez1 wenn vorhanden, sonst bez2, sonst description
+    const name = (item.bez1 && item.bez1.trim().length >= 3)
+      ? item.bez1
+      : (item.bez2 && item.bez2.trim().length >= 3)
+        ? item.bez2
+        : (item.description || '–');
+    return `
     <div class="articleCard ${item.unknown?'unknown':''}" data-barcode="${esc(item.barcode)}">
-      <div class="cardRow">
-        <div class="cardCell cell-num">
-          ${esc(item.number)}
-          ${item.unknown ? '<span class="unknownBadge">⚠ Unbekannt</span>' : ''}
-        </div>
-        <div class="cardCell cell-bez1" title="${esc(item.bez1||item.description)}">${esc(item.bez1||item.description)}</div>
-        <div class="cardCell cell-bez2" title="${esc(item.bez2||'')}">${esc(item.bez2||'–')}</div>
-        <div class="cardCell cell-bc">${esc(item.barcode)}</div>
-        <div class="cardCell cell-qty">
-          <div class="qtyBadge">
-            <button class="qtyMinus" onclick="changeQty('${esc(item.barcode)}',-1)">−</button>
-            <span class="qtyNum">${item.qty||1}</span>
-            <button class="qtyPlus" onclick="changeQty('${esc(item.barcode)}',+1)">+</button>
-          </div>
-        </div>
-        <div class="cardCell cell-del">
-          <button class="deleteBtn" onclick="removeItem('${esc(item.barcode)}')" title="Entfernen">✕</button>
-        </div>
+      <div class="cardStripe"></div>
+      <div class="cardBody">
+        <div class="cardNum">${esc(item.number)} ${item.unknown?'<span class="unknownBadge">⚠ Unbekannt</span>':''}</div>
+        <div class="cardName" title="${esc(name)}">${esc(name)}</div>
+        <div class="cardBC">Barcode: ${esc(item.barcode)}</div>
       </div>
-    </div>
-  `).join('');
-
-  list.innerHTML = header + rows;
+      <div class="cardRight">
+        <div class="qtyBadge">
+          <button class="qtyMinus" onclick="changeQty('${esc(item.barcode)}',-1)">−</button>
+          <span class="qtyNum">${item.qty||1}</span>
+          <button class="qtyPlus" onclick="changeQty('${esc(item.barcode)}',+1)">+</button>
+        </div>
+        <button class="deleteBtn" onclick="removeItem('${esc(item.barcode)}')" title="Entfernen">✕</button>
+      </div>
+    </div>`; }).join('');
 }
 
 function esc(s){
@@ -638,7 +653,10 @@ let usbTimer = null;
 document.getElementById('scanInput').addEventListener('keydown', function(e){
   if(e.key === 'Enter'){
     const val = this.value.trim();
-    if(val){ addBarcode(val); }
+    if(val){
+      scanEnabled = true; // Manuell eingetippt = immer erlaubt
+      addBarcode(val);
+    }
     this.value = '';
     e.preventDefault();
   }
