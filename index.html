@@ -1,0 +1,959 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<title>DEXIS Scanner</title>
+<style>
+:root{
+  --primary:#1a237e;--primary-light:#3949ab;--primary-dark:#0d1257;
+  --danger:#c62828;--danger-light:#ef5350;
+  --success:#2e7d32;--warn:#e65100;
+  --bg:#f5f6fa;--card:#fff;--text:#1a1a2e;--muted:#666;
+  --border:#dde1f0;--radius:14px;--shadow:0 2px 12px rgba(26,35,126,.10);
+}
+*{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent;}
+html,body{height:100%;background:var(--bg);color:var(--text);font-family:'Segoe UI',Arial,sans-serif;font-size:18px;}
+
+/* HEADER */
+#header{
+  position:sticky;top:0;z-index:100;
+  background:var(--primary);color:#fff;
+  display:flex;align-items:center;justify-content:space-between;
+  padding:0 16px;height:60px;
+  box-shadow:0 2px 8px rgba(0,0,0,.3);
+}
+#header h1{font-size:22px;font-weight:700;letter-spacing:.5px;}
+#menuBtn{
+  background:none;border:none;color:#fff;cursor:pointer;
+  padding:8px;border-radius:8px;display:flex;flex-direction:column;gap:5px;
+  min-width:44px;min-height:44px;align-items:center;justify-content:center;
+}
+#menuBtn span{display:block;width:26px;height:3px;background:#fff;border-radius:2px;}
+
+/* MAIN */
+#main{max-width:700px;margin:0 auto;padding:16px 12px 100px;}
+
+/* SECTIONS */
+.section{background:var(--card);border-radius:var(--radius);box-shadow:var(--shadow);padding:18px 16px;margin-bottom:16px;}
+.section h2{font-size:20px;font-weight:700;color:var(--primary);margin-bottom:14px;display:flex;align-items:center;gap:8px;}
+.section h2 .icon{font-size:22px;}
+
+/* SCANNER AREA */
+#cameraContainer{position:relative;width:100%;max-width:420px;margin:0 auto 14px;display:none;}
+#videoEl{width:100%;border-radius:12px;background:#000;}
+#scanOverlay{
+  position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);
+  width:70%;height:40%;border:3px solid #fff;border-radius:8px;
+  box-shadow:0 0 0 9999px rgba(0,0,0,.45);pointer-events:none;
+}
+#scanLine{
+  position:absolute;top:0;left:0;right:0;height:3px;background:#ef5350;
+  animation:scanAnim 2s linear infinite;
+}
+@keyframes scanAnim{0%{top:0}50%{top:calc(100% - 3px)}100%{top:0}}
+
+#switchCameraBtn{
+  display:none;position:absolute;top:8px;right:8px;
+  background:rgba(0,0,0,.55);color:#fff;border:none;border-radius:8px;
+  padding:8px 12px;font-size:16px;cursor:pointer;
+}
+
+.scanMode{display:flex;gap:8px;margin-bottom:12px;flex-wrap:wrap;}
+.modeBtn{
+  flex:1;min-width:130px;min-height:44px;border:2px solid var(--primary);
+  background:#fff;color:var(--primary);border-radius:10px;
+  font-size:17px;font-weight:600;cursor:pointer;transition:.2s;
+}
+.modeBtn.active{background:var(--primary);color:#fff;}
+
+#scanInputWrap{position:relative;}
+#scanInput{
+  width:100%;min-height:58px;font-size:20px;padding:10px 52px 10px 16px;
+  border:3px solid var(--primary);border-radius:12px;outline:none;
+  background:#fff;color:var(--text);
+  transition:border-color .2s;
+}
+#scanInput:focus{border-color:var(--primary-light);box-shadow:0 0 0 3px rgba(57,73,171,.18);}
+#scanInput::placeholder{color:#aaa;}
+#clearScanBtn{
+  position:absolute;right:12px;top:50%;transform:translateY(-50%);
+  background:none;border:none;font-size:24px;cursor:pointer;color:#aaa;
+  min-width:40px;min-height:40px;display:flex;align-items:center;justify-content:center;
+}
+
+#scanStatus{margin-top:8px;font-size:16px;color:var(--muted);min-height:22px;}
+
+/* ARTIKEL LISTE */
+#articleCount{font-size:16px;color:var(--muted);margin-bottom:10px;}
+#emptyHint{text-align:center;padding:24px 0;color:#aaa;font-size:17px;display:block;}
+
+.articleCard{
+  display:flex;align-items:center;gap:12px;
+  background:var(--bg);border-radius:12px;padding:12px 14px;
+  margin-bottom:10px;border:2px solid transparent;
+  transition:border-color .2s;
+}
+.articleCard.unknown{border-color:#ffa726;background:#fff8e1;}
+.articleCard.new-flash{animation:cardFlash .5s ease;}
+@keyframes cardFlash{0%{background:#e3f2fd}100%{background:var(--bg)}}
+
+.cardInfo{flex:1;min-width:0;}
+.cardNum{font-size:15px;color:var(--primary);font-weight:700;}
+.cardDesc{font-size:16px;color:var(--text);word-break:break-word;margin-top:2px;}
+.cardUnknown{font-size:14px;color:#f57c00;font-weight:600;}
+.cardMeta{font-size:13px;color:var(--muted);margin-top:3px;}
+
+.qtyBadge{
+  display:flex;align-items:center;gap:6px;
+  background:#fff;border:2px solid var(--border);border-radius:10px;
+  padding:4px 6px;flex-shrink:0;
+}
+.qtyMinus,.qtyPlus{
+  width:34px;height:34px;border:none;border-radius:7px;
+  font-size:22px;font-weight:700;cursor:pointer;
+  display:flex;align-items:center;justify-content:center;
+}
+.qtyMinus{background:#ffebee;color:var(--danger);}
+.qtyPlus{background:#e8f5e9;color:var(--success);}
+.qtyNum{min-width:28px;text-align:center;font-size:20px;font-weight:700;}
+
+.deleteBtn{
+  width:44px;height:44px;border:none;background:#ffebee;color:var(--danger);
+  border-radius:10px;font-size:22px;font-weight:700;cursor:pointer;
+  flex-shrink:0;display:flex;align-items:center;justify-content:center;
+}
+.deleteBtn:hover{background:var(--danger);color:#fff;}
+
+/* KUNDENDATEN */
+.formRow{display:flex;flex-direction:column;gap:6px;margin-bottom:14px;}
+.formRow label{font-size:20px;font-weight:700;color:var(--text);}
+.formRow label .req{color:var(--danger);}
+.formRow input,.formRow textarea{
+  width:100%;min-height:52px;font-size:18px;padding:10px 14px;
+  border:2px solid var(--border);border-radius:10px;outline:none;
+  font-family:inherit;background:#fff;color:var(--text);
+  transition:border-color .2s;
+}
+.formRow input:focus,.formRow textarea:focus{border-color:var(--primary);}
+.formRow input.error{border-color:var(--danger);}
+.formRow textarea{min-height:80px;resize:vertical;}
+
+/* FERTIG BUTTON */
+#fertigBtn{
+  width:100%;min-height:64px;font-size:24px;font-weight:700;
+  background:var(--success);color:#fff;border:none;border-radius:14px;
+  cursor:pointer;letter-spacing:.5px;box-shadow:0 4px 16px rgba(46,125,50,.3);
+  transition:.2s;display:flex;align-items:center;justify-content:center;gap:10px;
+}
+#fertigBtn:hover{background:#1b5e20;transform:translateY(-1px);}
+#fertigBtn:active{transform:translateY(0);}
+
+/* TOAST */
+#toastContainer{
+  position:fixed;bottom:24px;left:50%;transform:translateX(-50%);
+  z-index:9999;display:flex;flex-direction:column;gap:8px;
+  pointer-events:none;max-width:90vw;
+}
+.toast{
+  background:#323232;color:#fff;padding:14px 22px;border-radius:12px;
+  font-size:17px;text-align:center;pointer-events:auto;
+  animation:toastIn .3s ease;box-shadow:0 4px 16px rgba(0,0,0,.3);
+  min-width:200px;
+}
+.toast.success{background:var(--success);}
+.toast.error{background:var(--danger);}
+.toast.warn{background:var(--warn);}
+@keyframes toastIn{from{opacity:0;transform:translateY(20px)}to{opacity:1;transform:translateY(0)}}
+
+/* SETTINGS MODAL */
+#settingsOverlay{
+  display:none;position:fixed;inset:0;z-index:200;
+  background:rgba(0,0,0,.55);align-items:flex-start;justify-content:flex-end;
+}
+#settingsOverlay.open{display:flex;}
+#settingsPanel{
+  background:#fff;width:320px;max-width:95vw;height:100%;
+  overflow-y:auto;padding:24px 20px;
+  box-shadow:-4px 0 24px rgba(0,0,0,.2);
+}
+#settingsPanel h2{font-size:22px;color:var(--primary);margin-bottom:20px;}
+.settingRow{margin-bottom:18px;}
+.settingRow label{display:block;font-size:17px;font-weight:600;margin-bottom:6px;}
+.settingRow input[type=text],.settingRow input[type=email]{
+  width:100%;min-height:48px;font-size:16px;padding:8px 12px;
+  border:2px solid var(--border);border-radius:10px;outline:none;
+}
+.settingRow input:focus{border-color:var(--primary);}
+.settingRow select{
+  width:100%;min-height:48px;font-size:16px;padding:8px 12px;
+  border:2px solid var(--border);border-radius:10px;background:#fff;
+}
+.settingInfo{font-size:14px;color:var(--muted);margin-top:4px;}
+#closeSettingsBtn{
+  width:100%;min-height:52px;font-size:18px;font-weight:700;
+  background:var(--primary);color:#fff;border:none;border-radius:12px;
+  cursor:pointer;margin-top:10px;
+}
+#dangerClearBtn{
+  width:100%;min-height:52px;font-size:17px;
+  background:#ffebee;color:var(--danger);border:2px solid var(--danger);
+  border-radius:12px;cursor:pointer;font-weight:600;margin-top:8px;
+}
+
+/* SETUP MODAL */
+#setupOverlay{
+  display:none;position:fixed;inset:0;z-index:300;
+  background:rgba(0,0,0,.65);align-items:center;justify-content:center;padding:16px;
+}
+#setupOverlay.open{display:flex;}
+#setupPanel{
+  background:#fff;border-radius:18px;padding:28px 24px;
+  max-width:480px;width:100%;box-shadow:0 8px 40px rgba(0,0,0,.3);
+  max-height:90vh;overflow-y:auto;
+}
+#setupPanel h2{font-size:22px;color:var(--primary);margin-bottom:6px;}
+#setupPanel .subtitle{color:var(--muted);font-size:16px;margin-bottom:20px;}
+.setupOption{
+  border:2px solid var(--border);border-radius:12px;padding:16px 14px;
+  margin-bottom:12px;cursor:pointer;transition:.2s;
+}
+.setupOption:hover{border-color:var(--primary);background:#f0f3ff;}
+.setupOption h3{font-size:18px;color:var(--primary);margin-bottom:4px;}
+.setupOption p{font-size:15px;color:var(--muted);}
+#closeSetupBtn{
+  width:100%;min-height:52px;font-size:17px;
+  background:var(--bg);color:var(--text);border:2px solid var(--border);
+  border-radius:12px;cursor:pointer;margin-top:6px;font-weight:600;
+}
+
+/* FAB Scroll-to-top */
+#fabScroll{
+  display:none;position:fixed;bottom:84px;right:16px;z-index:50;
+  width:52px;height:52px;border-radius:50%;
+  background:var(--primary);color:#fff;border:none;cursor:pointer;
+  font-size:24px;box-shadow:0 4px 16px rgba(26,35,126,.4);
+}
+
+@media(max-width:480px){
+  #main{padding:10px 8px 90px;}
+  .section{padding:14px 12px;}
+  .articleCard{padding:10px 10px;}
+  .cardDesc{font-size:15px;}
+}
+</style>
+</head>
+<body>
+
+<!-- HEADER -->
+<div id="header">
+  <h1>DEXIS Scanner</h1>
+  <button id="menuBtn" aria-label="Einstellungen" onclick="openSettings()">
+    <span></span><span></span><span></span>
+  </button>
+</div>
+
+<!-- MAIN -->
+<div id="main">
+
+  <!-- SCANNER SECTION -->
+  <div class="section">
+    <h2><span class="icon">📷</span> Barcode scannen</h2>
+
+    <div class="scanMode">
+      <button class="modeBtn active" id="btnModeAuto"   onclick="setMode('auto')">Automatisch</button>
+      <button class="modeBtn"        id="btnModeCamera" onclick="setMode('camera')">Kamera</button>
+      <button class="modeBtn"        id="btnModeUSB"    onclick="setMode('usb')">USB-Scanner</button>
+    </div>
+
+    <div id="cameraContainer">
+      <video id="videoEl" autoplay muted playsinline></video>
+      <div id="scanOverlay"><div id="scanLine"></div></div>
+      <button id="switchCameraBtn" onclick="switchCamera()">🔄</button>
+    </div>
+
+    <div id="scanInputWrap">
+      <input type="text" id="scanInput" placeholder="Barcode scannen oder eingeben..."
+             autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false"
+             inputmode="none">
+      <button id="clearScanBtn" onclick="clearScanInput()" title="Leeren">✕</button>
+    </div>
+    <div id="scanStatus">Bereit zum Scannen.</div>
+  </div>
+
+  <!-- ARTIKEL LISTE -->
+  <div class="section">
+    <h2><span class="icon">📋</span> Gescannte Artikel</h2>
+    <div id="articleCount"></div>
+    <span id="emptyHint">Noch keine Artikel gescannt.</span>
+    <div id="articleList"></div>
+  </div>
+
+  <!-- KUNDENDATEN -->
+  <div class="section">
+    <h2><span class="icon">👤</span> Kundendaten</h2>
+    <div class="formRow">
+      <label for="custName">Name <span class="req">*</span></label>
+      <input type="text" id="custName" placeholder="Kundenname" oninput="saveCustomer()">
+    </div>
+    <div class="formRow">
+      <label for="custAddr">Adresse</label>
+      <textarea id="custAddr" placeholder="Strasse, PLZ Ort (optional)" oninput="saveCustomer()"></textarea>
+    </div>
+  </div>
+
+  <!-- FERTIG BUTTON -->
+  <button id="fertigBtn" onclick="onFertig()">
+    FERTIG ✓
+  </button>
+
+</div><!-- /main -->
+
+<!-- SCROLL FAB -->
+<button id="fabScroll" onclick="window.scrollTo({top:0,behavior:'smooth'})" title="Nach oben">▲</button>
+
+<!-- TOAST CONTAINER -->
+<div id="toastContainer"></div>
+
+<!-- SETTINGS OVERLAY -->
+<div id="settingsOverlay" onclick="overlayClick(event,'settingsOverlay')">
+<div id="settingsPanel">
+  <h2>⚙️ Einstellungen</h2>
+
+  <div class="settingRow">
+    <label>Firmenname (PDF-Kopfzeile)</label>
+    <input type="text" id="setFirma" value="DEXIS" oninput="saveSetting('firma',this.value)">
+  </div>
+  <div class="settingRow">
+    <label>E-Mail Empfänger</label>
+    <input type="email" id="setEmail" value="office@kfz-dorn.at" oninput="saveSetting('email',this.value)">
+  </div>
+  <div class="settingRow">
+    <label>E-Mail CC</label>
+    <input type="email" id="setEmailCC" placeholder="cc@beispiel.at" oninput="saveSetting('emailCC',this.value)">
+  </div>
+  <div class="settingRow">
+    <label>Scanner-Modus</label>
+    <select id="setMode" onchange="saveSetting('mode',this.value);applyMode(this.value)">
+      <option value="auto">Automatisch</option>
+      <option value="camera">Kamera</option>
+      <option value="usb">USB-Tastatur</option>
+    </select>
+  </div>
+  <div class="settingRow">
+    <label>Kamera wählen</label>
+    <select id="setCameraSelect" onchange="changeCamera(this.value)">
+      <option value="">– Standardkamera –</option>
+    </select>
+    <div class="settingInfo">Wird nach Kamerastart befüllt</div>
+  </div>
+  <div class="settingRow">
+    <div class="settingInfo" id="dbInfo"></div>
+  </div>
+  <div class="settingRow">
+    <div class="settingInfo">App-Version: 1.0.0 | Artikel in DB: <span id="dbCount"></span></div>
+  </div>
+
+  <button id="dangerClearBtn" onclick="confirmClear()">🗑️ Liste komplett löschen</button>
+  <button id="closeSettingsBtn" onclick="closeSettings()">Schließen ✕</button>
+</div>
+</div>
+
+<!-- SETUP MODAL (Erste Schritte) -->
+<div id="setupOverlay">
+<div id="setupPanel">
+  <h2>📱 Einrichtung (einmalig)</h2>
+  <p class="subtitle">Damit der Kamera-Scanner funktioniert, muss die App über HTTPS aufgerufen werden. Wähle eine Option:</p>
+
+  <div class="setupOption" onclick="closeSetup()">
+    <h3>Option A – Kostenlose Online-URL (empfohlen)</h3>
+    <p>Skript <b>deploy_github.bat</b> doppelklicken → ergibt eine permanente HTTPS-URL wie<br>
+    <tt>https://deinname.github.io/dexis-scanner</tt><br>
+    Funktioniert auf allen Geräten, kostenlos, für immer.</p>
+  </div>
+
+  <div class="setupOption" onclick="closeSetup()">
+    <h3>Option B – Nur im Heimnetzwerk</h3>
+    <p>Skript <b>local_server.py</b> doppelklicken → QR-Code erscheint im Fenster → Mit Handy scannen (Browser-Warnung einmalig bestätigen).</p>
+  </div>
+
+  <div class="setupOption" onclick="closeSetup()">
+    <h3>Option C – Kurz testen (temporär)</h3>
+    <p>Skript <b>tunnel.py</b> doppelklicken → Temporäre HTTPS-URL erscheint → Link öffnen (gilt nur solange Fenster offen).</p>
+  </div>
+
+  <p style="font-size:14px;color:#888;margin:10px 0 6px;text-align:center;">
+    ℹ️ Kamera funktioniert nur über HTTPS oder localhost – nicht über file://
+  </p>
+  <button id="closeSetupBtn" onclick="closeSetup()">Schließen – ich kümmere mich später</button>
+</div>
+</div>
+
+<script src="https://unpkg.com/@zxing/library@0.21.3/umd/index.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.6.0/jspdf.plugin.autotable.min.js"></script>
+
+<script>
+// ===== ARTIKEL DATENBANK =====
+const ARTICLES_DB = [{"barcode":"100093200005","number":"1000932","description":"24 3806 000 000 2SNK DN06 DIN/EN857 - Hydraulikschlauch m. Stahlgeflechtslagen","orderQty":"5"},{"barcode":"100093300005","number":"1000933","description":"24 3808 000 000 2SNK DN08 DIN/EN857 - Hydraulikschlauch m. Stahlgeflechtslagen","orderQty":"5"},{"barcode":"100093600005","number":"1000936","description":"24 3810 000 000 2SNK DN10 DIN/EN857 - Hydraulikschlauch m. Stahlgeflechtslagen","orderQty":"5"},{"barcode":"1000939","number":"1000939","description":"24 3813 000 000 2SNK DN12 DIN/EN857 - Hydraulikschlauch m. Stahlgeflechtslagen","orderQty":"0"},{"barcode":"100094000005","number":"1000940","description":"24 3816 000 000 2SNK DN16 DIN/EN857 - Hydraulikschlauch m. Stahlgeflechtslagen","orderQty":"5"},{"barcode":"100096900005","number":"1000969","description":"24 5016 000 000 4SP DN16 DIN/EN856 - Hydraulikschlauch m. Stahlspirallagen","orderQty":"5"},{"barcode":"100096800005","number":"1000968","description":"24 5013 000 000 4SP DN12 DIN/EN856 - Hydraulikschlauch m. Stahlspirallagen","orderQty":"5"},{"barcode":"100100300005","number":"1001003","description":"24 7132 Systemflex 2SN DN32 DIN/EN 853 - Hydraulikschlauch","orderQty":"5"},{"barcode":"100094200005","number":"1000942","description":"24 3825 000 000 2SNK DN25 DIN/EN857 - Hydraulikschlauch m. Stahlgeflechtslagen","orderQty":"5"},{"barcode":"100094100005","number":"1000941","description":"24 3820 000 000 2SNK DN20 DIN/EN857 - Hydraulikschlauch m. Stahlgeflechtslagen","orderQty":"5"},{"barcode":"100097700005","number":"1000977","description":"24 5120 000 000 SPC3-mC DN20 multiCrimp - Hydraulikschlauch multiCrimp","orderQty":"5"},{"barcode":"1000978","number":"1000978","description":"24 5125 000 000 SPC3-mC DN25 multiCrimp - Hydraulikschlauch multiCrimp","orderQty":"0"},{"barcode":"101189300050","number":"1011893","description":"PF3-DN16/0009-10 - Pressfassung 4SP Skive","orderQty":"50"},{"barcode":"1011253","number":"1011253","description":"PF3-DN20/0009-12 - Pressfassung 4SP Skive","orderQty":"0"},{"barcode":"1010522","number":"1010522","description":"PFS-DN25/0022-16 - Fassung NON Skive 1sn,2sn,2snk","orderQty":"0"},{"barcode":"101669900020","number":"1016699","description":"PFMS-DN20/0029-12 - Fassung 2sc,1sn,2sn,2snk","orderQty":"20"},{"barcode":"101555600020","number":"1015556","description":"PFMS-DN16/0029-10 - Fassung 2sc,1sn,2sn,2snk","orderQty":"20"},{"barcode":"101397600050","number":"1013976","description":"PFMS-DN10/0029-06 - Fassung 2sc,1sn,2sn,2snk","orderQty":"50"},{"barcode":"101397700050","number":"1013977","description":"PFMS-DN12/0029-08 - Fassung 2sc,1sn,2sn,2snk","orderQty":"50"},{"barcode":"101051400050","number":"1010514","description":"PFS-DN06/0022-04 - Fassung 1sn,2sn,2snk","orderQty":"50"},{"barcode":"101555500050","number":"1015555","description":"PFMS-DN08/0029-05 - Fassung 2sc,1sn,2sn,2snk","orderQty":"50"},{"barcode":"101517400005","number":"1015174","description":"A-VSÜM-BSP 3/8 IG - Verschluss-Stück","orderQty":"5"},{"barcode":"101052100005","number":"1010521","description":"PFS-DN20/0022-12 - Fassung NON Skive 1sn,2sn,2snk","orderQty":"5"},{"barcode":"090145300005","number":"0901453","description":"G 06-L OMD - Gerade Verschraubung unmontiert","orderQty":"5"},{"barcode":"090387000005","number":"0903870","description":"W 06-L OMD - Winkelverschraubung unmontiert","orderQty":"5"},{"barcode":"090127600005","number":"0901276","description":"EVW 06-L OMD - Winkelanschlussverschr. einstell. unmont","orderQty":"5"},{"barcode":"0903572","number":"0903572","description":"T 06-L OMD - T-Verschraubung unmontiert","orderQty":"0"},{"barcode":"090121300005","number":"0901213","description":"EVT 06-L OMD - T-Anschlussverschr. Einstellb. unmont.","orderQty":"5"},{"barcode":"090633000010","number":"0906330","description":"EVL 06-L OMD - L-Anschlussverschr. einstellb. unmont.","orderQty":"10"},{"barcode":"090855800005","number":"0908558","description":"KOR 08/06-L OMD - Reduzieranschluss unmontiert","orderQty":"5"},{"barcode":"090235200005","number":"0902352","description":"GZ 06-L - Gerader Dichtkegel-Verbindungsstutzen","orderQty":"5"},{"barcode":"090375700005","number":"0903757","description":"VKA 06-L/S - Verschlusskegel","orderQty":"5"},{"barcode":"090375900005","number":"0903759","description":"VKA 08-L/S - Verschlusskegel","orderQty":"5"},{"barcode":"090235600005","number":"0902356","description":"GZ 08-L - Gerader Dichtkegel-Verbindungsstutzen","orderQty":"5"},{"barcode":"0902442","number":"0902442","description":"KOR 10/08-L OMD - Reduzieranschluss unmontiert","orderQty":"0"},{"barcode":"090115700005","number":"0901157","description":"EVL 08-L OMD - L-Anschlussverschr. einstellb. unmont.","orderQty":"5"},{"barcode":"090122000005","number":"0901220","description":"EVT 08-L OMD - T-Anschlussverschr. Einstellb. unmont.","orderQty":"5"},{"barcode":"0903581","number":"0903581","description":"T 08-L OMD - T-Verschraubung unmontiert","orderQty":"0"},{"barcode":"090128300005","number":"0901283","description":"EVW 08-L OMD - Winkelanschlussverschr. einstell. unmont","orderQty":"5"},{"barcode":"090387800005","number":"0903878","description":"W 08-L OMD - Winkelverschraubung unmontiert","orderQty":"5"},{"barcode":"090146100005","number":"0901461","description":"G 08-L OMD - Gerade Verschraubung unmontiert","orderQty":"5"},{"barcode":"090138700005","number":"0901387","description":"G 10-L OMD - Gerade Verschraubung unmontiert","orderQty":"5"},{"barcode":"090380500005","number":"0903805","description":"W 10-L OMD - Winkelverschraubung unmontiert","orderQty":"5"},{"barcode":"090122500005","number":"0901225","description":"EVW 10-L OMD - Winkelanschlussverschr. einstell. unmont","orderQty":"5"},{"barcode":"0903504","number":"0903504","description":"T 10-L OMD - T-Verschraubung unmontiert","orderQty":"0"},{"barcode":"090116400005","number":"0901164","description":"EVT 10-L OMD - T-Anschlussverschr. Einstellb. unmont.","orderQty":"5"},{"barcode":"0901101","number":"0901101","description":"EVL 10-L OMD - L-Anschlussverschr. einstellb. unmont.","orderQty":"0"},{"barcode":"090244700005","number":"0902447","description":"KOR 12/10-L OMD - Reduzieranschluss unmontiert","orderQty":"5"},{"barcode":"090231800005","number":"0902318","description":"GZ 10-L - Gerader Dichtkegel-Verbindungsstutzen","orderQty":"5"},{"barcode":"090371000005","number":"0903710","description":"VKA 10-L/S - Verschlusskegel","orderQty":"5"},{"barcode":"090371200005","number":"0903712","description":"VKA 12-L/S - Verschlusskegel","orderQty":"5"},{"barcode":"090232200005","number":"0902322","description":"GZ 12-L - Gerader Dichtkegel-Verbindungsstutzen","orderQty":"5"},{"barcode":"090110900005","number":"0901109","description":"EVL 12-L OMD - L-Anschlussverschr. einstellb. unmont.","orderQty":"5"},{"barcode":"0902465","number":"0902465","description":"KOR 15/12-L OMD - Reduzieranschluss unmontiert","orderQty":"0"},{"barcode":"090117100005","number":"0901171","description":"EVT 12-L OMD - T-Anschlussverschr. Einstellb. unmont.","orderQty":"5"},{"barcode":"090351300005","number":"0903513","description":"T 12-L OMD - T-Verschraubung unmontiert","orderQty":"5"},{"barcode":"0901233","number":"0901233","description":"EVW 12-L OMD - Winkelanschlussverschr. einstell. unmont","orderQty":"0"},{"barcode":"090381400005","number":"0903814","description":"W 12-L OMD - Winkelverschraubung unmontiert","orderQty":"5"},{"barcode":"090139600020","number":"0901396","description":"G 12-L OMD - Gerade Verschraubung unmontiert","orderQty":"20"},{"barcode":"090140800005","number":"0901408","description":"G 15-L OMD - Gerade Verschraubung unmontiert","orderQty":"5"},{"barcode":"090382600005","number":"0903826","description":"W 15-L OMD - Winkelverschraubung unmontiert","orderQty":"5"},{"barcode":"090124500005","number":"0901245","description":"EVW 15-L OMD - Winkelanschlussverschr. einstell. unmont","orderQty":"5"},{"barcode":"0903525","number":"0903525","description":"T 15-L OMD - T-Verschraubung unmontiert","orderQty":"0"},{"barcode":"090118200005","number":"0901182","description":"EVT 15-L OMD - T-Anschlussverschr. Einstellb. unmont.","orderQty":"5"},{"barcode":"090112000005","number":"0901120","description":"EVL 15-L OMD - L-Anschlussverschr. einstellb. unmont.","orderQty":"5"},{"barcode":"090685700005","number":"0906857","description":"KOR 18/12-L OMD - Reduzieranschluss unmontiert","orderQty":"5"},{"barcode":"090232800005","number":"0902328","description":"GZ 15-L - Gerader Dichtkegel-Verbindungsstutzen","orderQty":"5"},{"barcode":"090371600005","number":"0903716","description":"VKA 15-L - Verschlusskegel","orderQty":"5"},{"barcode":"0903720","number":"0903720","description":"VKA 18-L - Verschlusskegel","orderQty":"0"},{"barcode":"090233300010","number":"0902333","description":"GZ 18-L - Gerader Dichtkegel-Verbindungsstutzen","orderQty":"10"},{"barcode":"0902484","number":"0902484","description":"KOR 18/15-L OMD - Reduzieranschluss unmontiert","orderQty":"0"},{"barcode":"0901128","number":"0901128","description":"EVL 18-L OMD - L-Anschlussverschr. einstellb. unmont.","orderQty":"0"},{"barcode":"090119000010","number":"0901190","description":"EVT 18-L OMD - T-Anschlussverschr. Einstellb. unmont.","orderQty":"10"},{"barcode":"0903533","number":"0903533","description":"T 18-L OMD - T-Verschraubung unmontiert","orderQty":"0"},{"barcode":"090125300005","number":"0901253","description":"EVW 18-L OMD - Winkelanschlussverschr. einstell. unmont","orderQty":"5"},{"barcode":"0903834","number":"0903834","description":"W 18-L OMD - Winkelverschraubung unmontiert","orderQty":"0"},{"barcode":"0901417","number":"0901417","description":"G 18-L OMD - Gerade Verschraubung unmontiert","orderQty":"0"},{"barcode":"090372000005","number":"0903720","description":"VKA 18-L - Verschlusskegel","orderQty":"5"},{"barcode":"090248400005","number":"0902484","description":"KOR 18/15-L OMD - Reduzieranschluss unmontiert","orderQty":"5"},{"barcode":"090233300010","number":"0902333","description":"GZ 18-L - Gerader Dichtkegel-Verbindungsstutzen","orderQty":"10"},{"barcode":"0901128","number":"0901128","description":"EVL 18-L OMD - L-Anschlussverschr. einstellb. unmont.","orderQty":"0"},{"barcode":"0901190","number":"0901190","description":"EVT 18-L OMD - T-Anschlussverschr. Einstellb. unmont.","orderQty":"0"},{"barcode":"0903533","number":"0903533","description":"T 18-L OMD - T-Verschraubung unmontiert","orderQty":"0"},{"barcode":"09012553","number":"0901255","description":"EVW 18-L - Winkelanschlussverschraubung einstellbar","orderQty":"0"},{"barcode":"090383400005","number":"0903834","description":"W 18-L OMD - Winkelverschraubung unmontiert","orderQty":"5"},{"barcode":"090141700005","number":"0901417","description":"G 18-L OMD - Gerade Verschraubung unmontiert","orderQty":"5"},{"barcode":"090142500005","number":"0901425","description":"G 22-L OMD - Gerade Verschraubung unmontiert","orderQty":"5"},{"barcode":"090384200005","number":"0903842","description":"W 22-L OMD - Winkelverschraubung unmontiert","orderQty":"5"},{"barcode":"090125900005","number":"0901259","description":"EVW 22-L OMD - Winkelanschlussverschr. einstell. unmont","orderQty":"5"},{"barcode":"0903541","number":"0903541","description":"T 22-L OMD - T-Verschraubung unmontiert","orderQty":"0"},{"barcode":"0901196","number":"0901196","description":"EVT 22-L OMD - T-Anschlussverschr. Einstellb. unmont.","orderQty":"0"},{"barcode":"0902511","number":"0902511","description":"KOR 22/18-L OMD - Reduzieranschluss unmontiert","orderQty":"0"},{"barcode":"090233700002","number":"0902337","description":"GZ 22-L - Gerader Dichtkegel-Verbindungsstutzen","orderQty":"2"},{"barcode":"0903724","number":"0903724","description":"VKA 22-L - Verschlusskegel","orderQty":"0"},{"barcode":"090055900005","number":"0900559","description":"D 10-L/S - Schneidring","orderQty":"5"},{"barcode":"090258200005","number":"0902582","description":"M 10-L - Überwurfmutter","orderQty":"5"},{"barcode":"090061400005","number":"0900614","description":"D 08-L/S - Schneidring","orderQty":"5"},{"barcode":"090262500005","number":"0902625","description":"M 08-L - Überwurfmutter","orderQty":"5"},{"barcode":"090060800005","number":"0900608","description":"D 06-L/S - Schneidring","orderQty":"5"},{"barcode":"090261900005","number":"0902619","description":"M 06-L - Überwurfmutter","orderQty":"5"},{"barcode":"090258700025","number":"0902587","description":"M 12-L - Überwurfmutter","orderQty":"25"},{"barcode":"090056300030","number":"0900563","description":"D 12-L/S - Schneidring","orderQty":"30"},{"barcode":"090259400005","number":"0902594","description":"M 15-L - Überwurfmutter","orderQty":"5"},{"barcode":"090057100005","number":"0900571","description":"D 15-L - Schneidring","orderQty":"5"},{"barcode":"090259800010","number":"0902598","description":"M 18-L - Überwurfmutter","orderQty":"10"},{"barcode":"090057800005","number":"0900578","description":"D 18-L - Schneidring","orderQty":"5"},{"barcode":"090364500005","number":"0903645","description":"TR 15/12/15-L - T-Reduzierverschraubung","orderQty":"5"},{"barcode":"090260200020","number":"0902602","description":"M 22-L - Überwurfmutter","orderQty":"20"},{"barcode":"090260600020","number":"0902606","description":"M 28-L - Überwurfmutter","orderQty":"20"},{"barcode":"0906443","number":"0906443","description":"G 28-L OMD - Gerade Verschraubung unmontiert","orderQty":"0"},{"barcode":"090059200020","number":"0900592","description":"D 28-L - Schneidring","orderQty":"20"},{"barcode":"090385000010","number":"0903850","description":"W 28-L OMD - Winkelverschraubung unmontiert","orderQty":"10"},{"barcode":"090126500010","number":"0901265","description":"EVW 28-L OMD - Winkelanschlussverschr. einstell. unmont","orderQty":"10"},{"barcode":"090372900003","number":"0903729","description":"VKA 28-L - Verschlusskegel","orderQty":"3"},{"barcode":"090059700020","number":"0900597","description":"D 35-L - Schneidring","orderQty":"20"},{"barcode":"090261000020","number":"0902610","description":"M 35-L - Überwurfmutter","orderQty":"20"},{"barcode":"101801000005","number":"1018010","description":"MC 04-10 KO Kugellager - Armatur DN06 Kärcher-Dehb.11mm","orderQty":"5"},{"barcode":"090411000010","number":"0904110","description":"WH 22-LR OMD - Winkelschwenkverschr. Hochdruck unmont.","orderQty":"10"},{"barcode":"090349300010","number":"0903493","description":"SWVE 06-LR - Winkelschwenkverschraubung","orderQty":"10"},{"barcode":"090348600005","number":"0903486","description":"SWVE 22-LR - Winkelschwenkverschraubung","orderQty":"5"},{"barcode":"090347500005","number":"0903475","description":"SWVE 15-LR OMD - Winkelschwenkverschraubung unmontiert","orderQty":"5"},{"barcode":"090346800010","number":"0903468","description":"SWVE 12-LR - Winkelschwenkverschraubung","orderQty":"10"},{"barcode":"090347600005","number":"0903476","description":"SWVE 15-LR - Winkelschwenkverschraubung","orderQty":"5"},{"barcode":"090341600010","number":"0903416","description":"SV 18-L OMD - Gerade Schottverschraubung unmontiert","orderQty":"10"},{"barcode":"090340800010","number":"0903408","description":"SV 15-L OMD - Gerade Schottverschraubung unmontiert","orderQty":"10"},{"barcode":"090339800010","number":"0903398","description":"SV 12-L OMD - Gerade Schottverschraubung unmontiert","orderQty":"10"},{"barcode":"090339100010","number":"0903391","description":"SV 10-L OMD - Gerade Schottverschraubung unmontiert","orderQty":"10"},{"barcode":"090527900010","number":"0905279","description":"SV 08-L OMD - Gerade Schottverschraubung unmontiert","orderQty":"10"},{"barcode":"090867500010","number":"0908675","description":"SV 06-L OMD - Gerade Schottverschraubung unmontiert","orderQty":"10"},{"barcode":"102516600005","number":"1025166","description":"G4 0K22 M00 100/FK50-06-22 KRZ - Nippel DKO M22x1,5-DN10 Kaerch","orderQty":"5"},{"barcode":"101449400005","number":"1014494","description":"MC 05-10 KO Kugellager - Armatur DN08 Kärcher-Dehb.11mm","orderQty":"5"},{"barcode":"100275400005","number":"1002754","description":"BKH 12-L VZ - Blockkugelhahn verzinkt","orderQty":"5"},{"barcode":"100274100005","number":"1002741","description":"BKH R 1/2\"  VZ - Blockkugelhahn verzinkt","orderQty":"5"},{"barcode":"100278700005","number":"1002787","description":"BKH R 3/8\"  VZ - Blockkugelhahn verzinkt","orderQty":"5"},{"barcode":"100278200005","number":"1002782","description":"BKH R 3/4\"  VZ - Blockkugelhahn verzinkt","orderQty":"5"},{"barcode":"100270300001","number":"1002703","description":"BK3 12-S VZ - Dreiwegblockkugelhahn verzinkt","orderQty":"1"},{"barcode":"102516500005","number":"1025165","description":"G4 0K22 M00 080/FK50-05-22 KRZ - Nippel DKO M22x1,5-DN08 Kaerch","orderQty":"5"},{"barcode":"101314200005","number":"1013142","description":"G4 0K21 M00 080/FK50-05-21 - Nippel Dkom21x1,5-DN08 Waschge","orderQty":"5"},{"barcode":"100420400005","number":"1004204","description":"G4 0K22 M00 060/FK50-04022 LG - Nippel DKO M22x1,5-DN06 Kaerch","orderQty":"5"},{"barcode":"100424800005","number":"1004248","description":"Gummihandgriff DN10 24 4410/ - F.waschgeräteschlauch 24 4510","orderQty":"5"},{"barcode":"100424700005","number":"1004247","description":"Gummihandgriff DN8 SCHWARZ ID17mm - für Hydraulikschlauch","orderQty":"5"},{"barcode":"100272200005","number":"1002722","description":"BK3 R 3/8\" VZ L-Bohrung - Dreiwegblockkugelhahn verzinkt","orderQty":"5"},{"barcode":"100269300005","number":"1002693","description":"BK3 R 1/2\" VZ - Dreiwegblockkugelhahn verzinkt","orderQty":"5"},{"barcode":"100271900005","number":"1002719","description":"BK3 R 3/4\" VZ Hebel gekröpft - Dreiwegblockkugelhahn verzinkt","orderQty":"5"},{"barcode":"100270500005","number":"1002705","description":"BK3 15-L VZ - Dreiwegblockkugelhahn verzinkt","orderQty":"5"},{"barcode":"100270000005","number":"1002700","description":"BK3 12-L VZ - Dreiwegblockkugelhahn verzinkt","orderQty":"5"},{"barcode":"100849900005","number":"1008499","description":"Handhebel BKH BK-H1 NW 4-10 - Ersatzhebel Blockkugelhahn","orderQty":"5"},{"barcode":"101206400005","number":"1012064","description":"G4 0K10 M00 080/FN50-05-22 - Nippel DKO Drehbar-DN08 Kaerch","orderQty":"5"},{"barcode":"101206300005","number":"1012063","description":"G4 0K10 M00 060/FN50-04-22 - Nippel DKO Drehbar-DN06 Kaerch","orderQty":"5"},{"barcode":"0908605","number":"0908605","description":"GR 08/06-L OMD - Gerade Reduzierverschraubung unmontiert","orderQty":"0"},{"barcode":"090225000005","number":"0902250","description":"GR 10/08-L OMD - Gerade Reduzierverschraubung unmontiert","orderQty":"5"},{"barcode":"090787500010","number":"0907875","description":"GR 12/08-L OMD - Gerade Reduzierverschraubung unmontiert","orderQty":"10"},{"barcode":"090225700005","number":"0902257","description":"GR 12/06-L OMD - Gerade Reduzierverschraubung unmontiert","orderQty":"5"},{"barcode":"090785500005","number":"0907855","description":"GR 12/10-L OMD - Gerade Reduzierverschraubung unmontiert","orderQty":"5"},{"barcode":"090227300005","number":"0902273","description":"GR 15/08-L - Gerade Reduzierverschraubung","orderQty":"5"},{"barcode":"090852100005","number":"0908521","description":"GR 15/10-L OMD - Gerade Reduzierverschraubung unmontiert","orderQty":"5"},{"barcode":"0902271","number":"0902271","description":"GR 15/12-L OMD - Gerade Reduzierverschraubung unmontiert","orderQty":"0"},{"barcode":"090165400005","number":"0901654","description":"GE 12-LM - Gerade Einschraubverschraubung","orderQty":"5"},{"barcode":"090154700010","number":"0901547","description":"GE 10-LM 16x1,5 OMD - Gerade Einschraubverschraubung unmont.","orderQty":"10"},{"barcode":"090213700010","number":"0902137","description":"GE 08-LM 16x1,5 OMD - Gerade Einschraubverschraubung unmont.","orderQty":"10"},{"barcode":"090207500010","number":"0902075","description":"GE 06-LM 16x1,5 - Gerade Einschraubverschraubung","orderQty":"10"},{"barcode":"090163900005","number":"0901639","description":"GE 12-LM 14x1,5 OMD - Gerade Einschraubverschraubung unmont.","orderQty":"5"},{"barcode":"090155600005","number":"0901556","description":"GE 10-LM OMD - Gerade Einschraubverschraubung unmont.","orderQty":"5"},{"barcode":"090213500010","number":"0902135","description":"GE 08-LM 14x1,5 OMD - Gerade Einschraubverschraubung unmont.","orderQty":"10"},{"barcode":"090214200005","number":"0902142","description":"GE 08-LM OMD - Gerade Einschraubverschraubung unmont.","orderQty":"5"},{"barcode":"090207800005","number":"0902078","description":"GE 06-LM OMD - Gerade Einschraubverschraubung unmont.","orderQty":"5"},{"barcode":"090175000005","number":"0901750","description":"GE 15-LM 16x1,5 OMD - Gerade Einschraubverschraubung unmont.","orderQty":"5"},{"barcode":"090164100010","number":"0901641","description":"GE 12-LM 18x1,5 OMD - Gerade Einschraubverschraubung unmont.","orderQty":"10"},{"barcode":"090175600005","number":"0901756","description":"GE 15-LM OMD - Gerade Einschraubverschraubung unmont.","orderQty":"5"},{"barcode":"090214000010","number":"0902140","description":"GE 08-LM 22x1,5 OMD - Gerade Einschraubverschraubung unmont.","orderQty":"10"},{"barcode":"090155300010","number":"0901553","description":"GE 10-LM 22x1,5 OMD - Gerade Einschraubverschraubung unmont.","orderQty":"10"},{"barcode":"090164600010","number":"0901646","description":"GE 12-LM 22x1,5 OMD - Gerade Einschraubverschraubung unmont.","orderQty":"10"},{"barcode":"090175300010","number":"0901753","description":"GE 15-LM 22x1,5 OMD - Gerade Einschraubverschraubung unmont.","orderQty":"10"},{"barcode":"0901834","number":"0901834","description":"GE 18-LM OMD - Gerade Einschraubverschraubung unmont.","orderQty":"0"},{"barcode":"090167400010","number":"0901674","description":"GE 12-LR OMD - Gerade Einschraubverschraubung unmont.","orderQty":"10"},{"barcode":"090157200005","number":"0901572","description":"GE 10-LR 3/8\" OMD - Gerade Einschraubverschraubung unmont.","orderQty":"5"},{"barcode":"090216100005","number":"0902161","description":"GE 08-LR 3/8\" OMD - Gerade Einschraubverschraubung unmont.","orderQty":"5"},{"barcode":"090209300010","number":"0902093","description":"GE 06-LR 3/8\" OMD - Gerade Einschraubverschraubung unmont.","orderQty":"10"},{"barcode":"0901769","number":"0901769","description":"GE 15-LR 1/4\" OMD - Gerade Einschraubverschraubung unmont.","orderQty":"0"},{"barcode":"090166600010","number":"0901666","description":"GE 12-LR 1/4\" OMD - Gerade Einschraubverschraubung unmont.","orderQty":"10"},{"barcode":"090208600010","number":"0902086","description":"GE 06-LR 1/4\" OMD - Gerade Einschraubverschraubung unmont.","orderQty":"10"},{"barcode":"090209500010","number":"0902095","description":"GE 06-LR OMD - Gerade Einschraubverschraubung unmont.","orderQty":"10"},{"barcode":"0901775","number":"0901775","description":"GE 15-LR 3/8\" OMD - Gerade Einschraubverschraubung unmont.","orderQty":"0"},{"barcode":"090156800010","number":"0901568","description":"GE 10-LR 1/2\" OMD - Gerade Einschraubverschraubung unmont.","orderQty":"10"},{"barcode":"090166200005","number":"0901662","description":"GE 12-LR 1/2\" OMD - Gerade Einschraubverschraubung unmont.","orderQty":"5"},{"barcode":"090178100005","number":"0901781","description":"GE 15-LR OMD - Gerade Einschraubverschraubung unmont.","orderQty":"5"},{"barcode":"0901854","number":"0901854","description":"GE 18-LR OMD - Gerade Einschraubverschraubung unmont.","orderQty":"0"},{"barcode":"0901917","number":"0901917","description":"GE 22-LR 1/2\" OMD - Gerade Einschraubverschraubung unmont.","orderQty":"0"},{"barcode":"090167000005","number":"0901670","description":"GE 12-LR 3/4\" OMD - Gerade Einschraubverschraubung unmont.","orderQty":"5"},{"barcode":"0901771","number":"0901771","description":"GE 15-LR 3/4\" OMD - Gerade Einschraubverschraubung unmont.","orderQty":"0"},{"barcode":"0901846","number":"0901846","description":"GE 18-LR 3/4\" OMD - Gerade Einschraubverschraubung unmont.","orderQty":"0"},{"barcode":"090999100005","number":"0909991","description":"GE 18-LR 1\"-WD OMD - Gerade Einschraubverschraubung unmont.","orderQty":"5"},{"barcode":"0901981","number":"0901981","description":"GE 28-LR OMD - Gerade Einschraubverschraubung unmont.","orderQty":"0"},{"barcode":"090191500005","number":"0901915","description":"GE 22-LR 1\" - Gerade Einschraubverschraubung","orderQty":"5"},{"barcode":"0901922","number":"0901922","description":"GE 22-LR OMD - Gerade Einschraubverschraubung unmont.","orderQty":"0"},{"barcode":"100000200005","number":"1000002","description":"A-G-BSP 1/4 AG - Adapter-Doppelnippel","orderQty":"5"},{"barcode":"100000300005","number":"1000003","description":"A-G-BSP 3/8 AG - Adapter-Doppelnippel","orderQty":"5"},{"barcode":"100000400005","number":"1000004","description":"A-G-BSP 1/2 AG - Adapter-Doppelnippel","orderQty":"5"},{"barcode":"100000500005","number":"1000005","description":"A-G-BSP 5/8 AG - Adapter-Doppelnippel","orderQty":"5"},{"barcode":"100000600005","number":"1000006","description":"A-G-BSP 3/4 AG - Adapter-Doppelnippel","orderQty":"5"},{"barcode":"100000700005","number":"1000007","description":"A-G-BSP 1 AG - Adapter-Doppelnippel","orderQty":"5"},{"barcode":"100005500005","number":"1000055","description":"A-GR-BSP 1-BSP 3/4\" AG - Adapter-Reduziernippel","orderQty":"5"},{"barcode":"100005300005","number":"1000053","description":"A-GR-BSP 3/4-BSP 1/2\" AG - Adapter-Reduziernippel","orderQty":"5"},{"barcode":"100005100005","number":"1000051","description":"A-GR-BSP 5/8-BSP 1/2\" AG - Adapter-Reduziernippel","orderQty":"5"},{"barcode":"100005000005","number":"1000050","description":"A-GR-BSP 1/2-BSP 3/8\" AG - Adapter-Reduziernippel","orderQty":"5"},{"barcode":"100004800005","number":"1000048","description":"A-GR-BSP 3/8 AG-BSP 1/4\" AG - Adapter-Reduziernippel","orderQty":"5"},{"barcode":"100572700005","number":"1005727","description":"A-GR-BSP 1/4-BSP 1/8\" AG - Adapter-Reduziernippel","orderQty":"5"},{"barcode":"090319400010","number":"0903194","description":"RI 3/4\"x1\" - Gewindereduzierstutzen","orderQty":"10"},{"barcode":"090311300010","number":"0903113","description":"RI 1\"x1/2\" - Gewindereduzierstutzen","orderQty":"10"},{"barcode":"101265700005","number":"1012657","description":"G4 0616 M00 060/S150-04-09 - Nippel ORFS 11/16-16 DN06 90GR","orderQty":"5"},{"barcode":"101265300005","number":"1012653","description":"G4 0611 M00 060/S250-04-09 - Nippel ORFS-11/16-16 DN06 45GR","orderQty":"5"},{"barcode":"101265100005","number":"1012651","description":"G4 0606 M00 060/S050-04-09 - Nippel ORFS 11/16-16 DN06","orderQty":"5"},{"barcode":"100383300005","number":"1003833","description":"G4 0605 M00 200/S050-12-14 - Nippel ORFS 1.3/16-12 DN20","orderQty":"5"},{"barcode":"100384300010","number":"1003843","description":"G4 0615 M00 060/S150-04-06 - Nippel ORFS 9 /16-18DN06 90GR","orderQty":"10"},{"barcode":"100965000005","number":"1009650","description":"G4 0610 M00 060/S250-04-06 - Nippel ORFS-9/16-18 DN06 45GR","orderQty":"5"},{"barcode":"100382900010","number":"1003829","description":"G4 0605 M00 060/S050-04-06 - Nippel ORFS  9/16-18 DN06","orderQty":"10"},{"barcode":"101392300005","number":"1013923","description":"G4 0620 M00 060/S350-04-06 - Nippel AGO-ORFS 9/16-18 DN06","orderQty":"5"},{"barcode":"101392500005","number":"1013925","description":"G4 0620 M00 100/S350-06-09 - Nippel AGO-ORFS 11/16-16 DN10","orderQty":"5"},{"barcode":"100383000005","number":"1003830","description":"G4 0605 M00 100/S050-06-09 - Nippel ORFS 11/16-16 DN10","orderQty":"5"},{"barcode":"100965100005","number":"1009651","description":"G4 0610 M00 100/S250-06-09 - Nippel ORFS-11/16-16DN 10 45GR","orderQty":"5"},{"barcode":"100384400005","number":"1003844","description":"G4 0615 M00 100/S150-06-09 - Nippel ORFS 11/16-16DN10 90 GR","orderQty":"5"},{"barcode":"101317200005","number":"1013172","description":"G4 0604 M00 130/S050-08-09 - Nippel ORFS 11/16-16 DN12","orderQty":"5"},{"barcode":"100384000005","number":"1003840","description":"G4 0606 M00 100/S050-06-11 - Nippel ORFS 13/16-16 DN10","orderQty":"5"},{"barcode":"101265500005","number":"1012655","description":"G4 0611 M00 100/S250-06-11 - Nippel ORFS-13/16-16 DN10 45GR","orderQty":"5"},{"barcode":"101193200005","number":"1011932","description":"G4 0616 M00 100/S150-06-11 - Nippel ORFS 13/16-16 DN10 90GR","orderQty":"5"},{"barcode":"101393500005","number":"1013935","description":"G4 0620 M00 130/S350-08-11 - Nippel AGO-ORFS 13/16-16 DN12","orderQty":"5"},{"barcode":"100383100005","number":"1003831","description":"G4 0605 M00 130/S050-08-11 - Nippel ORFS 13/16-16 DN12","orderQty":"5"},{"barcode":"100965200005","number":"1009652","description":"G4 0610 M00 130/S250-08-11 - Nippel ORFS 13/16-16dn12 45GR","orderQty":"5"},{"barcode":"100384500005","number":"1003845","description":"G4 0615 M00 130/S150-08-11 - Nippel ORFS 13/16-16 DN12 90GR","orderQty":"5"},{"barcode":"101393100005","number":"1013931","description":"G4 0621 M00 130/S350-08-13 - Nippel AGO-ORFS 1-14 DN12","orderQty":"5"},{"barcode":"100384100005","number":"1003841","description":"G4 0606 M00 130/S050-08-13 - Nippel ORFS  1-14   DN12","orderQty":"5"},{"barcode":"101265600005","number":"1012656","description":"G4 0611 M00 130/S250-08-13 - Nippel ORFS-1 - 14 DN12 45GR","orderQty":"5"},{"barcode":"101266000005","number":"1012660","description":"G4 0616 M00 130/S150-08-13 - Nippel ORFS 1 - 14 DN12 90GR","orderQty":"5"},{"barcode":"101392700005","number":"1013927","description":"G4 0620 M00 160/S350-10-13 - Nippel AGO-ORFS 1-14 DN16","orderQty":"5"},{"barcode":"100383200005","number":"1003832","description":"G4 0605 M00 160/S050-10-13 - Nippel ORFS  1-14    DN16","orderQty":"5"},{"barcode":"101393600005","number":"1013936","description":"G4 0622 M00 130/S350-08-14 - Nippel AGO-ORFS 1.3/16-12 DN12","orderQty":"5"},{"barcode":"100384600005","number":"1003846","description":"G4 0615 M00 160/S150-10-13 - Nippel ORFS  1-14    DN16 90GR","orderQty":"5"},{"barcode":"100965300005","number":"1009653","description":"G4 0610 M00 160/S250-10-13 - Nippel ORFS 1-14    DN16 45GR","orderQty":"5"},{"barcode":"102306700005","number":"1023067","description":"G4 0604 M00 200/S050-12-13 - Nippel ORFS  1-14    DN20","orderQty":"5"},{"barcode":"101392800005","number":"1013928","description":"G4 0620 M00 200/S350-12-14 - Nippel AGO-ORFS 1.3/16-12 DN20","orderQty":"5"},{"barcode":"100383300005","number":"1003833","description":"G4 0605 M00 200/S050-12-14 - Nippel ORFS 1.3/16-12 DN20","orderQty":"5"},{"barcode":"100965400005","number":"1009654","description":"G4 0610 M00 200/S250-12-14 - Nippel ORFS 1.3/16-12dn20 45GR","orderQty":"5"},{"barcode":"100384700005","number":"1003847","description":"G4 0615 M00 200/S150-12-14 - Nippel ORFS 1.3/16-12DN20 90GR","orderQty":"5"},{"barcode":"100383400005","number":"1003834","description":"G4 0605 M00 250/S050-16-15 - Nippel ORFS 1.7/16-12 DN25","orderQty":"5"},{"barcode":"102581600010","number":"1025816","description":"G4 0616 M00 200/S150-12-15 - Nippel ORFS 1.7/16-12DN20 90GR","orderQty":"10"},{"barcode":"102688600005","number":"1026886","description":"G4 0611 M00 200/S250-12-15 - Nippel ORFS 1.7/16-12DN20 45GR","orderQty":"5"},{"barcode":"101265200010","number":"1012652","description":"G4 0606 M00 200/S050-12-15 - Nippel ORFS 1.7/16-12 DN20","orderQty":"10"},{"barcode":"100965500005","number":"1009655","description":"G4 0610 M00 250/S250-16-15 - Nippel ORFS 1.7/16-12dn25 45GR","orderQty":"5"},{"barcode":"100384800005","number":"1003848","description":"G4 0615 M00 250/S150-16-15 - Nippel ORFS 1.7/16-12DN25 90GR","orderQty":"5"},{"barcode":"101196100005","number":"1011961","description":"MC-Pressdoppelnippel MC-04 DN06 - Pressdoppelnippel","orderQty":"5"},{"barcode":"101196300005","number":"1011963","description":"MC-Pressdoppelnippel MC-06 DN10 - Pressdoppelnippel","orderQty":"5"},{"barcode":"1011962","number":"1011962","description":"MC-Pressdoppelnippel MC-05 DN08 - Pressdoppelnippel","orderQty":"0"},{"barcode":"101196400005","number":"1011964","description":"MC-Pressdoppelnippel MC-08 DN12 - Pressdoppelnippel","orderQty":"5"},{"barcode":"102095300005","number":"1020953","description":"G4 0605 M30 250/S050H16-15 - Nippel ORFS 1.7/16-12 DN25","orderQty":"5"},{"barcode":"101393000010","number":"1013930","description":"G4 0620 M00 250/S350-16-15 - Nippel AGO-ORFS 1.7/16-12 DN25","orderQty":"0"},{"barcode":"102576400005","number":"1025764","description":"G4 0615 M30 200/S150H12-14 - Nippel ORFS 1.3/16-12DN20 90GR","orderQty":"5"},{"barcode":"102576900005","number":"1025769","description":"G4 0610 M30 200/S250H12-14 - Nippel ORFS 1.3/16-12DN20 45GR","orderQty":"5"},{"barcode":"100383300010","number":"1003833","description":"G4 0605 M00 200/S050-12-14 - Nippel ORFS 1.3/16-12 DN20","orderQty":"10"},{"barcode":"102577000002","number":"1025770","description":"G4 0610 M30 250/S250H16-15 - Nippel ORFS 1.7/16-12DN25 45GR","orderQty":"2"},{"barcode":"102576500002","number":"1025765","description":"G4 0615 M30 250/S150h16-15 - Nippel ORFS 1.7/16-12DN25 90GR","orderQty":"2"},{"barcode":"102479400005","number":"1024794","description":"G4 0501 M00 060/0060-04-04 - Nippel DKR-F 1/4 DN06","orderQty":"5"},{"barcode":"100375100005","number":"1003751","description":"G4 0501 M00 200/0060-12-12 - Nippel DKR-F 3/4 DN20","orderQty":"5"},{"barcode":"100393000005","number":"1003930","description":"G4 0842 M00 060/0951-04-05 - Nippel DKJ1/2-20jic D N06 90G","orderQty":"5"},{"barcode":"100957200005","number":"1009572","description":"G4 0840 M00 060/1001-04-05 - Nippel DKJ 1/2-20jic DN06 45G","orderQty":"5"},{"barcode":"1003785","number":"1003785","description":"G4 0514 M00 060/0901-04-05 - Nippel DKJ 1/2-20  JIC DN06","orderQty":"0"},{"barcode":"1003654","number":"1003654","description":"G4 0405 M00 060/0850-04-05 - Nippel AGJ 1/2-20  JIC DN06","orderQty":"0"},{"barcode":"100398700005","number":"1003987","description":"G4 0858 M00 060/0951-04-04 - Nippel DKJ7/16-20jic DN06 90G","orderQty":"5"},{"barcode":"100397700005","number":"1003977","description":"G4 0857 M00 060/1001-04-04 - Nippel DKJ7/16-16jic DN06 45GR","orderQty":"5"},{"barcode":"100376700005","number":"1003767","description":"G4 0504 M00 060/0901-04-04 - Nippel DKJ 7/16-20 JIC DN06","orderQty":"5"},{"barcode":"100363900005","number":"1003639","description":"G4 0404 M00 060/0850-04-04 - Nippel AGJ 7/16-20 JIC DN06","orderQty":"5"},{"barcode":"100364000005","number":"1003640","description":"G4 0404 M00 080/0850-05-05 - Nippel AGJ 1/2-20  JIC DN08","orderQty":"5"},{"barcode":"100376800005","number":"1003768","description":"G4 0504 M00 080/0901-05-05 - Nippel DKJ 1/2-20  JIC DN08","orderQty":"5"},{"barcode":"101033500005","number":"1010335","description":"G4 0857 M00 080/1001-05-05 - Nippel DKJ1/2-20 JIC DN08 45GR","orderQty":"5"},{"barcode":"101163700005","number":"1011637","description":"G4 0858 M00 080/0951-05-05 - Nippel DKJ1/2-20jic  DN08 90G","orderQty":"5"},{"barcode":"100366300005","number":"1003663","description":"G4 0406 M00 060/0850-04-06 - Nippel AGJ 9/16-18-JIC DN06","orderQty":"5"},{"barcode":"1009560","number":"1009560","description":"G4 0524 M00 060/0901-04-06 - Nippel DKJ 9/16-18 JIC DN06","orderQty":"0"},{"barcode":"100392800005","number":"1003928","description":"G4 0841 M00 060/1001-04-06 - Nippel DKJ9/16-18jic DN06 45G","orderQty":"5"},{"barcode":"101009300005","number":"1010093","description":"MC 04-04 NP - Armatur JIS DN06 1/4 60°","orderQty":"5"},{"barcode":"100394200005","number":"1003942","description":"G4 0843 M00 060/0951-04-06 - Nippel DKJ9/16-18jic DN06 90G","orderQty":"5"},{"barcode":"100398800005","number":"1003988","description":"G4 0858 M00 100/0951-06-06 - Nippel DKJ9/16-18JIC DN10 90G","orderQty":"5"},{"barcode":"100397800005","number":"1003978","description":"G4 0857 M00 100/1001-06-06 - Nippel DKJ9/16-18jic DN10 45GR","orderQty":"5"},{"barcode":"100376900010","number":"1003769","description":"G4 0504 M00 100/0901-06-06 - Nippel DKJ 9/16-18 JIC DN10","orderQty":"10"},{"barcode":"100364100005","number":"1003641","description":"G4 0404 M00 100/0850-06-06 - Nippel AGJ 9/16-18 JIC DN10","orderQty":"5"},{"barcode":"100393100005","number":"1003931","description":"G4 0842 M00 080/0951-05-06 - Nippel DKJ9/16-18jic DN08 90G","orderQty":"5"},{"barcode":"100391800005","number":"1003918","description":"G4 0840 M00 080/1001-05-06 - Nippel DKJ9/16-18jic DN08 45G","orderQty":"5"},{"barcode":"100378600005","number":"1003786","description":"G4 0514 M00 080/0901-05-06 - Nippel DKJ 9/16-18 JIC DN08","orderQty":"5"},{"barcode":"100365800005","number":"1003658","description":"G4 0405 M00 080/0850-05-06 - Nippel AGJ 9/16-18 JIC DN08","orderQty":"5"},{"barcode":"100355300005","number":"1003553","description":"G4 0336 M00 080/0030-05-20 - Nippel Fr.gasr.dn08 Dkgf20x1,5","orderQty":"5"},{"barcode":"100343900005","number":"1003439","description":"G4 0130 M00 100/0550-06-10 - Nippel BEL DN10 10L","orderQty":"5"},{"barcode":"101009400010","number":"1010094","description":"MC 06-06 NP - Armatur JIS DN10 3/8 60°","orderQty":"10"},{"barcode":"101009500005","number":"1010095","description":"MC 08-08 NP - Armatur JIS DN12 1/2 60°","orderQty":"5"},{"barcode":"100377000005","number":"1003770","description":"G4 0504 M00 130/0901-08-08 - Nippel DKJ 3/4-16  JIC DN12","orderQty":"5"},{"barcode":"100364200005","number":"1003642","description":"G4 0404 M00 130/0850-08-08 - Nippel AGJ 3/4-16  JIC DN12","orderQty":"5"},{"barcode":"100393200005","number":"1003932","description":"G4 0842 M00 100/0951-06-08 - Nippel DKJ3/4-16jic  DN10 90G","orderQty":"5"},{"barcode":"100391900005","number":"1003919","description":"G4 0840 M00 100/1001-06-08 - Nippel DKJ3/4-16jic  DN10 45G","orderQty":"5"},{"barcode":"100378700005","number":"1003787","description":"G4 0514 M00 100/0901-06-08 - Nippel DKJ 3/4-16  JIC DN10","orderQty":"5"},{"barcode":"100365500005","number":"1003655","description":"G4 0405 M00 100/0850-06-08 - Nippel AGJ 3/4-16  JIC DN10","orderQty":"5"},{"barcode":"100956400005","number":"1009564","description":"G4 0857 M00 130/1001-08-08 - Nippel DKJ3/4-16jic  DN13 45GR","orderQty":"5"},{"barcode":"100398900005","number":"1003989","description":"G4 0858 M00 130/0951-08-08 - Nippel DKJ3/4-16jic  DN12 90G","orderQty":"5"},{"barcode":"100366400005","number":"1003664","description":"G4 0406 M00 100/0850-06-10 - Nippel AGJ 7/8-14  JIC DN10","orderQty":"5"},{"barcode":"101163500005","number":"1011635","description":"G4 0524 M00 100/0900-06-10 - Nippel DKJ 7/8-14  JIC DN10","orderQty":"5"},{"barcode":"101297900005","number":"1012979","description":"G4 0841 M00 100/1001-06-10 - Nippel DKJ 7/8-14jic DN10 45G","orderQty":"5"},{"barcode":"101081100005","number":"1010811","description":"G4 0843 M00 100/0950-06-10 - Nippel DKJ 7/8-14jic DN10 90G","orderQty":"5"},{"barcode":"100377100005","number":"1003771","description":"G4 0504 M00 160/0901-10-10 - Nippel DKJ 7/8-14 J IC DN16","orderQty":"5"},{"barcode":"100364300005","number":"1003643","description":"G4 0404 M00 160/0850-10-10 - Nippel AGJ 7/8-14  JIC DN16","orderQty":"5"},{"barcode":"100393300005","number":"1003933","description":"G4 0842 M00 130/0951-08-10 - Nippel DKJ 7/8-14JIC DN12 90G","orderQty":"5"},{"barcode":"100392000005","number":"1003920","description":"G4 0840 M00 130/1001-08-10 - Nippel DKJ7/8-14jic  DN12 45G","orderQty":"5"},{"barcode":"100378800005","number":"1003788","description":"G4 0514 M00 130/0901-08-10 - Nippel DKJ 7/8-14  JIC DN12","orderQty":"5"},{"barcode":"100365600005","number":"1003656","description":"G4 0405 M00 130/0850-08-10 - Nippel AGJ 7/8-14  JIC DN12","orderQty":"5"},{"barcode":"100956500005","number":"1009565","description":"G4 0857 M00 160/1001-10-10 - Nippel DKJ7/8-14jic  DN16 45GR","orderQty":"5"},{"barcode":"100399000005","number":"1003990","description":"G4 0858 M00 160/0951-10-10 - Nippel DKJ7/8-14jic  DN16 90G","orderQty":"5"},{"barcode":"100366600005","number":"1003666","description":"G4 0406 M00 160/0850-10-12 - Nippel AGJ 1.1/16-12jic DN16","orderQty":"5"},{"barcode":"100378900005","number":"1003789","description":"G4 0514 M00 160/0901-10-12 - Nippel DKJ 1.1/16-12 JIC DN16","orderQty":"5"},{"barcode":"1003921","number":"1003921","description":"G4 0840 M00 160/1001-10-12 - Nippel Dkj1.1/16-12jicdn16 45G","orderQty":"0"},{"barcode":"100393400005","number":"1003934","description":"G4 0842 M00 160/0951-10-12 - Nippel Dkj1.1/16-12jicdn16 90G","orderQty":"5"},{"barcode":"100955900005","number":"1009559","description":"G4 0514 M00 200/0901-12-16 - Nippel DKJ 1.5/16 12 JIC DN20","orderQty":"5"},{"barcode":"100365700005","number":"1003657","description":"G4 0405 M00 200/0850-12-16 - Nippel AGJ 1.5/16-12JIC DN20","orderQty":"5"},{"barcode":"100399100005","number":"1003991","description":"G4 0858 M00 200/0951-12-12 - Nippel Dkj1.1/16-12jicdn20 90G","orderQty":"5"},{"barcode":"100397900005","number":"1003979","description":"G4 0857 M00 200/1001-12-12 - Nippel Dkj1.1/16-12jicdn20 45G","orderQty":"5"},{"barcode":"100377200005","number":"1003772","description":"G4 0504 M00 200/0901-12-12 - Nippel DKJ 1.1/16-12 JIC DN20","orderQty":"5"},{"barcode":"100394400005","number":"1003944","description":"G4 0845 M00 060/0750-04-08 - Nippel Bel45 DN06 8L","orderQty":"5"},{"barcode":"100957300005","number":"1009573","description":"G4 0840 M00 200/1001-12-16 - Nippel Dkj1.5/16-12jicdn20 45G","orderQty":"5"},{"barcode":"100393500005","number":"1003935","description":"G4 0842 M00 200/0951-12-16 - Nippel Dkj1.5/16-12jicdn20 90G","orderQty":"5"},{"barcode":"100364500005","number":"1003645","description":"G4 0404 M00 250/0850-16-16 - Nippel AGJ 1.5/16-12JIC DN25","orderQty":"5"},{"barcode":"100377300005","number":"1003773","description":"G4 0504 M00 250/0901-16-16 - Nippel DKJ 1.5/16-12jic  DN25","orderQty":"5"},{"barcode":"100956700005","number":"1009567","description":"G4 0857 M00 250/1001-16-16 - Nippel Dkj1.5/16-12jicdn25 45°","orderQty":"5"},{"barcode":"100399200005","number":"1003992","description":"G4 0858 M00 250/0951-16-16 - Nippel Dkj1.5/16-12jicdn25 90G","orderQty":"5"},{"barcode":"1004145","number":"1004145","description":"G4 0913 M00 060/0185-04-14 - Nippel Dkol90 M14x1,5 DN06 8L","orderQty":"0"},{"barcode":"100412900010","number":"1004129","description":"G4 0912 M00 060/0285-04-14 - Nippel Dkol45 M14x1,5 DN06 8L","orderQty":"10"},{"barcode":"1003569","number":"1003569","description":"G4 0347 M00 060/0085-04-14 - Nippel DKOL M14x1,5 DN06 8L","orderQty":"0"},{"barcode":"1007236","number":"1007236","description":"G4 0200 M00 060/0500-04-14 - Nippel CEL M14x1,5 DN06 8L","orderQty":"0"},{"barcode":"100388000010","number":"1003880","description":"G4 0807 M00 060/0185-04-12 - Nippel Dkol90 M12x1,5 DN06 6L","orderQty":"10"},{"barcode":"100731000005","number":"1007310","description":"G4 0351 M00 060/0085-04-12 - Nippel DKOL M12x1,5 DN06 6L","orderQty":"5"},{"barcode":"100724300005","number":"1007243","description":"G4 0230 M00 060/0500-04-12 - Nippel CEL M12x1,5 DN06 6L","orderQty":"5"},{"barcode":"100979600010","number":"1009796","description":"MC 04-10 MZ16A - Armatur CEL DN06 10-L M16x1,5","orderQty":"10"},{"barcode":"100352700005","number":"1003527","description":"G4 0302 M00 060/0035-04-16 - Nippel DKL M16x1,5 DN06 10L","orderQty":"5"},{"barcode":"100990600010","number":"1009906","description":"MC 04-10 RO16A45 - Armatur DKOL45 DN06 10-L16x1,5","orderQty":"10"},{"barcode":"100388600010","number":"1003886","description":"G4 0810 M00 060/0185-04-16 - Nippel Dkol90 M16x1,5 DN06 10L","orderQty":"10"},{"barcode":"100979700005","number":"1009797","description":"MC 04-12 MZ18A - Armatur CEL DN06 12-L M18x1,5","orderQty":"5"},{"barcode":"100359400010","number":"1003594","description":"G4 0350 M00 060/0085-04-18 - Nippel DKOL M18x1,5 DN06 12L","orderQty":"10"},{"barcode":"101183300010","number":"1011833","description":"MC 04-12 RO18A45 - Armatur DKOL45 DN06 12-L18x1,5","orderQty":"10"},{"barcode":"100388500010","number":"1003885","description":"G4 0809 M00 060/0185-04-18 - Nippel Dkol90 M18x1,5 DN06 12L","orderQty":"10"},{"barcode":"101034800010","number":"1010348","description":"G4 0230 M00 080/0500-05-14 - Nippel CEL M14x1,5 DN08 8L","orderQty":"10"},{"barcode":"101185800005","number":"1011858","description":"G4 0351 M00 080/0085-05-14 - Nippel DKOL M14x1,5 DN08 8L","orderQty":"5"},{"barcode":"100414600005","number":"1004146","description":"G4 0913 M00 080/0185-05-16 - Nippel Dkol90 M16x1,5 DN08 10L","orderQty":"5"},{"barcode":"100724400005","number":"1007244","description":"G4 0237 M00 080/0500-05-18 - Nippel CEL M18x1,5 DN08 12L","orderQty":"5"},{"barcode":"100732300005","number":"1007323","description":"G4 0912 M00 080/0285-05-16 - Nippel Dkol45 M16x1,5 DN08 10L","orderQty":"5"},{"barcode":"100357000005","number":"1003570","description":"G4 0347 M00 080/0085-05-16 - Nippel DKOL M16x1,5 DN08 10L","orderQty":"5"},{"barcode":"101198600005","number":"1011986","description":"G4 0806 M00 080/0285-05-14 - Nippel Dkol45 M14x1,5 DN08 8L","orderQty":"5"},{"barcode":"1003452","number":"1003452","description":"G4 0200 M00 080/0500-05-16 - Nippel CEL M16x1,5 DN08 10L","orderQty":"0"},{"barcode":"100352800005","number":"1003528","description":"G4 0302 M00 080/0035-05-18 - Nippel DKL M18x1,5 DN08 12L","orderQty":"5"},{"barcode":"101194100005","number":"1011941","description":"G4 0805 M00 080/0285-05-18 - Nippel Dkol45 M18x1,5 DN08 12L","orderQty":"5"},{"barcode":"101163300005","number":"1011633","description":"G4 0810 M00 080/0185-05-18 - Nippel Dkol90 M18x1,5 DN08 12L","orderQty":"5"},{"barcode":"100348000005","number":"1003480","description":"G4 0230 M00 100/0500-06-16 - Nippel CEL M16x1,5 DN10 10L","orderQty":"5"},{"barcode":"100731100005","number":"1007311","description":"G4 0351 M00 100/0085-06-16 - Nippel DKOL M16x1,5 DN10 10L","orderQty":"5"},{"barcode":"100387700005","number":"1003877","description":"G4 0806 M00 100/0285-06-16 - Nippel Dkol45 M16x1,5 DN10 10L","orderQty":"5"},{"barcode":"100724500010","number":"1007245","description":"G4 0237 M00 100/0500-06-22 - Nippel CEL M22x1,5 DN10 15L","orderQty":"10"},{"barcode":"100414700020","number":"1004147","description":"G4 0913 M00 100/0185-06-18 - Nippel Dkol90 M18x1,5 DN10 12L","orderQty":"20"},{"barcode":"100413000005","number":"1004130","description":"G4 0912 M00 100/0285-06-18 - Nippel Dkol45 M18x1,5 DN10 12L","orderQty":"5"},{"barcode":"100357100005","number":"1003571","description":"G4 0347 M00 100/0085-06-18 - Nippel DKOL M18x1,5 DN10 12L","orderQty":"5"},{"barcode":"100723800005","number":"1007238","description":"G4 0200 M00 100/0500-06-18 - Nippel CEL M18x1,5 DN10 12L","orderQty":"5"},{"barcode":"100388100005","number":"1003881","description":"G4 0807 M00 100/0185-06-16 - Nippel Dkol90 M16x1,5 DN10 10L","orderQty":"5"},{"barcode":"100731300010","number":"1007313","description":"G4 0352 M00 100/0085-06-22 - Nippel DKOL M22x1,5 DN10 15L","orderQty":"10"},{"barcode":"100387300005","number":"1003873","description":"G4 0805 M00 100/0285-06-22 - Nippel Dkol45 M22x1,5 DN10 15L","orderQty":"5"},{"barcode":"100735300005","number":"1007353","description":"G4 0810 M00 100/0185-06-22 - Nippel Dkol90 M22x1,5 DN10 15L","orderQty":"5"},{"barcode":"101034900005","number":"1010349","description":"G4 0230 M00 130/0500-08-18 - Nippel CEL M18x1,5 DN12 12L","orderQty":"5"},{"barcode":"101421100005","number":"1014211","description":"G4 0351 M00 130/0085-08-18 - Nippel DKOL M18x1,5 DN12 12L","orderQty":"5"},{"barcode":"102985000010","number":"1029850","description":"G4 0806 M00 130/0285-08-18 - Nippel Dkol45 M18x1,5 DN12 12L","orderQty":"10"},{"barcode":"101829700010","number":"1018297","description":"G4 0351 M00 160/0085-10-22 - Nippel DKOL M22x1,5 DN16 15L","orderQty":"0"},{"barcode":"100414800020","number":"1004148","description":"G4 0913 M00 130/0185-08-22 - Nippel Dkol90 M22x1,5 DN12 15L","orderQty":"20"},{"barcode":"100730000020","number":"1007300","description":"G4 0907 M00 130/0235-08-22 - Nippel Dkl45 M22x1,5 DN12 15L","orderQty":"20"},{"barcode":"100730500050","number":"1007305","description":"G4 0347 M00 130/0085-08-22 - Nippel DKOL M22x1,5 DN12 15L","orderQty":"50"},{"barcode":"100723900050","number":"1007239","description":"G4 0200 M00 130/0500-08-22 - Nippel CEL M22x1,5 DN12 15L","orderQty":"50"},{"barcode":"101316800005","number":"1013168","description":"G4 0807 M00 130/0185s08-18 - Nippel Dkol90 M18x1,5 DN12 12L","orderQty":"5"},{"barcode":"100734900005","number":"1007349","description":"G4 0913 M00 160/0185-10-26 - Nippel Dkol90 M26x1,5 DN16 18L","orderQty":"5"},{"barcode":"1022230","number":"1022230","description":"G4 0807 M00 160/0185-10-22 - Nippel Dkol90 M22x1,5 DN16 15L","orderQty":"0"},{"barcode":"100724000020","number":"1007240","description":"G4 0200 M00 160/0500-10-26 - Nippel CEL M26x1,5 DN16 18L","orderQty":"20"},{"barcode":"100730600020","number":"1007306","description":"G4 0347 M00 160/0085-10-26 - Nippel DKOL M26x1,5 DN16 18L","orderQty":"20"},{"barcode":"100732500005","number":"1007325","description":"G4 0912 M00 160/0285-10-26 - Nippel Dkol45 M26x1,5 DN16 18L","orderQty":"5"},{"barcode":"100345300005","number":"1003453","description":"G4 0200 M00 250/0500-16-36 - Nippel CEL M36x2 DN25 28L","orderQty":"5"},{"barcode":"100414900005","number":"1004149","description":"G4 0913 M00 200/0185-12-30 - Nippel Dkol90 M30x2 DN20 22L","orderQty":"5"},{"barcode":"100732600005","number":"1007326","description":"G4 0912 M00 200/0285-12-30 - Nippel Dkol45 M30x2 DN20 22L","orderQty":"5"},{"barcode":"100730800005","number":"1007308","description":"G4 0347 M00 200/0085-12-30 - Nippel DKOL M30x2 DN20 22L","orderQty":"5"},{"barcode":"100724100005","number":"1007241","description":"G4 0200 M00 200/0500-12-30 - Nippel CEL M30x2 DN20 22L","orderQty":"5"},{"barcode":"100732700005","number":"1007327","description":"G4 0912 M00 250/0285-16-36 - Nippel Dkol45 M36x2 DN25 28L","orderQty":"5"},{"barcode":"100730900005","number":"1007309","description":"G4 0347 M00 250/0085-16-36 - Nippel DKOL M36x2 DN25 28L","orderQty":"5"},{"barcode":"100735200005","number":"1007352","description":"G4 0913 M00 250/0185-16-36 - Nippel Dkol90 M36x2 DN25 28L","orderQty":"5"},{"barcode":"100739200005","number":"1007392","description":"G4 0892 M00 250/0200-16-38 - Nippel DKLL M38x1,5- Dn2590gr","orderQty":"5"},{"barcode":"100737900005","number":"1007379","description":"G4 0300 M00 250/0100-16-38 - Nippel DKLL M38x1,5-DN25","orderQty":"5"},{"barcode":"100737800005","number":"1007378","description":"G4 0300 M00 200/0100-12-30 - Nippel DKLL M30x1,5-DN20","orderQty":"5"},{"barcode":"100731400005","number":"1007314","description":"G4 0348 M00 060/0084-04-18 - Nippel DKOS M18x1,5 DN06 10S","orderQty":"5"},{"barcode":"100724800005","number":"1007248","description":"G4 0202 M00 060/0450-04-18 - Nippel CES M18x1,5 DN06 10S","orderQty":"5"},{"barcode":"100737500005","number":"1007375","description":"G4 0881 M00 060/0184-04-16 - Nippel Dkos90 M16x1,5 DN06 8S","orderQty":"5"},{"barcode":"100732100005","number":"1007321","description":"G4 0353 M00 060/0084-04-16 - Nippel DKOS M16x1,5 DN06 8S","orderQty":"5"},{"barcode":"100725200005","number":"1007252","description":"G4 0231 M00 060/0450-04-16 - Nippel CES M16x1,5 DN06 8S","orderQty":"5"},{"barcode":"100734200005","number":"1007342","description":"G4 0959 M00 060/0284-04-16 - Nippel Dkos45 M16x1,5 DN06 8S","orderQty":"5"},{"barcode":"100733300005","number":"1007333","description":"G4 0878 M00 060/0284-04-18 - Nippel Dkos45 M18x1,5 DN06 10S","orderQty":"5"},{"barcode":"100735700005","number":"1007357","description":"G4 0879 M00 060/0184-04-18 - Nippel Dkos90 M18x1,5 DN06 10S","orderQty":"5"},{"barcode":"101030100005","number":"1010301","description":"G4 0231 M00 080/0450-05-18 - Nippel CES M18x1,5 DN08 10S","orderQty":"5"},{"barcode":"101030400005","number":"1010304","description":"G4 0353 M00 080/0084-05-18 - Nippel DKOS M18x1,5 DN08 10S","orderQty":"5"},{"barcode":"101326700005","number":"1013267","description":"G4 0959 M00 080/0284-05-18 - Nippel Dkos45 M18x1,5 DN08 10S","orderQty":"5"},{"barcode":"101030700005","number":"1010307","description":"G4 0881 M00 080/0184-05-18 - Nippel Dkos90 M18x1,5 DN08 10S","orderQty":"5"},{"barcode":"101030600005","number":"1010306","description":"G4 0355 M00 100/0084-06-18 - Nippel DKOS M18x1,5 DN10 10S","orderQty":"5"},{"barcode":"101030000005","number":"1010300","description":"G4 0232 M00 100/0450-06-18 - Nippel CES M18x1,5 DN10 10S","orderQty":"5"},{"barcode":"100737000005","number":"1007370","description":"G4 0879 M00 080/0184-05-20 - Nippel Dkos90 M20x1,5 DN08 12S","orderQty":"5"},{"barcode":"100733500005","number":"1007335","description":"G4 0878 M00 080/0284-05-20 - Nippel Dkos45 M20x1,5 DN08 12S","orderQty":"5"},{"barcode":"100724900005","number":"1007249","description":"G4 0202 M00 080/0450-05-20 - Nippel CES M20x1,5 DN08 12S","orderQty":"5"},{"barcode":"100731600005","number":"1007316","description":"G4 0348 M00 080/0084-05-20 - Nippel DKOS M20x1,5 DN08 12S","orderQty":"5"},{"barcode":"101274000010","number":"1012740","description":"G4 0882 M00 100/0184-06-18 - Nippel Dkos90 M18x1,5 DN10 10S","orderQty":"10"},{"barcode":"100725500020","number":"1007255","description":"G4 0231 M00 100/0450-06-20 - Nippel CES M20x1,5 DN10 12S","orderQty":"20"},{"barcode":"100732200005","number":"1007322","description":"G4 0353 M00 100/0084-06-20 - Nippel DKOS M20x1,5 DN10 12S","orderQty":"5"},{"barcode":"100734400010","number":"1007344","description":"G4 0959 M00 100/0284-06-20 - Nippel Dkos45 M20x1,5 DN10 12S","orderQty":"10"},{"barcode":"100737600005","number":"1007376","description":"G4 0881 M00 100/0184-06-20 - Nippel Dkos90 M20x1,5 DN10 12S","orderQty":"5"},{"barcode":"103184700010","number":"1031847","description":"G4 0354 M00 100/0084-06-24 - Nippel DKOS M24x1,5 DN10 16-S","orderQty":"10"},{"barcode":"100737100005","number":"1007371","description":"G4 0879 M00 100/0184-06-22 - Nippel Dkos90 M22x1,5 DN10 14S","orderQty":"5"},{"barcode":"100733600005","number":"1007336","description":"G4 0878 M00 100/0284-06-22 - Nippel Dkos45 M22x1,5 DN10 14S","orderQty":"5"},{"barcode":"100731700005","number":"1007317","description":"G4 0348 M00 100/0084-06-22 - Nippel DKOS M22x1,5 DN10 14S","orderQty":"5"},{"barcode":"101020300005","number":"1010203","description":"G4 0202 M00 100/0450-06-22 - Nippel CES M22x1,5 DN10 14S","orderQty":"5"},{"barcode":"103342100010","number":"1033421","description":"G4 0808 V00 100 - Nippel Dkos45 M24x1,5 DN10 16S","orderQty":"10"},{"barcode":"100346300005","number":"1003463","description":"G4 0202 M00 130/0450-08-24 - Nippel CES M24x1,5 DN12 16S","orderQty":"5"},{"barcode":"100358100020","number":"1003581","description":"G4 0348 M00 130/0084-08-24 - Nippel DKOS M24x1,5 DN12 16S","orderQty":"20"},{"barcode":"100400400005","number":"1004004","description":"G4 0878 M00 130/0284-08-24 - Nippel Dkos45 M24x1,5-DN12 16S","orderQty":"5"},{"barcode":"100401700005","number":"1004017","description":"G4 0879 M00 130/0184-08-24 - Nippel Dkos90 M24x1,5 DN12 16S","orderQty":"5"},{"barcode":"100731800005","number":"1007318","description":"G4 0348 M00 160/0084-10-30 - Nippel DKOS M30x2 DN16 20S","orderQty":"5"},{"barcode":"100346400005","number":"1003464","description":"G4 0202 M00 160/0450-10-30 - Nippel CES M30x2 DN16 20S","orderQty":"5"},{"barcode":"102048000005","number":"1020480","description":"G4 0882 M00 160/0184-10-24 - Nippel Dkos90 M24x1,5 DN16 16S","orderQty":"5"},{"barcode":"102729700005","number":"1027297","description":"G4 0959 M00 160/0284-10-24 - Nippel Dkos45 M24x1,5 DN16 16S","orderQty":"5"},{"barcode":"101266300005","number":"1012663","description":"G4 0353 M00 160/0084-10-24 - Nippel DKOS M24x1,5 DN16 16S","orderQty":"5"},{"barcode":"102729800005","number":"1027298","description":"G4 0231 M00 160/0450-10-24 - Nippel CES M24x1,5 DN16 16S","orderQty":"5"},{"barcode":"100733800050","number":"1007338","description":"G4 0878 M00 160/0284-10-30 - Nippel Dkos45 M30x2 DN16 20S","orderQty":"50"},{"barcode":"100737200005","number":"1007372","description":"G4 0879 M00 160/0184-10-30 - Nippel Dkos90 M30x2 DN16 20S","orderQty":"5"},{"barcode":"101266400005","number":"1012664","description":"G4 0353 M00 200/0084-12-30 - Nippel DKOS M30x2 DN20 20S","orderQty":"5"},{"barcode":"100725700005","number":"1007257","description":"G4 0231 M00 200/0450-12-30 - Nippel CES M30x2 DN20 20S","orderQty":"5"},{"barcode":"101266600005","number":"1012666","description":"G4 0959 M00 200/0284-12-30 - Nippel Dkos45 M30x2 DN20 20S","orderQty":"5"},{"barcode":"101274100005","number":"1012741","description":"G4 0882 M00 200/0184-12-30 - Nippel Dkos90 M30x2 DN20 20S","orderQty":"5"},{"barcode":"100732000005","number":"1007320","description":"G4 0348 M00 250/0084-16-42 - Nippel DKOS M42x2 DN25 30S","orderQty":"5"},{"barcode":"100346500005","number":"1003465","description":"G4 0202 M00 250/0450-16-42 - Nippel CES M42x2 DN25 30S","orderQty":"5"},{"barcode":"100737300005","number":"1007373","description":"G4 0879 M00 200/0184-12-36 - Nippel Dkos90 M36x2 DN20 25S","orderQty":"5"},{"barcode":"100734000005","number":"1007340","description":"G4 0878 M00 200/0284-12-36 - Nippel Dkos45 M36x2 DN20 25S","orderQty":"5"},{"barcode":"102925800005","number":"1029258","description":"G4 0345 M00 200/0034-12-36 - Nippel DKS M36x2 DN20 25S","orderQty":"5"},{"barcode":"100725100005","number":"1007251","description":"G4 0202 M00 200/0450-12-36 - Nippel CES M36x2 DN20 25S","orderQty":"5"},{"barcode":"100400500005","number":"1004005","description":"G4 0878 M00 250/0284-16-42 - Nippel Dkos45 M42x2 DN25 30S","orderQty":"5"},{"barcode":"100401800005","number":"1004018","description":"G4 0879 M00 250/0184-16-42 - Nippel Dkos90 M42x2 DN25 30S","orderQty":"5"},{"barcode":"100361200005","number":"1003612","description":"G4 0400 R00 080 - Nippel AGM-F M16x1,5 DN8","orderQty":"5"},{"barcode":"100361400005","number":"1003614","description":"G4 0400 R00 130 - Nippel AGM-F M22x1,5 DN13","orderQty":"5"},{"barcode":"100361500005","number":"1003615","description":"G4 0400 R00 160 - Nippel AGM-F M26x1,5 DN16","orderQty":"5"},{"barcode":"100739100005","number":"1007391","description":"G4 0892 M00 200/0200-12-30 - Nippel DKLL M30x1,5- DN20 90GR","orderQty":"5"},{"barcode":"103459400050","number":"1034594","description":"SSW HG-20Y Gelb  ID 16 mm - Scheuerschutzwendel  HDPE","orderQty":"50"},{"barcode":"103459500050","number":"1034595","description":"SSW HG-25Y Gelb  ID 21 mm - Scheuerschutzwendel  HDPE","orderQty":"50"},{"barcode":"103459600050","number":"1034596","description":"SSW HG-32Y Gelb  ID 27 mm - Scheuerschutzwendel  HDPE","orderQty":"50"},{"barcode":"103459800050","number":"1034598","description":"SSW HG-50Y Gelb  ID 44 mm - Scheuerschutzwendel  HDPE","orderQty":"50"},{"barcode":"103459900020","number":"1034599","description":"SSW HG-63Y Schwarz  ID 55 mm - Scheuerschutzwendel  HDPE","orderQty":"20"},{"barcode":"103460000020","number":"1034600","description":"SSW HG-75Y Gelb  ID 66 mm - Scheuerschutzwendel  HDPE","orderQty":"20"},{"barcode":"100135200005","number":"1001352","description":"32 4112 326 041 - ND-Hülse NLD DN4 I13,0 Loch7,2","orderQty":"5"},{"barcode":"1001356","number":"1001356","description":"32 4112 326 081 - ND-Hülse NLD DN8 I17,0loch11,3","orderQty":"0"},{"barcode":"100135800005","number":"1001358","description":"32 4112 326 101 - ND-Hülse NLD Dn10i20,0loch13,4","orderQty":"5"},{"barcode":"1001341","number":"1001341","description":"32 4105 326 064 - ND-Hülse NK DN6 Innen 14,0 MM","orderQty":"0"},{"barcode":"1001355","number":"1001355","description":"32 4112 326 062 - ND-Hülse NLD DN6 I16,0 Loch9,2","orderQty":"0"},{"barcode":"1001362","number":"1001362","description":"32 4112 326 135 - ND-Hülse NLD Dn12i25,0loch16,8","orderQty":"0"},{"barcode":"100134600005","number":"1001346","description":"32 4105 326 084 - ND-Hülse NK DN8 Innen 17,0 MM","orderQty":"5"},{"barcode":"1001341","number":"1001341","description":"32 4105 326 064 - ND-Hülse NK DN6 Innen 14,0 MM","orderQty":"0"},{"barcode":"100136100005","number":"1001361","description":"32 4112 326 134 - ND-Hülse NLD Dn12i24,0loch16,8","orderQty":"5"},{"barcode":"1001240","number":"1001240","description":"32 2245 483 050 - ND-Nippel DKL M12x1,5 DN04 /NK","orderQty":"0"},{"barcode":"1001320","number":"1001320","description":"32 3602 083 004 - ND-Nippel BEL DN8 RA 10MM /NK","orderQty":"0"},{"barcode":"1001260","number":"1001260","description":"32 2533 483 040 - ND-Nippel RN DN04 F.hs.m10/NK","orderQty":"0"},{"barcode":"100131900005","number":"1001319","description":"32 3602 063 004 - ND-Nippel BEL DN6 RA 8MM /NK","orderQty":"5"},{"barcode":"100132100005","number":"1001321","description":"32 3602 101 004 - ND-Nippel BEL DN10 RA 12MM /NK","orderQty":"5"},{"barcode":"1001241","number":"1001241","description":"32 2245 483 060 - ND-Nippel DKL M14x1,5 DN06 /NK","orderQty":"0"},{"barcode":"1001339","number":"1001339","description":"32 4105 326 045 - ND-Hülse NK DN4 Innen 13,0 MM","orderQty":"0"},{"barcode":"100135000005","number":"1001350","description":"32 4105 326 102 - ND-Hülse NK DN10 Innen 20,0 MM","orderQty":"5"},{"barcode":"100124200005","number":"1001242","description":"32 2245 483 080 - ND-Nippel DKL M16x1,5 DN08 /NK","orderQty":"5"},{"barcode":"100131800005","number":"1001318","description":"32 3602 043 004 - ND-Nippel BEL DN4 RA 6MM /NK","orderQty":"5"},{"barcode":"100126000005","number":"1001260","description":"32 2533 483 040 - ND-Nippel RN DN04 F.hs.m10/NK","orderQty":"5"},{"barcode":"100125300005","number":"1001253","description":"32 2247 483 130 - ND-Nippel DKL M22x1,5 DN12/NLD","orderQty":"5"},{"barcode":"100126700005","number":"1001267","description":"32 2510 483 080 - ND-Nippel RN DN8 F.hs.m16 8:10","orderQty":"5"},{"barcode":"100126100005","number":"1001261","description":"32 2533 483 060 = 32 2506 483 060 - ND-Nippel RN DN06 F.hs.m12 /NK","orderQty":"5"},{"barcode":"100126300005","number":"1001263","description":"32 2506 483 100 - ND-Nippel RN DN10 F.hs.m16 /NK","orderQty":"5"},{"barcode":"100144300005","number":"1001443","description":"38 0531 491 100 - ND-Überwurfmutter M 18x1,5","orderQty":"5"},{"barcode":"100144400005","number":"1001444","description":"38 0531 491 130 - ND-Überwurfmutter M 22x1,5","orderQty":"5"},{"barcode":"100144100005","number":"1001441","description":"38 0531 491 060 - ND-Überwurfmutter M 14x1,5","orderQty":"5"},{"barcode":"100144200005","number":"1001442","description":"38 0531 491 080 - ND-Überwurfmutter M 16x1,5","orderQty":"5"},{"barcode":"100144000005","number":"1001440","description":"38 0531 491 040 - ND-Überwurfmutter M 12x1,5","orderQty":"5"},{"barcode":"100145400005","number":"1001454","description":"38 0625 491 080 - ND-Überwurfmutter R 3/8","orderQty":"5"},{"barcode":"100144800005","number":"1001448","description":"38 0601 483 060 - ND-Überwurfmutter R 1/4","orderQty":"5"},{"barcode":"100144900005","number":"1001449","description":"38 0601 483 100 - ND-Überwurfmutter R 1/2","orderQty":"5"},{"barcode":"040728100001","number":"0407281","description":"USIT R1/4\" 013,74-020,57-2,03 - Usit-Ring selbstzentrierend","orderQty":"1"},{"barcode":"040727900020","number":"0407279","description":"USIT R1\" 033,89-042,80-2,50 - Usit-Ring selbstzentrierend","orderQty":"20"},{"barcode":"040277200050","number":"0402772","description":"USIT 021,50-028,70-2,5 - Usit-Ring  1/2","orderQty":"50"},{"barcode":"040728000001","number":"0407280","description":"USIT R1/2\" 021,54-028,58-2,50 NBR - Usit-Ring selbstzentrierend","orderQty":"1"},{"barcode":"040728400020","number":"0407284","description":"USIT R1/8\" 010,70-016,00-1,5 - Usit-Ring selbstzentrierend","orderQty":"20"},{"barcode":"040728300020","number":"0407283","description":"USIT R3/8\" 017,28-023,80-2,00 - Usit-Ring selbstzentrierend","orderQty":"20"},{"barcode":"040728200020","number":"0407282","description":"USIT R3/4\" 027,05-034,90-2,34 - Usit-Ring selbstzentrierend","orderQty":"20"},{"barcode":"040276900020","number":"0402769","description":"USIT 016,70-024,00-1,5 - Usit-Ring","orderQty":"20"},{"barcode":"040863800001","number":"0408638","description":"USIT 018,70-026,00-1,5 NBR - Usit-Ring selbstzentrierend","orderQty":"1"},{"barcode":"040277400020","number":"0402774","description":"USIT 024,7-032,00-2 - Usit-Ring","orderQty":"20"},{"barcode":"040277500020","number":"0402775","description":"USIT 026,70-035,00-2 - Usit-Ring","orderQty":"20"},{"barcode":"040277800020","number":"0402778","description":"USIT 042,70-053,00-3 - Usit-Ring","orderQty":"20"},{"barcode":"090284200010","number":"0902842","description":"RBP-112 - Rohrschelle zweifach Polypropylen","orderQty":"10"},{"barcode":"090284400010","number":"0902844","description":"RBP-214 - Rohrschelle zweifach Polypropylen","orderQty":"10"},{"barcode":"090284500010","number":"0902845","description":"RBP-215 - Rohrschelle zweifach Polypropylen","orderQty":"10"},{"barcode":"090284600010","number":"0902846","description":"RBP-216 - Rohrschelle zweifach Polypropylen","orderQty":"10"},{"barcode":"090284700010","number":"0902847","description":"RBP-218 - Rohrschelle zweifach Polypropylen","orderQty":"10"},{"barcode":"090284800010","number":"0902848","description":"RBP-320 - Rohrschelle zweifach Polypropylen","orderQty":"10"},{"barcode":"090284100010","number":"0902841","description":"RBP-110 - Rohrschelle zweifach Polypropylen","orderQty":"10"},{"barcode":"090284000010","number":"0902840","description":"RBP-108 - Rohrschelle zweifach Polypropylen","orderQty":"10"},{"barcode":"090283900010","number":"0902839","description":"RBP-106 - Rohrschelle zweifach Polypropylen","orderQty":"10"},{"barcode":"090281800010","number":"0902818","description":"RAP-325,4 R 1\" - Rohrschelle einfach Polypropylen","orderQty":"10"},{"barcode":"090282000010","number":"0902820","description":"RAP-428 - Rohrschelle einfach Polypropylen","orderQty":"10"},{"barcode":"090281100005","number":"0902811","description":"RAP-218 - Rohrschelle einfach Polypropylen","orderQty":"5"},{"barcode":"090280100005","number":"0902801","description":"RAP-106 - Rohrschelle einfach Polypropylen","orderQty":"5"},{"barcode":"090280300005","number":"0902803","description":"RAP-110 - Rohrschelle einfach Polypropylen","orderQty":"5"},{"barcode":"090280400005","number":"0902804","description":"RAP-112 - Rohrschelle einfach Polypropylen","orderQty":"5"},{"barcode":"090280800005","number":"0902808","description":"RAP-214 - Rohrschelle einfach Polypropylen","orderQty":"5"},{"barcode":"090280900010","number":"0902809","description":"RAP-215 - Rohrschelle einfach Polypropylen","orderQty":"10"},{"barcode":"090281000005","number":"0902810","description":"RAP-216 - Rohrschelle einfach Polypropylen","orderQty":"5"},{"barcode":"090007700005","number":"0900077","description":"APK-A4 - Anschweißplatte kurz","orderQty":"5"},{"barcode":"090069900025","number":"0900699","description":"DP-B3 - Deckplatte","orderQty":"25"},{"barcode":"090069800025","number":"0900698","description":"DP-B2 - Deckplatte","orderQty":"25"},{"barcode":"090069700025","number":"0900697","description":"DP-B1 - Deckplatte","orderQty":"25"},{"barcode":"090005000025","number":"0900050","description":"AP-B1 - Anschweißplatte","orderQty":"25"},{"barcode":"090005300025","number":"0900053","description":"AP-B3 - Anschweißplatte","orderQty":"25"},{"barcode":"090005200025","number":"0900052","description":"AP-B2 - Anschweißplatte","orderQty":"25"},{"barcode":"090007100005","number":"0900071","description":"APK-A1 - Anschweißplatte kurz","orderQty":"5"},{"barcode":"090007300050","number":"0900073","description":"APK-A2 - Anschweißplatte kurz","orderQty":"50"},{"barcode":"090007500005","number":"0900075","description":"APK-A3 - Anschweißplatte kurz","orderQty":"5"},{"barcode":"090380300005","number":"0903803","description":"VSTI R 3/8\"-WD - Verschluss-Schraube mit Weichdichtung","orderQty":"5"},{"barcode":"0903765","number":"0903765","description":"VSTI M18x1,5-WD - Verschluss-Schraube mit Weichdichtung","orderQty":"0"},{"barcode":"090379500010","number":"0903795","description":"VSTI R 1/8\"-WD - Verschluss-Schraube mit Weichdichtung","orderQty":"10"},{"barcode":"090379500010","number":"0903795","description":"VSTI R 1/8\"-WD - Verschluss-Schraube mit Weichdichtung","orderQty":"10"},{"barcode":"0903792","number":"0903792","description":"VSTI R 1/4\"-WD - Verschluss-Schraube mit Weichdichtung","orderQty":"0"},{"barcode":"0903789","number":"0903789","description":"VSTI R 1/2\"-WD - Verschluss-Schraube mit Weichdichtung","orderQty":"0"},{"barcode":"090380000010","number":"0903800","description":"VSTI R 3/4\"-WD - Verschluss-Schraube mit Weichdichtung","orderQty":"10"},{"barcode":"0903784","number":"0903784","description":"VSTI R 1\"-WD - Verschluss-Schraube mit Weichdichtung","orderQty":"0"},{"barcode":"102586500005","number":"1025865","description":"A-VSÜM-BSP 1/8 IG - Verschluss-Stück","orderQty":"5"},{"barcode":"101517400005","number":"1015174","description":"A-VSÜM-BSP 3/8 IG - Verschluss-Stück","orderQty":"5"},{"barcode":"1015175","number":"1015175","description":"A-VSÜM-BSP 1/2 IG - Verschluss-Stück","orderQty":"0"},{"barcode":"100519500002","number":"1005195","description":"TEMA 10010 1\" - Kupplungsmuffe SW45 7418395","orderQty":"2"},{"barcode":"100519700002","number":"1005197","description":"TEMA 10020 1\" - Kupplungsstecker SW46","orderQty":"2"},{"barcode":"100521600005","number":"1005216","description":"TEMA 7510 3/4\" - Kupplungsmuffe SW38 7418437","orderQty":"5"},{"barcode":"100521800005","number":"1005218","description":"TEMA 7520 3/4\" - Kupplungsstecker SW36 7418494","orderQty":"5"},{"barcode":"1015539","number":"1015539","description":"42 6311 213 063 BG2 R1/2IG - Kupplungsstecker Flachd SW27","orderQty":"0"},{"barcode":"101553800005","number":"1015538","description":"41 6311 213 063 BG2 R1/2IG - Kupplungsmuffe Flachd SW27","orderQty":"5"},{"barcode":"101645900005","number":"1016459","description":"42 6311 313 063 BG3 R1/2IG - Kupplungsstecker Flachd SW32","orderQty":"5"},{"barcode":"101645800005","number":"1016458","description":"41 6311 313 063 BG3 R1/2IG - Kupplungsmuffe Flachd SW36","orderQty":"5"},{"barcode":"100497200005","number":"1004972","description":"42 6311 320 063 BG3 R3/4IG - Kupplungsstecker Flachd","orderQty":"5"},{"barcode":"100497100005","number":"1004971","description":"41 6311 320 063 BG3 R3/4IG - Kupplungsmuffe Flachd","orderQty":"5"},{"barcode":"100183700005","number":"1001837","description":"61 6311 106 063 BG1 R1/4IG - Kupplungsmuffe SW19","orderQty":"5"},{"barcode":"100476600005","number":"1004766","description":"Kupplungshalter einfach Stahl BG3 - Kupplungshalter SVK Verzinkt","orderQty":"5"},{"barcode":"102675500005","number":"1026755","description":"41 6312 313 063 BG3 R1/2IG - Kupplungsmuffe Flachd SW36","orderQty":"5"},{"barcode":"103183700005","number":"1031837","description":"42 6312 420 063 BG4 R3/4IG - Kupplungsstecker Flachd SW36","orderQty":"5"},{"barcode":"103183600005","number":"1031836","description":"41 6312 420 063 BG4 R3/4IG - Kupplungsmuffe Flachd SW41","orderQty":"5"},{"barcode":"100517600010","number":"1005176","description":"64 6390 300 066 BG3 Gelb - Klappdeckel Muffe BG3","orderQty":"10"},{"barcode":"100517700010","number":"1005177","description":"64 6390 300 066 BG3 Grün - Klappdeckel Muffe BG3","orderQty":"10"},{"barcode":"100517800010","number":"1005178","description":"64 6390 300 066 BG3 Rot - Klappdeckel Muffe BG3","orderQty":"10"},{"barcode":"101601100005","number":"1016011","description":"64 6390 310 066 Rot 27mm - Staubstecker Muffe","orderQty":"5"},{"barcode":"102078700005","number":"1020787","description":"44 6390 208 067 ROT - Staubstecker Muffe Flachd","orderQty":"5"},{"barcode":"100213800005","number":"1002138","description":"64 6390 310 067 BG3 ROT - Staubmuffe Stecker SW30","orderQty":"5"},{"barcode":"102079000005","number":"1020790","description":"44 6390 312 066 ROT - Staubmuffe Stecker Flachd","orderQty":"5"},{"barcode":"102078800005","number":"1020788","description":"44 6390 208 066 ROT - Staubmuffe zu Stecker Flachd","orderQty":"5"},{"barcode":"100213200005","number":"1002132","description":"64 6390 208 067 BG2 BLAU - Staubmuffe Stecker","orderQty":"5"},{"barcode":"102078900010","number":"1020789","description":"44 6390 312 067 ROT - Staubstecker Muffe flachdichtend","orderQty":"10"},{"barcode":"100212000005","number":"1002120","description":"63 6591 620 056 BG6 Rot - Schutzstopfen Schraubstecker","orderQty":"5"},{"barcode":"100211800005","number":"1002118","description":"63 6591 620 051 BG6 DN20 Rot - Schutzkappe Schraubmuffe","orderQty":"5"},{"barcode":"100211500005","number":"1002115","description":"63 6591 413 051 BG4 Weiss - Schutzkappe Schraubmuffe","orderQty":"5"},{"barcode":"100211600005","number":"1002116","description":"63 6591 413 056 BG4 Weiss - Schutzstopfen Schraubstecker","orderQty":"5"},{"barcode":"100211000005","number":"1002110","description":"63 6591 310 051 BG3 Rot - Schutzkappe Schraubmuffe","orderQty":"5"},{"barcode":"100210800010","number":"1002108","description":"63 6591 208 056 BG2 Rot - Schutzstopfen Schraubstecker","orderQty":"10"},{"barcode":"100210700005","number":"1002107","description":"63 6591 208 051 BG2 Rot - Schutzkappe Schraubmuffe","orderQty":"5"},{"barcode":"100211300005","number":"1002113","description":"63 6591 310 056 BG3 Rot - Schutzstopfen Schraubstecker","orderQty":"5"},{"barcode":"100211200001","number":"1002112","description":"63 6591 310 056 BG3 Weiss - Schutzstopfen Schraubstecker","orderQty":"1"},{"barcode":"100199500005","number":"1001995","description":"62 6311 106 063 BG1 R1/4IG - Kupplungsstecker SW19","orderQty":"5"},{"barcode":"1001851","number":"1001851","description":"61 6311 210 063 BG2 R3/8IG - Kupplungsmuffe SW22","orderQty":"0"},{"barcode":"100200800005","number":"1002008","description":"62 6311 210 063 BG2 R3/8IG - Kupplungsstecker SW22","orderQty":"5"},{"barcode":"1002191","number":"1002191","description":"72 6311 308 022 BG3 M16x1,5 10L - Kupplungsstecker SW30 LANG","orderQty":"0"},{"barcode":"1001854","number":"1001854","description":"61 6311 308 022 BG3 M16x1,5 10L - Kupplungsmuffe SW30","orderQty":"0"},{"barcode":"1002193","number":"1002193","description":"72 6311 310 022 BG3 M18x1,5 12L - Kupplungsstecker SW30 LANG","orderQty":"0"},{"barcode":"1001858","number":"1001858","description":"61 6311 310 022 BG3 M18x1,5 12L - Kupplungsmuffe SW30","orderQty":"0"},{"barcode":"100219800005","number":"1002198","description":"72 6311 313 022 BG3 M22x1,5 15L - Kupplungsstecker SW30 LANG","orderQty":"5"},{"barcode":"100186300005","number":"1001863","description":"61 6311 313 022 BG3 M22x1,5 15L - Kupplungsmuffe SW30","orderQty":"5"},{"barcode":"100186700005","number":"1001867","description":"61 6311 313 052 BG3 M22x1,5 15L - Schott-Kupplungsmuffe SW30","orderQty":"5"},{"barcode":"1002201","number":"1002201","description":"72 6311 313 052 BG3 M22x1,5 15L - Schott-Kupplungsstecker SW30","orderQty":"0"},{"barcode":"100186100005","number":"1001861","description":"61 6311 310 052 BG3 M18x1,5 12L - Schott-Kupplungsmuffe SW30","orderQty":"5"},{"barcode":"1002196","number":"1002196","description":"72 6311 310 052 BG3 M18x1,5 12L - Schott-Kupplungsstecker SW30","orderQty":"0"},{"barcode":"100187100005","number":"1001871","description":"61 6311 316 022 BG3 M26x1,5 18L - Kupplungsmuffe SW30","orderQty":"5"},{"barcode":"1002203","number":"1002203","description":"72 6311 316 022 BG3 M26x1,5 18L - Kupplungsstecker SW30 LANG","orderQty":"0"},{"barcode":"100220200005","number":"1002202","description":"72 6311 313 063 BG3 R1/2IG - Kupplungsstecker SW30 LANG","orderQty":"5"},{"barcode":"100187000005","number":"1001870","description":"61 6311 313 063 BG3 R1/2IG - Kupplungsmuffe SW30","orderQty":"5"},{"barcode":"100186600001","number":"1001866","description":"61 6311 313 027 BG3 M22x1,5IG - Kupplungsmuffe SW30","orderQty":"1"},{"barcode":"102573100005","number":"1025731","description":"62 6311 420 063 BG4 R3/4IG - Kupplungsstecker SW36","orderQty":"5"},{"barcode":"102573000005","number":"1025730","description":"61 6311 420 063 BG4 R3/4IG - Kupplungsmuffe SW36","orderQty":"5"},{"barcode":"102574800005","number":"1025748","description":"62 6511 208 052 BG2 M16x1,5 10L - Schott-Schraubstecker SW22","orderQty":"5"},{"barcode":"100189900005","number":"1001899","description":"61 6511 210 063 BG2 R3/8IG - Kupplungs-Schraubmuffe SW22","orderQty":"5"},{"barcode":"100203600005","number":"1002036","description":"62 6511 106 063 BG1 R1/4IG - Kupplungs-Schraubstecker SW19","orderQty":"5"},{"barcode":"101183000005","number":"1011830","description":"61 6511 106 062 BG1 R1/4AG - Kupplungsschraubmuffe SW19","orderQty":"5"},{"barcode":"100189200005","number":"1001892","description":"61 6511 106 063 BG1 R1/4IG - Kupplungs-Schraubmuffe SW19","orderQty":"5"},{"barcode":"100814700005","number":"1008147","description":"61 6511 206 052 BG2 M14x1,5 8L - Schott-Schraubmuffe SW22","orderQty":"5"},{"barcode":"100871800004","number":"1008718","description":"FF08-1-Igf08 Tropfr. - FF-Muffe BG2 1/2  IG","orderQty":"4"},{"barcode":"100189700005","number":"1001897","description":"61 6511 208 052 BG2 M16x1,5 10L - Schott-Schraubmuffe SW22","orderQty":"5"},{"barcode":"100204200005","number":"1002042","description":"62 6511 210 063 BG2 R3/8IG - Kupplungs-Schraubstecker SW22","orderQty":"5"},{"barcode":"100205100005","number":"1002051","description":"62 6511 313 022 BG3 M22x1,5 15L - Kupplungs-Schraubstecker SW30","orderQty":"5"},{"barcode":"100205400005","number":"1002054","description":"62 6511 313 052 BG3 M22x1,5 15L - Schott-Schraubstecker SW30","orderQty":"5"},{"barcode":"100191300005","number":"1001913","description":"61 6511 313 052 BG3 M22x1,5 15L - Schott-Schraubmuffe SW30","orderQty":"5"},{"barcode":"100204800005","number":"1002048","description":"62 6511 310 052 BG3 M18x1,5 12L - Schott-Schraubstecker SW30","orderQty":"5"},{"barcode":"100190600002","number":"1001906","description":"61 6511 310 052 BG3 M18x1,5 12L - Schott-Schraubmuffe SW30","orderQty":"2"},{"barcode":"100205700005","number":"1002057","description":"62 6511 313 063 BG3 R1/2IG - Kupplungs-Schraubstecker SW30","orderQty":"5"},{"barcode":"100191600005","number":"1001916","description":"61 6511 313 063 BG3 R1/2IG - Kupplungs-Schraubmuffe SW30","orderQty":"5"},{"barcode":"100205800005","number":"1002058","description":"62 6511 410 022 BG4 M18x1,5 12L - Kupplungs-Schraubstecker SW36","orderQty":"5"},{"barcode":"100192100005","number":"1001921","description":"61 6511 416 022 BG4 M26x1,5 18L - Kupplungs-Schraubmuffe SW36","orderQty":"5"},{"barcode":"100192000005","number":"1001920","description":"61 6511 413 052 BG4 M22x1,5 15L - Schott-Schraubmuffe SW36","orderQty":"5"},{"barcode":"100205900005","number":"1002059","description":"62 6511 413 022 BG4 M22x1,5 15L - Kupplungs-Schraubstecker SW36","orderQty":"5"},{"barcode":"100206100005","number":"1002061","description":"62 6511 413 052 BG4 M22x1,5 15L - Schott-Schraubstecker SW36","orderQty":"5"},{"barcode":"100192900005","number":"1001929","description":"61 6511 616 023 BG6 M30x2 20S - Kupplungs-Schraubmuffe SW41","orderQty":"5"},{"barcode":"100206900005","number":"1002069","description":"62 6511 616 023 BG6 M30x2 20S - Kupplungs-Schraubstecker SW41","orderQty":"5"},{"barcode":"100208300005","number":"1002083","description":"62 6511 625 063 BG6 R1IG - Kupplungs-Schraubstecker SW41","orderQty":"5"},{"barcode":"102084900005","number":"1020849","description":"61 6511 625 063 BG6 R1IG - Kupplungsschraubmuffe SW41","orderQty":"5"},{"barcode":"100206700005","number":"1002067","description":"62 6511 420 063 BG4 R3/4IG - Kupplungs-Schraubstecker SW36","orderQty":"5"},{"barcode":"100192700005","number":"1001927","description":"61 6511 420 063 BG4 R3/4IG - Kupplungs-Schraubmuffe SW36","orderQty":"5"},{"barcode":"100519600002","number":"1005196","description":"TEMA 10016 BLAU - Staubstecker Muffe","orderQty":"2"},{"barcode":"090262900025","number":"0902629","description":"M 08-S - Überwurfmutter","orderQty":"25"},{"barcode":"0902590","number":"0902590","description":"M 12-S - Überwurfmutter","orderQty":"0"},{"barcode":"090258500020","number":"0902585","description":"M 10-S - Überwurfmutter","orderQty":"20"},{"barcode":"0902592","number":"0902592","description":"M 14-S - Überwurfmutter","orderQty":"0"},{"barcode":"090259600020","number":"0902596","description":"M 16-S - Überwurfmutter","orderQty":"20"},{"barcode":"0902600","number":"0902600","description":"M 20-S - Überwurfmutter","orderQty":"0"},{"barcode":"090260400020","number":"0902604","description":"M 25-S - Überwurfmutter","orderQty":"20"},{"barcode":"090260800020","number":"0902608","description":"M 30-S - Überwurfmutter","orderQty":"20"},{"barcode":"090170600010","number":"0901706","description":"GE 12-SR 1/2\" OMD - Gerade Einschraubverschraubung unmont.","orderQty":"10"},{"barcode":"090865800010","number":"0908658","description":"GE 10-SR 1/2\" OMD - Gerade Einschraubverschraubung unmont.","orderQty":"10"},{"barcode":"0901808","number":"0901808","description":"GE 16-SR 3/8\" OMD - Gerade Einschraubverschraubung unmont.","orderQty":"0"},{"barcode":"0901712","number":"0901712","description":"GE 12-SR OMD - Gerade Einschraubverschraubung unmont.","orderQty":"0"},{"barcode":"0901605","number":"0901605","description":"GE 10-SR OMD - Gerade Einschraubverschraubung unmont.","orderQty":"0"},{"barcode":"0906712","number":"0906712","description":"GE 08-SR 3/8\" OMD - Gerade Einschraubverschraubung unmont.","orderQty":"0"},{"barcode":"090657500010","number":"0906575","description":"GE 12-SR 1/4\" OMD - Gerade Einschraubverschraubung unmont.","orderQty":"10"},{"barcode":"0908659","number":"0908659","description":"GE 10-SR 1/4\" OMD - Gerade Einschraubverschraubung unmont.","orderQty":"0"},{"barcode":"0902194","number":"0902194","description":"GE 08-SR OMD - Gerade Einschraubverschraubung unmont.","orderQty":"0"},{"barcode":"090059500020","number":"0900595","description":"D 30-S - Schneidring","orderQty":"20"},{"barcode":"0900582","number":"0900582","description":"D 20-S - Schneidring","orderQty":"0"},{"barcode":"0900589","number":"0900589","description":"D 25-S - Schneidring","orderQty":"0"},{"barcode":"0900582","number":"0900582","description":"D 20-S - Schneidring","orderQty":"0"},{"barcode":"0900575","number":"0900575","description":"D 16-S - Schneidring","orderQty":"0"},{"barcode":"0900575","number":"0900575","description":"D 16-S - Schneidring","orderQty":"0"},{"barcode":"0900568","number":"0900568","description":"D 14-S - Schneidring","orderQty":"0"},{"barcode":"090180500010","number":"0901805","description":"GE 16-SR 3/4\" OMD - Gerade Einschraubverschraubung unmont.","orderQty":"10"},{"barcode":"0901812","number":"0901812","description":"GE 16-SR OMD - Gerade Einschraubverschraubung unmont.","orderQty":"0"},{"barcode":"090990000010","number":"0909900","description":"GE 14-SR 3/4\" OMD - Gerade Einschraubverschraubung unmont.","orderQty":"10"},{"barcode":"0901885","number":"0901885","description":"GE 20-SR OMD - Gerade Einschraubverschraubung unmont.","orderQty":"0"},{"barcode":"090187900010","number":"0901879","description":"GE 20-SR 1\" OMD - Gerade Einschraubverschraubung unmont.","orderQty":"10"},{"barcode":"090235800005","number":"0902358","description":"GZ 08-S - Gerader Dichtkegel-Verbindungsstutzen","orderQty":"5"},{"barcode":"090865300010","number":"0908653","description":"G 08-S OMD - Gerade Verschraubung unmontiert","orderQty":"10"},{"barcode":"090753800010","number":"0907538","description":"W 08-S OMD - Winkelverschraubung unmontiert","orderQty":"10"},{"barcode":"090638800010","number":"0906388","description":"EVW 08-S OMD - Winkelanschlussverschr. einstell. unmont","orderQty":"10"},{"barcode":"090737000010","number":"0907370","description":"T 08-S OMD - T-Verschraubung unmontiert","orderQty":"10"},{"barcode":"090117500010","number":"0901175","description":"EVT 12-S OMD - T-Anschlussverschr. Einstellb. unmont.","orderQty":"10"},{"barcode":"090351800010","number":"0903518","description":"T 12-S OMD - T-Verschraubung unmontiert","orderQty":"10"},{"barcode":"090381900010","number":"0903819","description":"W 12-S OMD - Winkelverschraubung unmontiert","orderQty":"10"},{"barcode":"090123700010","number":"0901237","description":"EVW 12-S OMD - Winkelanschlussverschr. einstell. unmont","orderQty":"10"},{"barcode":"090232400010","number":"0902324","description":"GZ 12-S - Gerader Dichtkegel-Verbindungsstutzen","orderQty":"10"},{"barcode":"090122900010","number":"0901229","description":"EVW 10-S OMD - Winkelanschlussverschr. einstell. unmont","orderQty":"10"},{"barcode":"090140100010","number":"0901401","description":"G 12-S OMD - Gerade Verschraubung unmontiert","orderQty":"10"},{"barcode":"0903509","number":"0903509","description":"T 10-S OMD - T-Verschraubung unmontiert","orderQty":"0"},{"barcode":"0903810","number":"0903810","description":"W 10-S OMD - Winkelverschraubung unmontiert","orderQty":"0"},{"barcode":"0901229","number":"0901229","description":"EVW 10-S OMD - Winkelanschlussverschr. einstell. unmont","orderQty":"0"},{"barcode":"0901229","number":"0901229","description":"EVW 10-S OMD - Winkelanschlussverschr. einstell. unmont","orderQty":"0"},{"barcode":"0902320","number":"0902320","description":"GZ 10-S - Gerader Dichtkegel-Verbindungsstutzen","orderQty":"0"},{"barcode":"0901392","number":"0901392","description":"G 10-S OMD - Gerade Verschraubung unmontiert","orderQty":"0"},{"barcode":"090752600010","number":"0907526","description":"W 14-S OMD - Winkelverschraubung unmontiert","orderQty":"10"},{"barcode":"090637400010","number":"0906374","description":"EVW 14-S OMD - Winkelanschlussverschr. einstell. unmont","orderQty":"10"},{"barcode":"090867800010","number":"0908678","description":"T 14-S OMD - T-Verschraubung unmontiert","orderQty":"10"},{"barcode":"090232600010","number":"0902326","description":"GZ 14-S - Gerader Dichtkegel-Verbindungsstutzen","orderQty":"10"},{"barcode":"090233000010","number":"0902330","description":"GZ 16-S - Gerader Dichtkegel-Verbindungsstutzen","orderQty":"10"},{"barcode":"090644600010","number":"0906446","description":"G 30-S OMD - Gerade Verschraubung unmontiert","orderQty":"10"},{"barcode":"090383000010","number":"0903830","description":"W 16-S OMD - Winkelverschraubung unmontiert","orderQty":"10"},{"barcode":"090383800010","number":"0903838","description":"W 20-S OMD - Winkelverschraubung unmontiert","orderQty":"10"},{"barcode":"090125600010","number":"0901256","description":"EVW 20-S OMD - Winkelanschlussverschr. einstell. unmont","orderQty":"10"},{"barcode":"090353700010","number":"0903537","description":"T 20-S OMD - T-Verschraubung unmontiert","orderQty":"10"},{"barcode":"090233500010","number":"0902335","description":"GZ 20-S - Gerader Dichtkegel-Verbindungsstutzen","orderQty":"10"},{"barcode":"090142100010","number":"0901421","description":"G 20-S OMD - Gerade Verschraubung unmontiert","orderQty":"10"},{"barcode":"090142900010","number":"0901429","description":"G 25-S OMD - Gerade Verschraubung unmontiert","orderQty":"10"},{"barcode":"090354500010","number":"0903545","description":"T 25-S OMD - T-Verschraubung unmontiert","orderQty":"10"},{"barcode":"090126200010","number":"0901262","description":"EVW 25-S OMD - Winkelanschlussverschr. einstell. unmont","orderQty":"10"},{"barcode":"090384600010","number":"0903846","description":"W 25-S OMD - Winkelverschraubung unmontiert","orderQty":"10"},{"barcode":"090385400010","number":"0903854","description":"W 30-S OMD - Winkelverschraubung unmontiert","orderQty":"10"},{"barcode":"090950800001","number":"0909508","description":"GE 30-SR 1\"-WD OMD - Gerade Einschraubverschraubung unmont.","orderQty":"1"},{"barcode":"090199900005","number":"0901999","description":"GE 30-SR OMD - Gerade Einschraubverschraubung unmont.","orderQty":"5"},{"barcode":"100143500005","number":"1001435","description":"38 0221 483 040 Hohlschraube - R 1/8","orderQty":"5"},{"barcode":"1012558","number":"1012558","description":"MC 06-06 MURN - Armatur RN F.hs. R3/8 DN10","orderQty":"0"},{"barcode":"1001438","number":"1001438","description":"38 0221 483 130 R 3/8 - Hohlschraube f. 18mm RIngstück 3/8 Ge","orderQty":"0"},{"barcode":"1006187","number":"1006187","description":"38 0221 483 150 Hohlschraube - R 1/2","orderQty":"0"},{"barcode":"1001514","number":"1001514","description":"39 0205 483 100 Hohlschraube - M 14*1,5 NEU: 39 0205 483 101","orderQty":"0"},{"barcode":"1001513","number":"1001513","description":"39 0205 483 080 Hohlschraube - M 12*1,5 NEU: 39 0205 483 081","orderQty":"0"},{"barcode":"1001437","number":"1001437","description":"38 0221 483 100 R3/8\" - Hohlschraube f. R3/8\" Ringstück","orderQty":"0"},{"barcode":"1001517","number":"1001517","description":"39 0205 483 181 Hohlschraube - M 22*1,5","orderQty":"0"},{"barcode":"1001518","number":"1001518","description":"39 0205 483 220 Hohlschraube - M 26*1,5","orderQty":"0"},{"barcode":"1032233","number":"1032233","description":"39 0205 483 151-07 M 18*1,5 - Hohlschraube","orderQty":"0"},{"barcode":"1011165","number":"1011165","description":"G4 R1/4 M00 060/1400-04-04 - Ringnippel F.HS R1/4 DN06","orderQty":"0"},{"barcode":"1011169","number":"1011169","description":"G4 R1/2 M00 130/1400-08-08 - Ringnippel F.HS R1/2 DN12","orderQty":"0"},{"barcode":"1012565","number":"1012565","description":"MC 08-06 MURN - Armatur RN F.hs. R3/8 DN12","orderQty":"0"},{"barcode":"1012565","number":"1012565","description":"MC 08-06 MURN - Armatur RN F.hs. R3/8 DN12","orderQty":"0"},{"barcode":"100151500005","number":"1001515","description":"39 0205 483 120 Hohlschraube - M 16x1,5 NEU: 39 0205 483 121","orderQty":"5"},{"barcode":"100739300005","number":"1007393","description":"G4 0450 M00 200/1350-12-26 - Ringnippel F.HS 26x1,5 DN-20","orderQty":"5"},{"barcode":"1003728","number":"1003728","description":"G4 0453 M00 100/1350-06-18 - Ringnippel F.HS 18x1,5 DN10","orderQty":"0"},{"barcode":"1003715","number":"1003715","description":"G4 0450 M00 100/1350-06-16 - Ringnippel F.HS 16x1,5 DN10","orderQty":"0"},{"barcode":"1003716","number":"1003716","description":"G4 0450 M00 130/1350-08-18 - Ringnippel F.HS 18x1,5 DN12","orderQty":"0"},{"barcode":"100374700005","number":"1003747","description":"G4 0490 M00 100/1350-06-14 - Ringnippel F.HS 14x1,5 DN10","orderQty":"5"},{"barcode":"1003714","number":"1003714","description":"G4 0450 M00 080/1350-05-14 - Ringnippel F.HS 14x1,5 DN08","orderQty":"0"},{"barcode":"100371300005","number":"1003713","description":"G4 0450 M00 060/1350-04-12 - Ringnippel F.HS 12x1,5 DN06","orderQty":"5"},{"barcode":"1003746","number":"1003746","description":"G4 0490 M00 060/1350-04-10 - Ringnippel F.HS 10x1 DN06","orderQty":"0"},{"barcode":"100151200005","number":"1001512","description":"39 0205 483 060 Hohlschraube - M 10*1,0 NEU: 39 0205 483 061","orderQty":"5"},{"barcode":"100156700005","number":"1001567","description":"39 1324 936 378 DN32 Size 20 37,7x3,5 - O-Ring SAE-Flanschbund","orderQty":"5"},{"barcode":"100156600005","number":"1001566","description":"39 1324 936 328 DN25 Size 16 32,9x3,5 - O-Ring SAE-Flanschbund","orderQty":"5"},{"barcode":"102407800005","number":"1024078","description":"17,00-25,40-02,85 PU 1/2\" DN12 Size 8 - SAE-Flanschdichtung","orderQty":"5"},{"barcode":"102408000005","number":"1024080","description":"31,20-39,60-02,85 PU 1\" DN25 Size 16 - SAE-Flanschdichtung","orderQty":"5"},{"barcode":"102407900005","number":"1024079","description":"23,40-31,80-02,85 PU 3/4 DN20 Size 12 - SAE-Flanschdichtung","orderQty":"5"},{"barcode":"100156500005","number":"1001565","description":"39 1324 936 253 DN20 Size 12 25x3,5 - O-Ring SAE-Flanschbund","orderQty":"5"},{"barcode":"100156400005","number":"1001564","description":"39 1324 936 188 DN12 Size 8 18,6x3,5 - O-Ring SAE-Flanschbund","orderQty":"5"},{"barcode":"100153500005","number":"1001535","description":"39 1321 936 205 20,2x3,5 NBR BG3 - O-RING NBR","orderQty":"5"},{"barcode":"100354100010","number":"1003541","description":"G4 0319 M00 130/0051-08-08 - Nippel DKR 1/2 DN12 Bsp60 GR","orderQty":"10"},{"barcode":"1003692","number":"1003692","description":"G4 0431 M00 130/0350-08-08 - Nippel AGR R1/2 60 GR DN12","orderQty":"0"},{"barcode":"1004177","number":"1004177","description":"G4 0915 M00 100/0151-06-08 - Nippel DKR1/2 DN10 90GR","orderQty":"0"},{"barcode":"1009518","number":"1009518","description":"G4 0834 M00 100/0251-06-08 - Nippel DKR 1/2 45 GR","orderQty":"0"},{"barcode":"1003519","number":"1003519","description":"G4 0301 M00 100/0051-06-08 - Nippel DKR 1/2 DN10 Bsp60 GR","orderQty":"0"},{"barcode":"1009523","number":"1009523","description":"G4 0477 M00 100/0350-06-08 - Nippel AGR R1/2 60 GR DN10","orderQty":"0"},{"barcode":"1003902","number":"1003902","description":"G4 0833 M00 130/0251-08-08 - Nippel DKR1/2 DN12 45 GR","orderQty":"0"},{"barcode":"1004161","number":"1004161","description":"G4 0914 M00 130/0151-08-08 - Nippel DKR1/2 DN12 90GR","orderQty":"0"},{"barcode":"103134900010","number":"1031349","description":"G4 0478 M00 160/0350-10-08 - Nippel AGR R1/2 60 GR DN16","orderQty":"10"},{"barcode":"103029200010","number":"1030292","description":"G4 0304 M00 160/0051-10-08 - Nippel DKR 1/2 DN16 Bsp60 GR","orderQty":"10"},{"barcode":"100352000010","number":"1003520","description":"G4 0301 M00 160/0051-10-12 - Nippel DKR 3/4 DN16 Bsp60 GR","orderQty":"10"},{"barcode":"101932000005","number":"1019320","description":"G4 0924 M00 130/0151-08-12 - Nippel DKR-3/4  DN13 90°","orderQty":"5"},{"barcode":"100952400005","number":"1009524","description":"G4 0477 M00 160/0350-10-12 - Nippel AGR R3/4 60 GR DN16","orderQty":"5"},{"barcode":"100391300005","number":"1003913","description":"G4 0834 M00 160/0251-10-12 - Nippel DKR3/4 DN16 45 GR","orderQty":"5"},{"barcode":"100417900005","number":"1004179","description":"G4 0915 M00 160/0151-10-12 - Nippel DKR3/4 DN16 90GR","orderQty":"5"},{"barcode":"101264300002","number":"1012643","description":"G4 0304 M00 250/0050-16-12 - Nippel DKR 3/4 DN25 Bsp60 GR","orderQty":"2"},{"barcode":"100416300005","number":"1004163","description":"G4 0914 M00 200/0151-12-12 - Nippel DKR3/4 DN20 90GR","orderQty":"5"},{"barcode":"100390400005","number":"1003904","description":"G4 0833 M00 200/0251-12-12 - Nippel DKR3/4 DN20 45 GR","orderQty":"5"},{"barcode":"100354300005","number":"1003543","description":"G4 0319 M00 200/0051-12-12 - Nippel DKR 3/4 DN20 Bsp60 GR","orderQty":"5"},{"barcode":"100369400005","number":"1003694","description":"G4 0431 M00 200/0350-12-12 - Nippel AGR R3/4 60 GR DN20","orderQty":"5"},{"barcode":"101316500002","number":"1013165","description":"G4 0917 M00 250/0150s-16-12 - Nippel DKR3/4 DN25 90GR","orderQty":"2"},{"barcode":"100952000002","number":"1009520","description":"G4 0915 M00 200/0151-12-16 - Nippel DKR 1  DN20 90GR","orderQty":"2"},{"barcode":"100416400005","number":"1004164","description":"G4 0914 M00 250/0151-16-16 - Nippel DKR1 DN25 90GR","orderQty":"5"},{"barcode":"100390500005","number":"1003905","description":"G4 0833 M00 250/0251-16-16 - Nippel DKR1 DN25 45 GR","orderQty":"5"},{"barcode":"100369500010","number":"1003695","description":"G4 0431 M00 250/0350-16-16 - Nippel AGR R1   60 GR DN25","orderQty":"10"},{"barcode":"100354400010","number":"1003544","description":"G4 0319 M00 250/0051-16-16 - Nippel DKR 1  DN25 Bsp60 GR","orderQty":"10"},{"barcode":"101365900005","number":"1013659","description":"G4 0431 M00 320/0350-20-20 - Nippel AGR R1.1/4 60GR DN32","orderQty":"5"},{"barcode":"101365200005","number":"1013652","description":"G4 0319 M00 320/0050-20-20 - Nippel Dkr11/4 DN32 Bsp60 GR","orderQty":"5"},{"barcode":"100367100005","number":"1003671","description":"G4 0408 M00 080/0370-05-06 - Nippel AGN 3/8-18 NPTF DN08","orderQty":"5"},{"barcode":"100362500005","number":"1003625","description":"G4 0402 M00 100/0370-06-06 - Nippel AGN 3/8-18 NPTF DN10","orderQty":"5"},{"barcode":"100955800005","number":"1009558","description":"G4 0447 M00 130/0360-08-06 - Nippel AGR-K R3/8 DN12 Kegelig","orderQty":"5"},{"barcode":"100370800005","number":"1003708","description":"G4 0446 M00 100/0360-06-08 - Nippel AGR-K R1/2 DN10 Kegelig","orderQty":"5"},{"barcode":"100362600005","number":"1003626","description":"G4 0402 M00 130/0370-08-08 - Nippel AGN 1/2-14 NPTF DN12","orderQty":"5"},{"barcode":"102622800005","number":"1026228","description":"G4 0401 M00 130/0345-08-08 - Nippel AGR-F R1/2 BSP DN12","orderQty":"5"},{"barcode":"102533400005","number":"1025334","description":"G4 0433 M00 080/0345-05-06 - Nippel AGR-F R3/8 60 GR DN08","orderQty":"5"},{"barcode":"102625200005","number":"1026252","description":"G4 0401 M00 060/0345-04-04 - Nippel AGR-F R1/4 BSP DN06","orderQty":"5"},{"barcode":"100362700005","number":"1003627","description":"G4 0402 M00 200/0370-12-12 - Nippel AGN 3/4-14 NPTF DN20","orderQty":"5"},{"barcode":"100353700005","number":"1003537","description":"G4 0304 M00 060/0051-04-02 - Nippel DKR 1/8 DN06 Bsp60 GR","orderQty":"5"},{"barcode":"100373900005","number":"1003739","description":"G4 0478 M00 060/0350-04-02 - Nippel AGR R1/8 60 GR DN06","orderQty":"5"},{"barcode":"101232300005","number":"1012323","description":"G4 0917 M00 060/0150-04-02 - Nippel DKR1/8 DN06 90GR","orderQty":"5"},{"barcode":"100369000005","number":"1003690","description":"G4 0431 M00 060/0350-04-04 - Nippel AGR R1/4 60 GR DN06","orderQty":"5"},{"barcode":"100353900005","number":"1003539","description":"G4 0319 M00 060/0051-04-04 - Nippel DKR 1/4 DN06 Bsp60 GR","orderQty":"5"},{"barcode":"101079300005","number":"1010793","description":"G4 0917 M00 080/0151-05-04 - Nippel DKR1/4 DN08 90GR","orderQty":"5"},{"barcode":"101079200005","number":"1010792","description":"G4 0832 M00 080/0251-05-04 - Nippel DKR1/4 DN08 45 GR","orderQty":"5"},{"barcode":"101078700005","number":"1010787","description":"G4 0304 M00 080/0050-05-04 - Nippel DKR 1/4 DN08 Bsp60 GR","orderQty":"5"},{"barcode":"100952500005","number":"1009525","description":"G4 0478 M00 080/0350-05-04 - Nippel AGR R1/4 60 GR DN08","orderQty":"5"},{"barcode":"100415900005","number":"1004159","description":"G4 0914 M00 060/0151-04-04 - Nippel DKR1/4 DN06 90GR","orderQty":"5"},{"barcode":"100390000005","number":"1003900","description":"G4 0833 M00 060/0251-04-04 - Nippel DKR1/4 DN06 45 GR","orderQty":"5"},{"barcode":"100952200005","number":"1009522","description":"G4 0477 M00 080/0350-05-06 - Nippel AGR R3/8 60 GR DN08","orderQty":"5"},{"barcode":"100740300005","number":"1007403","description":"G4 0301 M00 080/0051-05-06 - Nippel DKR 3/8 DN08 Bsp60 GR","orderQty":"5"},{"barcode":"100391200005","number":"1003912","description":"G4 0834 M00 080/0251-05-06 - Nippel DKR3/8 DN08 45 GR","orderQty":"5"},{"barcode":"101005400005","number":"1010054","description":"MC 05-06 NU90 - Armatur DKR R3/8 BSP DN08 90°","orderQty":"5"},{"barcode":"100369100010","number":"1003691","description":"G4 0431 M00 100/0350-06-06 - Nippel AGR R3/8 60 GR DN10","orderQty":"10"},{"barcode":"100354000050","number":"1003540","description":"G4 0319 M00 100/0051-06-06 - Nippel DKR 3/8 DN10 Bsp60 GR","orderQty":"50"},{"barcode":"100362400005","number":"1003624","description":"G4 0402 M00 060/0370-04-04 - Nippel AGN 1/4-18 NPTF DN06","orderQty":"5"},{"barcode":"100422400010","number":"1004224","description":"G6 3204 M02 105/0060-06-08 - Nippel DKR-F 1/2dn10 Kurze UEM","orderQty":"10"},{"barcode":"100416000020","number":"1004160","description":"G4 0914 M00 100/0151-06-06 - Nippel DKR3/8 DN10 90GR","orderQty":"20"},{"barcode":"100390100005","number":"1003901","description":"G4 0833 M00 100/0251-06-06 - Nippel DKR3/8 DN10 45 GR","orderQty":"5"},{"barcode":"100952700010","number":"1009527","description":"G4 0478 M00 130/0350-08-06 - Nippel AGR R3/8 60 GR DN12","orderQty":"10"},{"barcode":"101003300005","number":"1010033","description":"MC 08-06 NU - Armatur DKR R3/8 BSP DN12","orderQty":"5"},{"barcode":"101264400005","number":"1012644","description":"G4 0917 M00 130/0151-08-06 - Nippel DKR3/8 DN12 90GR","orderQty":"5"},{"barcode":"100723300005","number":"1007233","description":"G4 0896 M00 060/0650-04-06 - Nippel Bel90 DN06 6L","orderQty":"5"},{"barcode":"100369500001","number":"1003695","description":"G4 0431 M00 250/0350-16-16 - Nippel AGR R1   60 GR DN25","orderQty":"1"},{"barcode":"100380000002","number":"1003800","description":"G4 0527 M00 130/1260-08-08 - Nippel SFL-3 1/2 30,2mm DN-12","orderQty":"2"},{"barcode":"100960400002","number":"1009604","description":"G4 0855 M00 130/1160-08-08 - Nippel SFL-3 1/2 30,2 DN12 45G","orderQty":"2"},{"barcode":"100721800005","number":"1007218","description":"G4 0100 M00 080/0550-05-10 - Nippel BEL DN08 10L","orderQty":"5"},{"barcode":"1009623","number":"1009623","description":"G4 0528 M00 130/1310-08-08 - Nippel SFL-6 1/2 31,7mm DN-12","orderQty":"0"},{"barcode":"100962900002","number":"1009629","description":"G4 0856 M00 130/1210-08-08 - Nippel SFL-6 1/2 31,7 DN12 45G","orderQty":"2"},{"barcode":"1009632","number":"1009632","description":"G4 0901 M00 130/1110-08-08 - Nippel SFL-6 1/2 31,7 DN12 90G","orderQty":"0"},{"barcode":"1004094","number":"1004094","description":"G4 0901 R00 160 - Nippel SFL-6 1/2 31,7dn16 90GR","orderQty":"0"},{"barcode":"1003973","number":"1003973","description":"G4 0856 R00 160 - Nippel SFL6 1/2 31,7 DN16 45GR","orderQty":"0"},{"barcode":"100962100002","number":"1009621","description":"G4 0902 M00 130/1060-08-12 - Nippel SFL-3 3/4 38,1 DN12 90G","orderQty":"2"},{"barcode":"101286600002","number":"1012866","description":"G4 0533 M00 160/1260-10-12 - Nippel SFL-3 3/4 38,1mm DN-16","orderQty":"2"},{"barcode":"101286700002","number":"1012867","description":"G4 0902 M00 160/1060-10-12 - Nippel SFL-3 3/4 38,1 DN16 90G","orderQty":"2"},{"barcode":"100397000002","number":"1003970","description":"G4 0856 M00 200/1210-12-12 - Nippel SFS-6 3/4 41,3 DN20 45G","orderQty":"2"},{"barcode":"100409100002","number":"1004091","description":"G4 0901 M00 200/1110-12-12 - Nippel SFL-6 3/4 41,3 DN20 90G","orderQty":"2"},{"barcode":"100380600002","number":"1003806","description":"G4 0528 M00 200/1310-12-12 - Nippel SFL-6 3/4 41,3mmdn20","orderQty":"2"},{"barcode":"101286500002","number":"1012865","description":"G4 0804 M00 160/1110-10-12 - Nippel SFL6 3/4 41,3 DN16 90G","orderQty":"2"},{"barcode":"101286400002","number":"1012864","description":"G4 0828 M00 160/1210-10-12 - Nippel SFL-6 3/4 41,3 DN16 45G","orderQty":"2"},{"barcode":"101296300002","number":"1012963","description":"G4 0804 M00 130/1110-08-12 - Nippel SFL6 3/4 41,3 DN12 90G","orderQty":"2"},{"barcode":"1004085","number":"1004085","description":"G4 0900 M00 200/1060-12-12 - Nippel SFL-3 3/4 38,1 DN20 90G","orderQty":"0"},{"barcode":"100959400002","number":"1009594","description":"G4 0527 M00 200/1260-12-12 - Nippel SFL-3 3/4 38,1mm DN-20","orderQty":"2"},{"barcode":"1003964","number":"1003964","description":"G4 0855 M00 200/1160-12-12 - Nippel SFL-3 3/4 38,1 DN20 45G","orderQty":"0"},{"barcode":"100409800002","number":"1004098","description":"G4 0902 M00 200/1060-12-16 - Nippel SFL-3 1  44,5  DN20 90G","orderQty":"2"},{"barcode":"100389100002","number":"1003891","description":"G4 0826 M00 200/1160-12-16 - Nippel SFL-3 1  44,5  DN20 45G","orderQty":"2"},{"barcode":"100408600002","number":"1004086","description":"G4 0900 M00 250/1060-16-16 - Nippel SFL-3 1   44,5 DN25 90G","orderQty":"2"},{"barcode":"100396500002","number":"1003965","description":"G4 0855 M00 250/1160-16-16 - Nippel  SFL-3 1 44,5  DN25 45G","orderQty":"2"},{"barcode":"101047100002","number":"1010471","description":"G4 0804 M00 200/1110-12-16 - Nippel SFL6 1 47,6mm DN-20 90°","orderQty":"2"},{"barcode":"100962700002","number":"1009627","description":"G4 0535 M00 200/1310-12-16 - Nippel SFL-6  1 47,6mm DN-20","orderQty":"2"},{"barcode":"100397100002","number":"1003971","description":"G4 0856 M00 250/1210-16-16 - Nippel SFS-6 1  47,6  DN25 45G","orderQty":"2"},{"barcode":"100409900002","number":"1004099","description":"G4 0902 M00 250/1060-16-20 - Nippel SFL3 1.1/4 50,8dn25 90G","orderQty":"2"},{"barcode":"100960100002","number":"1009601","description":"G4 0533 M00 250/1260-16-20 - Nippel SFL-3 1.1/4 50,8 DN25","orderQty":"2"},{"barcode":"100409200005","number":"1004092","description":"G4 0901 M00 250/1110-16-16 - Nippel SFL-6 1  47,6 DN25 90G","orderQty":"5"},{"barcode":"101224500004","number":"1012245","description":"G4 0527 M30 200/1250H12-12 - Nippel SFL-3 3/4 38,1 DN20 4SH","orderQty":"4"},{"barcode":"101224600002","number":"1012246","description":"G4 0527 M30 250/1250H16-16 - Nippel SFL-3 1  44,5  DN25 4SH","orderQty":"2"},{"barcode":"101220300005","number":"1012203","description":"G4 0900 M30 200/1050H12-12 - Nippel SFL3-90R3/4 38,1DN204SH","orderQty":"5"},{"barcode":"100380600002","number":"1003806","description":"G4 0528 M00 200/1310-12-12 - Nippel SFL-6 3/4 41,3mmdn20","orderQty":"2"},{"barcode":"100409100005","number":"1004091","description":"G4 0901 M00 200/1110-12-12 - Nippel SFL-6 3/4 41,3 DN20 90G","orderQty":"5"},{"barcode":"101220400002","number":"1012204","description":"G4 0900 M30 250/1050H16-16 - Nippel SFL3-90 1 44,5 DN25 4SH","orderQty":"2"},{"barcode":"101225600002","number":"1012256","description":"G4 0855 M30 250/1150H16-16 - Nippel SFL3 45° 1  44,5DN254SH","orderQty":"2"},{"barcode":"100380100002","number":"1003801","description":"G4 0527 M00 250/1260-16-16 - Nippel SFL-3 1 44,5mm DN-25","orderQty":"2"},{"barcode":"101226400002","number":"1012264","description":"G4 0902 M30 200/1050H12-16 - Nippel SFL-3 90°1 44,5DN20 4SH","orderQty":"2"},{"barcode":"100381300002","number":"1003813","description":"G4 0533 M00 200/1260-12-16 - Nippel SFL-3 1  44,5mm DN-20","orderQty":"2"},{"barcode":"101218700005","number":"1012187","description":"G4 0319 M30 250/0050H16-16 - Nippel DKR 1  DN25 Bsp60° 4SH","orderQty":"5"},{"barcode":"101223000002","number":"1012230","description":"G4 0804 M30 200/1100H12-16 - Nippel SFL6 90°1 47,6 DN20 4SH","orderQty":"2"},{"barcode":"100380700002","number":"1003807","description":"G4 0528 M00 250/1310-16-16 - Nippel SFL-6 1  47,6mm DN-25","orderQty":"2"},{"barcode":"101220800002","number":"1012208","description":"G4 0528 M30 250/1300H16-16 - Nippel SFL-6 1  47,6 DN25 4SH","orderQty":"2"},{"barcode":"101221800002","number":"1012218","description":"G4 0856 M30 250/1200H16-16 - Nippel SFL6 45° 1 47,6DN25 4SH","orderQty":"2"},{"barcode":"101222700005","number":"1012227","description":"G4 0901 M30 250/1100H16-16 - Nippel SFL6 90° 1 47,6 DN25 4SH","orderQty":"5"},{"barcode":"101223100002","number":"1012231","description":"G4 0804 M30 250/1100H16-20 - Nippel SFL6 90°11/4 54 DN254SH","orderQty":"2"},{"barcode":"101222300002","number":"1012223","description":"G4 0828 M30 250/1200H16-20 - Nippel SFS6 45°11/4 54 DN254SH","orderQty":"2"},{"barcode":"101221400002","number":"1012214","description":"G4 0535 M30 250/1300H16-20 - Nippel SFL-6 11/4 54,0DN25 4SH","orderQty":"2"},{"barcode":"101226500002","number":"1012265","description":"G4 0902 M30 250/1050H16-20 - Nippel SFL-3 90°11/4 50,8 DN25","orderQty":"2"},{"barcode":"101226100002","number":"1012261","description":"G4 0826 M30 250/1150H16-20 - Nippel SFL3 45°11/4 50,8 DN25","orderQty":"2"},{"barcode":"101225100002","number":"1012251","description":"G4 0533 M30 250/1250H16-20 - Nippel SFL-3 11/4 50,8DN25 4SH","orderQty":"2"},{"barcode":"101218600002","number":"1012186","description":"G4 0319 M30 200/0050H12-12 - Nippel DKR 3/4 DN20 Bsp60° 4SH","orderQty":"2"},{"barcode":"101432100002","number":"1014321","description":"G4 0431 M30 200/0350H12-12 - Nippel AGR 3/4 DN20 Bsp60° 4SH","orderQty":"2"},{"barcode":"101217400002","number":"1012174","description":"G4 0202 M30 200/0450H12-36 - Nippel CES M36x2 DN20 25S 4SH","orderQty":"2"},{"barcode":"101218700005","number":"1012187","description":"G4 0319 M30 250/0050H16-16 - Nippel DKR 1  DN25 Bsp60° 4SH","orderQty":"5"},{"barcode":"101217500002","number":"1012175","description":"G4 0202 M30 250/0450H16-42 - Nippel CES M42x2 DN25 30S 4SH","orderQty":"2"},{"barcode":"101217800002","number":"1012178","description":"G4 0348 M30 250/0084H16-42 - Nippel DKOS M42x2 DN25 30S 4SH","orderQty":"2"},{"barcode":"101432400002","number":"1014324","description":"G4 0431 M30 250/0350H16-16 - Nippel AGR 1  DN25 Bsp60° 4SH","orderQty":"2"},{"barcode":"101217000010","number":"1012170","description":"34 4030 M30 200/004N-12 - Fassung Interlock DN20 4SH/R15","orderQty":"10"},{"barcode":"101217100005","number":"1012171","description":"34 4030 M30 250/004N-16 - Fassung Interlock DN25 4SH/R15","orderQty":"5"},{"barcode":"010103500002","number":"0101035","description":"6000-2RSH/C3 SKF - Rillenkugellager","orderQty":"2"},{"barcode":"010104400002","number":"0101044","description":"6001-2RSH/C3 SKF - Rillenkugellager","orderQty":"2"},{"barcode":"010105300002","number":"0101053","description":"6002-2RSH/C3 SKF - Rillenkugellager","orderQty":"2"},{"barcode":"010106400002","number":"0101064","description":"6003-2RSH/C3 SKF - Rillenkugellager","orderQty":"2"},{"barcode":"010107500002","number":"0101075","description":"6004-2RSH/C3 SKF - Rillenkugellager","orderQty":"2"},{"barcode":"010108900002","number":"0101089","description":"6005-2RSH/C3 SKF - Rillenkugellager","orderQty":"2"},{"barcode":"010110100002","number":"0101101","description":"6006-2RS1/C3 SKF - Rillenkugellager","orderQty":"2"},{"barcode":"010111200002","number":"0101112","description":"6007-2RS1/C3 SKF - Rillenkugellager","orderQty":"2"},{"barcode":"010112300002","number":"0101123","description":"6008-2RS1/C3 SKF - Rillenkugellager","orderQty":"2"},{"barcode":"010113500002","number":"0101135","description":"6009-2RS1/C3 SKF - Rillenkugellager","orderQty":"2"},{"barcode":"010114600002","number":"0101146","description":"6010-2RS1/C3 SKF - Rillenkugellager","orderQty":"2"},{"barcode":"010115600002","number":"0101156","description":"6011-2RS1/C3 SKF - Rillenkugellager","orderQty":"2"},{"barcode":"010116400002","number":"0101164","description":"6012-2RS1/C3 SKF - Rillenkugellager","orderQty":"2"},{"barcode":"010117300002","number":"0101173","description":"6013-2RS1/C3 SKF - Rillenkugellager","orderQty":"2"},{"barcode":"010155900002","number":"0101559","description":"6211-2RS1/C3 SKF - Rillenkugellager","orderQty":"2"},{"barcode":"010154100002","number":"0101541","description":"6210-2RS1/C3 SKF - Rillenkugellager","orderQty":"2"},{"barcode":"010152300002","number":"0101523","description":"6209-2RS1/C3 SKF - Rillenkugellager","orderQty":"2"},{"barcode":"010150300002","number":"0101503","description":"6208-2RS1/C3 SKF - Rillenkugellager","orderQty":"2"},{"barcode":"010148200002","number":"0101482","description":"6207-2RS1/C3 SKF - Rillenkugellager","orderQty":"2"},{"barcode":"010146200002","number":"0101462","description":"6206-2RS1/C3 SKF - Rillenkugellager","orderQty":"2"},{"barcode":"010144100002","number":"0101441","description":"6205-2RSH/C3 SKF - Rillenkugellager","orderQty":"2"},{"barcode":"010141900002","number":"0101419","description":"6204-2RSH/C3 SKF - Rillenkugellager","orderQty":"2"},{"barcode":"010140400002","number":"0101404","description":"6203-2RSH/C3 SKF - Rillenkugellager","orderQty":"2"},{"barcode":"010138500002","number":"0101385","description":"6202-2RSH/C3 SKF - Rillenkugellager","orderQty":"2"},{"barcode":"010477300002","number":"0104773","description":"6300-2RSH/C3 SKF - Rillenkugellager","orderQty":"2"},{"barcode":"010172600002","number":"0101726","description":"6301-2RSH/C3 SKF - Rillenkugellager","orderQty":"2"},{"barcode":"010173300002","number":"0101733","description":"6302-2RSH/C3 SKF - Rillenkugellager","orderQty":"2"},{"barcode":"010174300002","number":"0101743","description":"6303-2RSH/C3 SKF - Rillenkugellager","orderQty":"2"},{"barcode":"010175600002","number":"0101756","description":"6304-2RSH/C3 SKF - Rillenkugellager","orderQty":"2"},{"barcode":"010176700002","number":"0101767","description":"6305-2RS1/C3 SKF - Rillenkugellager","orderQty":"2"},{"barcode":"010178600002","number":"0101786","description":"6306-2RS1/C3 SKF - Rillenkugellager","orderQty":"2"},{"barcode":"010180200002","number":"0101802","description":"6307-2RS1/C3 SKF - Rillenkugellager","orderQty":"2"},{"barcode":"010181700002","number":"0101817","description":"6308-2RS1/C3 SKF - Rillenkugellager","orderQty":"2"},{"barcode":"010183200002","number":"0101832","description":"6309-2RS1/C3 SKF - Rillenkugellager","orderQty":"2"},{"barcode":"180005700005","number":"1800057","description":"20x2,0mm DIN2391/C St37,4 verzinkt - Hydraulik-Stahlrohr verzinkt, nahtlos","orderQty":"5"},{"barcode":"180004800005","number":"1800048","description":"18x1,5mm DIN2391/C St37,4 verzinkt - Hydraulik-Stahlrohr verzinkt, nahtlos","orderQty":"5"},{"barcode":"180004300005","number":"1800043","description":"16x2,0mm DIN2391/C St37,4 verzinkt - Hydraulik-Stahlrohr verzinkt, nahtlos","orderQty":"5"},{"barcode":"180003200005","number":"1800032","description":"15x1,5mm DIN2391/C St37,4 verzinkt - Hydraulik-Stahlrohr verzinkt, nahtlos","orderQty":"5"},{"barcode":"180011800005","number":"1800118","description":"6x1,0mm DIN2391/C St37,4 verzinkt - Hydraulik-Stahlrohr verzinkt, nahtlos","orderQty":"5"},{"barcode":"180012400005","number":"1800124","description":"8x1,0mm DIN2391/C St37,4 verzinkt - Hydraulik-Stahlrohr verzinkt, nahtlos","orderQty":"5"},{"barcode":"180000300005","number":"1800003","description":"10x1,0mm DIN2391/C St37,4 verzinkt - Hydraulik-Stahlrohr verzinkt, nahtlos","orderQty":"5"},{"barcode":"180001300005","number":"1800013","description":"12x1,0mm DIN2391/C St37,4 verzinkt - Hydraulik-Stahlrohr verzinkt, nahtlos","orderQty":"5"}];
+
+// Schnelle Lookup-Map
+const BARCODE_MAP = {};
+const NUMBER_MAP = {};
+ARTICLES_DB.forEach(a => {
+  if(a.barcode) BARCODE_MAP[String(a.barcode).trim()] = a;
+  if(a.number)  NUMBER_MAP[String(a.number).trim()]   = a;
+});
+
+// ===== SETTINGS =====
+const DEFAULTS = {
+  firma: 'DEXIS',
+  email: 'office@kfz-dorn.at',
+  emailCC: '',
+  mode: 'auto'
+};
+
+function getSetting(k){ return localStorage.getItem('dexis_s_'+k) ?? DEFAULTS[k] ?? ''; }
+function saveSetting(k,v){ localStorage.setItem('dexis_s_'+k, v); }
+
+function loadSettings(){
+  document.getElementById('setFirma').value   = getSetting('firma');
+  document.getElementById('setEmail').value   = getSetting('email');
+  document.getElementById('setEmailCC').value = getSetting('emailCC');
+  document.getElementById('setMode').value    = getSetting('mode');
+  document.getElementById('dbCount').textContent = ARTICLES_DB.length;
+}
+
+// ===== STATE =====
+let scannedItems = []; // [{barcode, number, description, qty, ts, unknown}]
+
+function loadItems(){
+  try{ scannedItems = JSON.parse(localStorage.getItem('dexis_items') || '[]'); }
+  catch{ scannedItems = []; }
+}
+function saveItems(){
+  try{ localStorage.setItem('dexis_items', JSON.stringify(scannedItems)); }
+  catch{ showToast('Speicher voll – bitte Liste leeren!','error'); }
+}
+
+function loadCustomer(){
+  document.getElementById('custName').value = localStorage.getItem('dexis_custName') || '';
+  document.getElementById('custAddr').value = localStorage.getItem('dexis_custAddr') || '';
+}
+function saveCustomer(){
+  localStorage.setItem('dexis_custName', document.getElementById('custName').value);
+  localStorage.setItem('dexis_custAddr', document.getElementById('custAddr').value);
+}
+
+// ===== ARTIKEL HINZUFÜGEN =====
+function addBarcode(raw){
+  const code = String(raw).trim();
+  if(!code) return;
+
+  let article = BARCODE_MAP[code] || NUMBER_MAP[code] || null;
+  const existing = scannedItems.find(i => i.barcode === code || (article && i.number === article.number));
+
+  if(existing){
+    existing.qty = (existing.qty || 1) + 1;
+    saveItems();
+    renderList();
+    showToast('Menge erhöht: ' + (article ? article.number : code), 'success');
+    vibrate([50,30,50]);
+    flashCard(existing.barcode);
+    return;
+  }
+
+  const item = article ? {
+    barcode: code,
+    number:  article.number,
+    description: article.description,
+    orderQty: article.orderQty,
+    qty: 1,
+    ts: new Date().toLocaleTimeString('de-AT'),
+    unknown: false
+  } : {
+    barcode: code,
+    number: code,
+    description: '–',
+    orderQty: '',
+    qty: 1,
+    ts: new Date().toLocaleTimeString('de-AT'),
+    unknown: true
+  };
+
+  scannedItems.unshift(item);
+  saveItems();
+  renderList();
+
+  if(!article){
+    showToast('Unbekannter Barcode: ' + code + ' – trotzdem hinzugefügt', 'warn');
+    vibrate([100,50,100]);
+  } else {
+    showToast('Hinzugefügt: ' + article.number, 'success');
+    vibrate([50]);
+  }
+}
+
+function removeItem(barcode){
+  scannedItems = scannedItems.filter(i => i.barcode !== barcode);
+  saveItems();
+  renderList();
+}
+
+function changeQty(barcode, delta){
+  const item = scannedItems.find(i => i.barcode === barcode);
+  if(!item) return;
+  item.qty = Math.max(1, (item.qty || 1) + delta);
+  saveItems();
+  renderList();
+}
+
+function flashCard(barcode){
+  const el = document.querySelector(`[data-barcode="${CSS.escape(barcode)}"]`);
+  if(el){ el.classList.remove('new-flash'); void el.offsetWidth; el.classList.add('new-flash'); }
+}
+
+// ===== RENDER =====
+function renderList(){
+  const list = document.getElementById('articleList');
+  const empty = document.getElementById('emptyHint');
+  const count = document.getElementById('articleCount');
+
+  if(!scannedItems.length){
+    empty.style.display = 'block';
+    list.innerHTML = '';
+    count.textContent = '';
+    return;
+  }
+  empty.style.display = 'none';
+  count.textContent = scannedItems.length + ' Artikel | ' +
+    scannedItems.reduce((s,i) => s + (i.qty||1), 0) + ' Stück gesamt';
+
+  list.innerHTML = scannedItems.map(item => `
+    <div class="articleCard ${item.unknown?'unknown':''}" data-barcode="${esc(item.barcode)}">
+      <div class="cardInfo">
+        <div class="cardNum">${esc(item.number)} ${item.unknown ? '<span class="cardUnknown">⚠ Unbekannt</span>' : ''}</div>
+        <div class="cardDesc">${esc(item.description)}</div>
+        <div class="cardMeta">Gescannt: ${esc(item.ts)} | Barcode: ${esc(item.barcode)}</div>
+      </div>
+      <div class="qtyBadge">
+        <button class="qtyMinus" onclick="changeQty('${esc(item.barcode)}',-1)">−</button>
+        <span class="qtyNum">${item.qty||1}</span>
+        <button class="qtyPlus"  onclick="changeQty('${esc(item.barcode)}',+1)">+</button>
+      </div>
+      <button class="deleteBtn" onclick="removeItem('${esc(item.barcode)}')" title="Entfernen">✕</button>
+    </div>
+  `).join('');
+}
+
+function esc(s){
+  return String(s||'')
+    .replace(/&/g,'&amp;').replace(/</g,'&lt;')
+    .replace(/>/g,'&gt;').replace(/"/g,'&quot;')
+    .replace(/'/g,'&#39;');
+}
+
+// ===== SCAN INPUT =====
+let usbBuffer = '';
+let usbTimer = null;
+
+document.getElementById('scanInput').addEventListener('keydown', function(e){
+  if(e.key === 'Enter'){
+    const val = this.value.trim();
+    if(val){ addBarcode(val); }
+    this.value = '';
+    e.preventDefault();
+  }
+});
+
+// USB-Scanner Autodetect (schnelle Eingabe < 200ms + Enter)
+document.addEventListener('keydown', function(e){
+  const tag = document.activeElement.tagName;
+  // Nur wenn kein Input/Textarea fokussiert ist, oder scanInput
+  if(tag === 'INPUT' || tag === 'TEXTAREA' || tag === 'SELECT') return;
+  if(e.key === 'Enter'){
+    if(usbBuffer.length > 2){
+      addBarcode(usbBuffer);
+      usbBuffer = '';
+    }
+    return;
+  }
+  if(e.key.length === 1){
+    if(usbTimer) clearTimeout(usbTimer);
+    usbBuffer += e.key;
+    usbTimer = setTimeout(() => { usbBuffer = ''; }, 300);
+  }
+});
+
+function clearScanInput(){
+  document.getElementById('scanInput').value = '';
+  document.getElementById('scanInput').focus();
+}
+
+// Refocus nach Klick außerhalb (USB-Modus)
+document.addEventListener('click', function(e){
+  const si = document.getElementById('scanInput');
+  if(getCurrentMode() === 'usb' || getCurrentMode() === 'auto'){
+    if(!e.target.closest('button') && !e.target.closest('input') && !e.target.closest('textarea') && !e.target.closest('select')){
+      si.focus();
+    }
+  }
+});
+
+// ===== SCANNER MODUS =====
+let codeReader = null;
+let cameraActive = false;
+let currentDeviceId = null;
+let allDevices = [];
+
+function getCurrentMode(){ return getSetting('mode'); }
+
+function setMode(m){
+  saveSetting('mode',m);
+  document.getElementById('setMode').value = m;
+  applyMode(m);
+  ['auto','camera','usb'].forEach(x =>
+    document.getElementById('btnMode'+x.charAt(0).toUpperCase()+x.slice(1))
+    .classList.toggle('active', x===m)
+  );
+}
+
+async function applyMode(m){
+  const cc = document.getElementById('cameraContainer');
+  const si = document.getElementById('scanInput');
+  const sw = document.getElementById('switchCameraBtn');
+
+  if(m === 'camera'){
+    await startCamera();
+  } else if(m === 'usb'){
+    stopCamera();
+    cc.style.display = 'none';
+    sw.style.display = 'none';
+    si.placeholder = 'USB-Scanner: Barcode hier einscannen...';
+    si.focus();
+    setStatus('USB-Tastatur-Modus aktiv. Ins Feld scannen.');
+  } else { // auto
+    setStatus('Automatische Erkennung – versuche Kamera...');
+    try {
+      await startCamera();
+    } catch(err){
+      setStatus('Kamera nicht verfügbar – USB-Modus aktiv.');
+      si.placeholder = 'USB-Scanner: Barcode hier einscannen...';
+      si.focus();
+    }
+  }
+}
+
+async function startCamera(){
+  const cc = document.getElementById('cameraContainer');
+  const sw = document.getElementById('switchCameraBtn');
+
+  try {
+    if(!navigator.mediaDevices){
+      throw new Error('Kein HTTPS – Kamera nicht verfügbar');
+    }
+    if(codeReader) codeReader.reset();
+    codeReader = new ZXing.BrowserMultiFormatReader();
+
+    const devices = await ZXing.BrowserMultiFormatReader.listVideoInputDevices();
+    allDevices = devices;
+    populateCameraSelect(devices);
+
+    if(devices.length > 1) sw.style.display = 'block';
+
+    cc.style.display = 'block';
+    cameraActive = true;
+
+    // Bevorzuge Rückkamera
+    let preferredId = localStorage.getItem('dexis_cameraId') || null;
+    if(!preferredId){
+      const back = devices.find(d => /back|rear|environment/i.test(d.label));
+      preferredId = back ? back.deviceId : (devices[0]?.deviceId || undefined);
+    }
+    currentDeviceId = preferredId;
+
+    await codeReader.decodeFromVideoDevice(preferredId, 'videoEl', (result, err) => {
+      if(result){
+        const code = result.getText();
+        addBarcode(code);
+        vibrateCamera();
+        // Kurze Pause um Doppelscans zu vermeiden
+        codeReader.reset();
+        setTimeout(() => {
+          if(cameraActive) codeReader.decodeFromVideoDevice(currentDeviceId, 'videoEl', arguments.callee);
+        }, 800);
+      }
+    });
+    setStatus('Kamera aktiv – Barcode vor die Kamera halten.');
+    document.getElementById('scanInput').placeholder = 'Oder Barcode manuell eingeben...';
+  } catch(err){
+    cameraActive = false;
+    cc.style.display = 'none';
+    sw.style.display = 'none';
+    const msg = err.message || String(err);
+    if(/permission|denied/i.test(msg)){
+      setStatus('Kamera-Zugriff verweigert – bitte Berechtigung erteilen.');
+      showToast('Kamera gesperrt – USB-Modus aktiv', 'warn');
+    } else if(/https/i.test(msg)){
+      setStatus('Kamera benötigt HTTPS – USB-Modus aktiv. Siehe "Erste Schritte".');
+      showToast('Kein HTTPS – Kamera deaktiviert', 'warn');
+    } else {
+      setStatus('Kamera nicht verfügbar – USB-Modus aktiv.');
+    }
+    saveSetting('mode','usb');
+    document.getElementById('setMode').value = 'usb';
+    document.getElementById('scanInput').placeholder = 'USB-Scanner: Barcode scannen...';
+    document.getElementById('scanInput').focus();
+    throw err;
+  }
+}
+
+function stopCamera(){
+  if(codeReader){ codeReader.reset(); }
+  cameraActive = false;
+  currentDeviceId = null;
+}
+
+async function switchCamera(){
+  if(!allDevices.length) return;
+  const idx = allDevices.findIndex(d => d.deviceId === currentDeviceId);
+  const next = allDevices[(idx+1) % allDevices.length];
+  currentDeviceId = next.deviceId;
+  localStorage.setItem('dexis_cameraId', currentDeviceId);
+  if(codeReader) codeReader.reset();
+  codeReader = new ZXing.BrowserMultiFormatReader();
+  await codeReader.decodeFromVideoDevice(currentDeviceId, 'videoEl', (result) => {
+    if(result){ addBarcode(result.getText()); vibrateCamera(); }
+  });
+  showToast('Kamera gewechselt: ' + (next.label || next.deviceId));
+}
+
+async function changeCamera(deviceId){
+  if(!deviceId) return;
+  localStorage.setItem('dexis_cameraId', deviceId);
+  if(cameraActive) await switchCameraTo(deviceId);
+}
+
+async function switchCameraTo(deviceId){
+  currentDeviceId = deviceId;
+  if(codeReader) codeReader.reset();
+  codeReader = new ZXing.BrowserMultiFormatReader();
+  await codeReader.decodeFromVideoDevice(deviceId, 'videoEl', (result) => {
+    if(result){ addBarcode(result.getText()); vibrateCamera(); }
+  });
+}
+
+function populateCameraSelect(devices){
+  const sel = document.getElementById('setCameraSelect');
+  sel.innerHTML = '<option value="">– Standardkamera –</option>';
+  devices.forEach(d => {
+    const opt = document.createElement('option');
+    opt.value = d.deviceId;
+    opt.textContent = d.label || ('Kamera ' + d.deviceId.slice(0,8));
+    if(d.deviceId === currentDeviceId) opt.selected = true;
+    sel.appendChild(opt);
+  });
+}
+
+function setStatus(msg){ document.getElementById('scanStatus').textContent = msg; }
+
+function vibrateCamera(){ vibrate([60]); }
+function vibrate(pattern){
+  try{ if(navigator.vibrate) navigator.vibrate(pattern); }catch{}
+}
+
+// ===== TOAST =====
+function showToast(msg, type=''){
+  const c = document.getElementById('toastContainer');
+  const t = document.createElement('div');
+  t.className = 'toast ' + type;
+  t.textContent = msg;
+  c.appendChild(t);
+  setTimeout(() => t.style.opacity = '0', 2700);
+  setTimeout(() => t.remove(), 3000);
+}
+
+// ===== FERTIG =====
+async function onFertig(){
+  const name = document.getElementById('custName').value.trim();
+  const addr = document.getElementById('custAddr').value.trim();
+
+  // Validierung
+  if(!scannedItems.length){
+    showToast('Bitte zuerst Artikel scannen!', 'error');
+    document.getElementById('custName').classList.remove('error');
+    return;
+  }
+  if(!name){
+    showToast('Kundenname ist Pflichtfeld!', 'error');
+    document.getElementById('custName').classList.add('error');
+    document.getElementById('custName').focus();
+    return;
+  }
+  document.getElementById('custName').classList.remove('error');
+
+  const firma = getSetting('firma') || 'DEXIS';
+  const now = new Date();
+  const dateStr = now.toLocaleDateString('de-AT');
+  const timeStr = now.toLocaleTimeString('de-AT',{hour:'2-digit',minute:'2-digit'});
+  const fileDateStr = now.toISOString().slice(0,10).replace(/-/g,'');
+
+  // PDF
+  try{
+    const { jsPDF } = window.jspdf;
+    const doc = new jsPDF({orientation:'portrait',unit:'mm',format:'a4'});
+
+    // Header
+    doc.setFillColor(26,35,126);
+    doc.rect(0,0,210,28,'F');
+    doc.setTextColor(255,255,255);
+    doc.setFontSize(20); doc.setFont(undefined,'bold');
+    doc.text(firma + ' – Gescannte Teile', 14, 12);
+    doc.setFontSize(11); doc.setFont(undefined,'normal');
+    doc.text('Erstellt: ' + dateStr + ' ' + timeStr, 14, 22);
+
+    // Kundendaten
+    doc.setTextColor(26,35,126);
+    doc.setFontSize(13); doc.setFont(undefined,'bold');
+    doc.text('Kundendaten', 14, 38);
+    doc.setTextColor(30,30,30); doc.setFont(undefined,'normal'); doc.setFontSize(11);
+    doc.text('Name: ' + name, 14, 46);
+    if(addr) doc.text('Adresse: ' + addr, 14, 53);
+
+    const startY = addr ? 60 : 55;
+
+    // Tabelle
+    const tableData = scannedItems.map((item, i) => [
+      String(i+1),
+      item.number,
+      item.description,
+      String(item.qty||1)
+    ]);
+
+    doc.autoTable({
+      startY,
+      head:[['Pos','Artikelnummer','Beschreibung','Menge']],
+      body: tableData,
+      headStyles:{fillColor:[26,35,126], textColor:255, fontStyle:'bold', fontSize:11},
+      bodyStyles:{fontSize:10},
+      columnStyles:{0:{cellWidth:12},1:{cellWidth:35},3:{cellWidth:16,halign:'center'}},
+      alternateRowStyles:{fillColor:[240,243,255]},
+      styles:{overflow:'linebreak'},
+      margin:{left:14,right:14}
+    });
+
+    // Footer
+    const pageCount = doc.internal.getNumberOfPages();
+    for(let p=1;p<=pageCount;p++){
+      doc.setPage(p);
+      doc.setTextColor(150);
+      doc.setFontSize(9);
+      doc.text(firma + ' | Seite ' + p + '/' + pageCount, 14, 290);
+    }
+
+    const safeName = name.replace(/[^a-zA-Z0-9äöüÄÖÜ]/g,'_');
+    doc.save(firma + '_' + safeName + '_' + fileDateStr + '.pdf');
+    showToast('PDF gespeichert!', 'success');
+  } catch(e){
+    showToast('PDF-Fehler: ' + e.message, 'error');
+    console.error(e);
+  }
+
+  // E-Mail via mailto
+  try{
+    const to  = getSetting('email');
+    const cc  = getSetting('emailCC');
+    const sub = encodeURIComponent(firma + ' – Gescannte Teile von ' + name);
+    let body  = firma + ' - Gescannte Teile\n';
+    body += 'Datum: ' + dateStr + ' ' + timeStr + '\n\n';
+    body += 'Kundenname: ' + name + '\n';
+    if(addr) body += 'Adresse: ' + addr + '\n';
+    body += '\nArtikel:\n';
+    scannedItems.forEach((item,i) => {
+      body += (i+1) + '. [' + item.number + '] ' + item.description +
+              (item.qty>1 ? ' (x' + item.qty + ')' : '') + '\n';
+    });
+    body += '\nGesamt: ' + scannedItems.reduce((s,i)=>s+(i.qty||1),0) + ' Stück';
+
+    let mailto = 'mailto:' + to + '?subject=' + sub + '&body=' + encodeURIComponent(body);
+    if(cc) mailto += '&cc=' + encodeURIComponent(cc);
+
+    setTimeout(() => { window.location.href = mailto; }, 500);
+  } catch(e){
+    showToast('E-Mail konnte nicht geöffnet werden.', 'warn');
+  }
+
+  // Reset
+  setTimeout(() => {
+    scannedItems = [];
+    saveItems();
+    document.getElementById('custName').value = '';
+    document.getElementById('custAddr').value = '';
+    localStorage.removeItem('dexis_custName');
+    localStorage.removeItem('dexis_custAddr');
+    renderList();
+    showToast('Bereit für den nächsten Auftrag.', 'success');
+  }, 1500);
+}
+
+// ===== SETTINGS MODAL =====
+function openSettings(){
+  loadSettings();
+  document.getElementById('settingsOverlay').classList.add('open');
+}
+function closeSettings(){
+  document.getElementById('settingsOverlay').classList.remove('open');
+}
+function overlayClick(e, id){
+  if(e.target.id === id) document.getElementById(id).classList.remove('open');
+}
+function confirmClear(){
+  if(confirm('Wirklich alle gescannten Artikel löschen?')){
+    scannedItems = [];
+    saveItems();
+    renderList();
+    closeSettings();
+    showToast('Liste geleert.', 'warn');
+  }
+}
+
+// ===== SETUP MODAL =====
+function checkSetup(){
+  if(!localStorage.getItem('dexis_setup_done')){
+    document.getElementById('setupOverlay').classList.add('open');
+  }
+}
+function closeSetup(){
+  document.getElementById('setupOverlay').classList.remove('open');
+  localStorage.setItem('dexis_setup_done','1');
+}
+
+// ===== SCROLL FAB =====
+window.addEventListener('scroll', () => {
+  document.getElementById('fabScroll').style.display = window.scrollY > 200 ? 'block' : 'none';
+});
+
+// ===== INIT =====
+document.addEventListener('DOMContentLoaded', async () => {
+  loadItems();
+  loadSettings();
+  loadCustomer();
+  renderList();
+  checkSetup();
+
+  // Mode Buttons initial
+  const m = getCurrentMode();
+  ['auto','camera','usb'].forEach(x =>
+    document.getElementById('btnMode'+x.charAt(0).toUpperCase()+x.slice(1))
+    .classList.toggle('active', x===m)
+  );
+
+  await applyMode(m);
+  document.getElementById('scanInput').focus();
+});
+</script>
+</body>
+</html>
