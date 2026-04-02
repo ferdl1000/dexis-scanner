@@ -827,17 +827,22 @@ async function startCamera(){
 
     if(/denied|notallowed|permission/i.test(msg)){
       if(isIOS){
-        setStatus('Kamera gesperrt! iPhone: Einstellungen → Safari → Kamera → Zulassen → Seite neu laden.');
+        setStatus('Kamera gesperrt! Einstellungen → ' +
+          (navigator.userAgent.includes('CriOS') ? 'Chrome' : 'Safari') +
+          ' → Kamera → Zulassen → Seite neu laden. (iOS 16.4+ benötigt für Chrome)');
       } else {
-        setStatus('Kamera gesperrt! Chrome: Adressleiste → Schloss → Kamera → Zulassen → Neu laden.');
+        setStatus('Kamera gesperrt! Adressleiste → Schloss-Symbol → Kamera → Zulassen → Seite neu laden.');
       }
-      showToast('Kamera-Erlaubnis fehlt!', 'error');
+      showToast('Kamera-Erlaubnis fehlt – siehe Hinweis!', 'error');
     } else if(/no_https/i.test(msg)){
       setStatus('Kamera benötigt HTTPS. Bitte über https://ferdl1000.github.io/dexis-scanner öffnen.');
       showToast('Kein HTTPS – Kamera nicht verfügbar', 'warn');
+    } else if(isIOS && /not implemented|not supported/i.test(msg)){
+      setStatus('Kamera nicht verfügbar. iPhone: iOS 16.4+ benötigt für Chrome. Alternativ Safari verwenden.');
+      showToast('iPhone: Bitte Safari verwenden oder iOS aktualisieren', 'warn');
     } else {
-      setStatus('Kamera-Fehler: ' + msg.slice(0,100) + ' – Manuelle Eingabe möglich.');
-      showToast('Kamera nicht verfügbar – manuelle Eingabe nutzen', 'warn');
+      setStatus('Kamera-Fehler: ' + msg.slice(0,80) + ' – Manuelle Eingabe weiterhin möglich.');
+      showToast('Kamera nicht gestartet – manuelle Eingabe nutzen', 'warn');
     }
     saveSetting('mode','usb');
     document.getElementById('setMode').value = 'usb';
