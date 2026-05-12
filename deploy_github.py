@@ -141,10 +141,36 @@ def upload_file(local_path, remote_name, label):
             raise
 
 upload_file(HTML_FILE, "index.html", "scanner-app.html")
+# Zweites Mal als scanner-app.html (damit beide URLs funktionieren)
+upload_file(HTML_FILE, "scanner-app.html", "scanner-app.html (Alias)")
+
 if JSON_FILE.exists():
     upload_file(JSON_FILE, "articles.json", "articles.json (Auto-Update Quelle)")
 else:
     print("[WARN] articles.json fehlt – Auto-Update wird nicht funktionieren.")
+
+# PWA-Dateien: Manifest, Service Worker, Icons
+PWA_FILES = [
+    ("manifest.json", "manifest.json", "manifest.json"),
+    ("sw.js",         "sw.js",         "Service Worker"),
+]
+for local, remote, label in PWA_FILES:
+    p = SCRIPT_DIR / local
+    if p.exists():
+        upload_file(p, remote, label)
+    else:
+        print(f"[WARN] {local} fehlt – PWA nicht voll funktionsfähig.")
+
+# Icons (Verzeichnis)
+icon_dir = SCRIPT_DIR / "icons"
+if icon_dir.exists():
+    for icon in icon_dir.glob("*.png"):
+        upload_file(icon, f"icons/{icon.name}", f"icon {icon.name}")
+    ico = icon_dir / "favicon.ico"
+    if ico.exists():
+        upload_file(ico, "icons/favicon.ico", "favicon.ico")
+else:
+    print("[WARN] icons/ Verzeichnis fehlt – bitte 'python make_icons.py' ausführen.")
 
 # Schritt 7: GitHub Pages aktivieren
 print("[INFO] Aktiviere GitHub Pages...")
