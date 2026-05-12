@@ -3,7 +3,7 @@
 // - Network-First für articles.json (Auto-Update Quelle)
 // - Offline-fähig nach erstem Aufruf
 
-const VERSION = 'dexis-v3.0.0';
+const VERSION = 'dorn-v4.0.0';
 const SHELL = [
   './',
   './index.html',

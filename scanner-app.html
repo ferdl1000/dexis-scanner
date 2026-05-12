@@ -10,12 +10,12 @@
 <!-- PWA -->
 <link rel="manifest" href="manifest.json">
 <meta name="mobile-web-app-capable" content="yes">
-<meta name="application-name" content="DEXIS Scanner">
+<meta name="application-name" content="Dorn Teile Scanner">
 
 <!-- iOS / Safari -->
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-<meta name="apple-mobile-web-app-title" content="DEXIS">
+<meta name="apple-mobile-web-app-title" content="Dorn">
 <link rel="apple-touch-icon" href="icons/apple-touch-icon.png">
 
 <!-- Favicons -->
@@ -23,7 +23,7 @@
 <link rel="icon" type="image/png" sizes="16x16" href="icons/favicon-16.png">
 <link rel="shortcut icon" href="icons/favicon.ico">
 
-<title>DEXIS Scanner</title>
+<title>Dorn Teile Scanner</title>
 <style>
 :root{
   --primary:#1a237e;--primary-light:#3949ab;--primary-dark:#0d1257;
@@ -394,7 +394,7 @@ html,body{height:100%;background:var(--bg);color:var(--text);font-family:'Segoe 
 
 <!-- HEADER -->
 <div id="header">
-  <h1>DEXIS Scanner <span id="updateBadge" title="Datenbank-Status"></span></h1>
+  <h1>Dorn Teile Scanner <span id="updateBadge" title="Datenbank-Status"></span></h1>
   <button id="menuBtn" aria-label="Einstellungen" onclick="onMenuClick()">
     <span></span><span></span><span></span>
   </button>
@@ -509,7 +509,7 @@ html,body{height:100%;background:var(--bg);color:var(--text);font-family:'Segoe 
 
   <div class="settingRow">
     <label>Firmenname (PDF-Kopfzeile)</label>
-    <input type="text" id="setFirma" value="DEXIS" oninput="saveSetting('firma',this.value)">
+    <input type="text" id="setFirma" value="Firma Dorn" oninput="saveSetting('firma',this.value)">
   </div>
   <div class="settingRow">
     <label>E-Mail Empfänger</label>
@@ -624,7 +624,7 @@ function fmtTotal(item){
 
 // ===== SETTINGS =====
 const DEFAULTS = {
-  firma:'DEXIS',
+  firma:'Firma Dorn',
   email:'office@kfz-dorn.at',
   emailCC:'',
   mode:'auto',
@@ -1335,7 +1335,7 @@ async function onFertig(){
   }
   document.getElementById('custName').classList.remove('error');
 
-  const firma       = getSetting('firma') || 'DEXIS';
+  const firma       = getSetting('firma') || 'Firma Dorn';
   const now         = new Date();
   const dateStr     = now.toLocaleDateString('de-AT');
   const timeStr     = now.toLocaleTimeString('de-AT',{hour:'2-digit',minute:'2-digit'});
@@ -1645,7 +1645,7 @@ function onDrucken(){
   }
   const name = document.getElementById('custName').value.trim() || '—';
   const addr = document.getElementById('custAddr').value.trim();
-  const firma = getSetting('firma') || 'DEXIS';
+  const firma = getSetting('firma') || 'Firma Dorn';
   const now = new Date();
   const dateStr = now.toLocaleDateString('de-AT');
   const timeStr = now.toLocaleTimeString('de-AT',{hour:'2-digit',minute:'2-digit'});

@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
-<title>DEXIS Scanner – Teilen</title>
+<title>Dorn Teile Scanner – Teilen</title>
 <style>
 :root{--p:#1a237e;--p2:#3949ab;--g:#2e7d32;}
 *{box-sizing:border-box;margin:0;padding:0;font-family:'Segoe UI',Arial,sans-serif;}
@@ -72,7 +72,7 @@ h1{font-size:28px;text-align:center;color:var(--p);margin-bottom:6px;}
     <path d="M73 22 L77 26 L83 19" stroke="#fff" stroke-width="2.5" fill="none" stroke-linecap="round" stroke-linejoin="round"/>
   </svg>
 
-  <h1>DEXIS Scanner</h1>
+  <h1>Dorn Teile Scanner</h1>
   <p class="sub">Barcode-Scan-App für Mitarbeiter · Teilen-Seite</p>
 
   <div class="linkbox">
@@ -141,14 +141,14 @@ async function shareLink(){
   if(navigator.share){
     try{
       await navigator.share({
-        title: 'DEXIS Scanner',
+        title: 'Dorn Teile Scanner',
         text: 'Barcode-Scanner-App für die Teileliste',
         url: URL_APP
       });
     }catch(e){}
   } else {
     // Desktop: mailto-Fallback
-    const subj = encodeURIComponent('DEXIS Scanner-App');
+    const subj = encodeURIComponent('Dorn Teile Scanner-App');
     const body = encodeURIComponent('Hallo,\n\nhier ist die App zum Scannen der Artikel:\n' + URL_APP + '\n\nEinfach Link öffnen und am Handy zum Startbildschirm hinzufügen.\n');
     window.location.href = 'mailto:?subject=' + subj + '&body=' + body;
   }

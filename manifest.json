@@ -1,7 +1,7 @@
 {
-  "name": "DEXIS Scanner",
-  "short_name": "DEXIS",
-  "description": "Barcode-Scanner für die DEXIS-Teileliste",
+  "name": "Dorn Teile Scanner",
+  "short_name": "Dorn",
+  "description": "Barcode-Scanner für die Teileliste der Firma Dorn",
   "start_url": "./",
   "scope": "./",
   "display": "standalone",
