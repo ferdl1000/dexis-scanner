@@ -1,0 +1,1710 @@
+[
+  {
+    "nummer": "32 3602 101 004",
+    "bezeichnung": "Niederdrucknippel ND10 12mm",
+    "vkPreis": "2.25",
+    "ekPreis": "0.90",
+    "perMeter": false
+  },
+  {
+    "nummer": "32 4105 326 045",
+    "bezeichnung": "Niederdruck-Huelse DN4 innen 13mm",
+    "vkPreis": "0.19",
+    "ekPreis": "0.08",
+    "perMeter": false
+  },
+  {
+    "nummer": "32 4105 326 064",
+    "bezeichnung": "Niederdruck-Huelse DN6 innen 14mm",
+    "vkPreis": "0.22",
+    "ekPreis": "0.09",
+    "perMeter": false
+  },
+  {
+    "nummer": "32 4105 326 084",
+    "bezeichnung": "Niederdruck-Huelse DN8 innen 17mm",
+    "vkPreis": "0.23",
+    "ekPreis": "0.09",
+    "perMeter": false
+  },
+  {
+    "nummer": "32 4105 326 102",
+    "bezeichnung": "Niederdruck-Huelse DN10 innen 20mm",
+    "vkPreis": "0.34",
+    "ekPreis": "0.14",
+    "perMeter": false
+  },
+  {
+    "nummer": "32 4112 326 134",
+    "bezeichnung": "Niederdruck-Huelse",
+    "vkPreis": "0.75",
+    "ekPreis": "0.30",
+    "perMeter": false
+  },
+  {
+    "nummer": "3200175 FKDS16R",
+    "bezeichnung": "Kuehlerschlauch 16x3,5",
+    "vkPreis": "5.67",
+    "ekPreis": "3.40",
+    "perMeter": true
+  },
+  {
+    "nummer": "3200178 FKDS22R",
+    "bezeichnung": "Kuehlerschlauch 22x3,5",
+    "vkPreis": "7.12",
+    "ekPreis": "4.27",
+    "perMeter": true
+  },
+  {
+    "nummer": "3200742 TWS19",
+    "bezeichnung": "Tankwagenschlauch",
+    "vkPreis": "14.64",
+    "ekPreis": "8.78",
+    "perMeter": false
+  },
+  {
+    "nummer": "3201339",
+    "bezeichnung": "Sandstrahlschlauch NW 25x7mm (40m)",
+    "vkPreis": "12.90",
+    "ekPreis": "8.50",
+    "perMeter": false
+  },
+  {
+    "nummer": "3201673",
+    "bezeichnung": "Oel-Ruecklaufschlauch (Saugschlauch) 38er",
+    "vkPreis": "12.00",
+    "ekPreis": "6.00",
+    "perMeter": false
+  },
+  {
+    "nummer": "3201678",
+    "bezeichnung": "Oel-Ruecklaufschlauch (Saugschlauch) 32er",
+    "vkPreis": "10.80",
+    "ekPreis": "5.40",
+    "perMeter": false
+  },
+  {
+    "nummer": "3201696",
+    "bezeichnung": "Oel-Ruecklaufschlauch (Saugschlauch) 40er",
+    "vkPreis": "12.00",
+    "ekPreis": "6.00",
+    "perMeter": false
+  },
+  {
+    "nummer": "38 0221 483 040",
+    "bezeichnung": "Hohlschraube R 1/8",
+    "vkPreis": "1.05",
+    "ekPreis": "0.42",
+    "perMeter": false
+  },
+  {
+    "nummer": "38 0221 483 080",
+    "bezeichnung": "Hohlschraube R 1/4",
+    "vkPreis": "1.68",
+    "ekPreis": "0.67",
+    "perMeter": false
+  },
+  {
+    "nummer": "38 0221 483 130",
+    "bezeichnung": "Hohlschraube R 3/8",
+    "vkPreis": "13.16",
+    "ekPreis": "5.26",
+    "perMeter": false
+  },
+  {
+    "nummer": "38 0531 491 040",
+    "bezeichnung": "Niederdruckueberwurfmutter 12x1,5",
+    "vkPreis": "0.43",
+    "ekPreis": "0.17",
+    "perMeter": false
+  },
+  {
+    "nummer": "38 0531 491 060",
+    "bezeichnung": "Niederdruckueberwurfmutter 14x1,5",
+    "vkPreis": "0.44",
+    "ekPreis": "0.18",
+    "perMeter": false
+  },
+  {
+    "nummer": "38 0531 491 080",
+    "bezeichnung": "Niederdruckueberwurfmutter 16x1,5",
+    "vkPreis": "0.49",
+    "ekPreis": "0.20",
+    "perMeter": false
+  },
+  {
+    "nummer": "38 0531 491 100",
+    "bezeichnung": "Niederdruckueberwurfmutter 18x1,5",
+    "vkPreis": "0.62",
+    "ekPreis": "0.25",
+    "perMeter": false
+  },
+  {
+    "nummer": "38 0531 491 130",
+    "bezeichnung": "Niederdruckueberwurfmutter 22x1,5",
+    "vkPreis": "1.02",
+    "ekPreis": "0.41",
+    "perMeter": false
+  },
+  {
+    "nummer": "39 0205 483 081",
+    "bezeichnung": "Hohlschraube M12",
+    "vkPreis": "1.47",
+    "ekPreis": "0.59",
+    "perMeter": false
+  },
+  {
+    "nummer": "4610 GEDORE",
+    "bezeichnung": "Autolicht-Prueflampe",
+    "vkPreis": "8.48",
+    "ekPreis": "4.24",
+    "perMeter": false
+  },
+  {
+    "nummer": "5V-1060",
+    "bezeichnung": "Keilriemen 5V-1060",
+    "vkPreis": "67.60",
+    "ekPreis": "47.32",
+    "perMeter": false
+  },
+  {
+    "nummer": "5V-710",
+    "bezeichnung": "Keilriemen 5V-710",
+    "vkPreis": "45.03",
+    "ekPreis": "31.52",
+    "perMeter": false
+  },
+  {
+    "nummer": "5V-950",
+    "bezeichnung": "Keilriemen 5V-950",
+    "vkPreis": "62.90",
+    "ekPreis": "44.03",
+    "perMeter": false
+  },
+  {
+    "nummer": "6002-2RSH/C3 SKF",
+    "bezeichnung": "Rillenkugellager 6002-2RSH/C3 SKF",
+    "vkPreis": "8.54",
+    "ekPreis": "3.42",
+    "perMeter": false
+  },
+  {
+    "nummer": "6004-2RSH/C3 SKF",
+    "bezeichnung": "Rillenkugellager 6004-2RSH/C3 SKF",
+    "vkPreis": "9.31",
+    "ekPreis": "3.72",
+    "perMeter": false
+  },
+  {
+    "nummer": "6005-2RSH SKF",
+    "bezeichnung": "Rillenkugellager 6005-2RSH SKF",
+    "vkPreis": "11.44",
+    "ekPreis": "4.58",
+    "perMeter": false
+  },
+  {
+    "nummer": "6005-2RSH/C3 SKF",
+    "bezeichnung": "Rillenkugellager 6005-2RSH/C3 SKF",
+    "vkPreis": "10.69",
+    "ekPreis": "4.28",
+    "perMeter": false
+  },
+  {
+    "nummer": "6012-2RS1/C3 SKF",
+    "bezeichnung": "Rillenkugellager 6012-2RS1/C3 SKF",
+    "vkPreis": "47.89",
+    "ekPreis": "19.16",
+    "perMeter": false
+  },
+  {
+    "nummer": "6013-2RS1",
+    "bezeichnung": "Rillenkugellager 6013-2RS1",
+    "vkPreis": "64.94",
+    "ekPreis": "29.22",
+    "perMeter": false
+  },
+  {
+    "nummer": "609-2RSH/C3 SKF",
+    "bezeichnung": "Rillenkugellager 609-2RSH/C3 SKF",
+    "vkPreis": "6.46",
+    "ekPreis": "2.58",
+    "perMeter": false
+  },
+  {
+    "nummer": "61 6511 206 052",
+    "bezeichnung": "Tch-Svk-Schraubm. BG2 Schott 14x1,5",
+    "vkPreis": "22.66",
+    "ekPreis": "14.73",
+    "perMeter": false
+  },
+  {
+    "nummer": "61 6511 310 052",
+    "bezeichnung": "SVK-Schraub BG3 Schott M18x1,5 Rohr12",
+    "vkPreis": "11.55",
+    "ekPreis": "7.51",
+    "perMeter": false
+  },
+  {
+    "nummer": "61 6511 313 063",
+    "bezeichnung": "Muffe BG 3 Innen R1/2",
+    "vkPreis": "10.69",
+    "ekPreis": "6.95",
+    "perMeter": false
+  },
+  {
+    "nummer": "61905-2RS1",
+    "bezeichnung": "Rillenkugellager 61905-2RS1",
+    "vkPreis": "36.95",
+    "ekPreis": "12.93",
+    "perMeter": false
+  },
+  {
+    "nummer": "62 6511 313 022",
+    "bezeichnung": "Stecker BG3 M22x1,5 Rohr 15",
+    "vkPreis": "10.00",
+    "ekPreis": "6.50",
+    "perMeter": false
+  },
+  {
+    "nummer": "62 6511 313 063",
+    "bezeichnung": "St. BG3 Innen R1/2",
+    "vkPreis": "10.69",
+    "ekPreis": "6.95",
+    "perMeter": false
+  },
+  {
+    "nummer": "62 6511 420 063",
+    "bezeichnung": "TCH-SVK-Schraub m BG3 innen R3/4",
+    "vkPreis": "24.12",
+    "ekPreis": "15.68",
+    "perMeter": false
+  },
+  {
+    "nummer": "6201-2RSH SKF",
+    "bezeichnung": "Rillenkugellager 6201-2RSH SKF",
+    "vkPreis": "7.56",
+    "ekPreis": "3.02",
+    "perMeter": false
+  },
+  {
+    "nummer": "6201-2RSH/C3 SKF",
+    "bezeichnung": "Rillenkugellager 6201-2RSH/C3 SKF",
+    "vkPreis": "7.07",
+    "ekPreis": "2.83",
+    "perMeter": false
+  },
+  {
+    "nummer": "6203-2RSH SKF",
+    "bezeichnung": "Rillenkugellager 6203-2RSH SKF",
+    "vkPreis": "9.18",
+    "ekPreis": "3.67",
+    "perMeter": false
+  },
+  {
+    "nummer": "6204-2RSH SKF",
+    "bezeichnung": "Rillenkugellager 6204-2RSH SKF",
+    "vkPreis": "10.79",
+    "ekPreis": "4.32",
+    "perMeter": false
+  },
+  {
+    "nummer": "6204-2RSH/C3 SKF",
+    "bezeichnung": "Rillenkugellager 6204-2RSH/C3 SKF",
+    "vkPreis": "10.79",
+    "ekPreis": "4.32",
+    "perMeter": false
+  },
+  {
+    "nummer": "6205-2RSH SKF",
+    "bezeichnung": "Rillenkugellager 6205-2RSH SKF",
+    "vkPreis": "12.58",
+    "ekPreis": "5.03",
+    "perMeter": false
+  },
+  {
+    "nummer": "6205-2RSH/C3 SKF",
+    "bezeichnung": "Rillenkugellager 6205-2RSH/C3 SKF",
+    "vkPreis": "11.76",
+    "ekPreis": "4.70",
+    "perMeter": false
+  },
+  {
+    "nummer": "6206-2RS1/C3",
+    "bezeichnung": "Rillenkugellager 6206-2RS1/C3",
+    "vkPreis": "16.73",
+    "ekPreis": "6.69",
+    "perMeter": false
+  },
+  {
+    "nummer": "6207-2RS1/C3",
+    "bezeichnung": "Rillenkugellager 6207-2RS1/C3",
+    "vkPreis": "27.18",
+    "ekPreis": "",
+    "perMeter": false
+  },
+  {
+    "nummer": "6209-2RS1/C3 SKF",
+    "bezeichnung": "Rillenkugellager 6209-2RS1/C3 SKF",
+    "vkPreis": "33.33",
+    "ekPreis": "13.33",
+    "perMeter": false
+  },
+  {
+    "nummer": "6302-2RSH/C3 SKF",
+    "bezeichnung": "Rillenkugellager 6302-2RSH/C3 SKF",
+    "vkPreis": "10.69",
+    "ekPreis": "4.28",
+    "perMeter": false
+  },
+  {
+    "nummer": "6303-2RSH/C3 SKF",
+    "bezeichnung": "Rillenkugellager 6303-2RSH/C3 SKF",
+    "vkPreis": "11.32",
+    "ekPreis": "4.53",
+    "perMeter": false
+  },
+  {
+    "nummer": "6304-2RS1 SKF",
+    "bezeichnung": "Rillenkugellager 6304-2RS1 SKF",
+    "vkPreis": "14.01",
+    "ekPreis": "5.60",
+    "perMeter": false
+  },
+  {
+    "nummer": "6304-2RS1/C3 SKF",
+    "bezeichnung": "Rillenkugellager 6304-2RS1/C3 SKF",
+    "vkPreis": "14.01",
+    "ekPreis": "5.60",
+    "perMeter": false
+  },
+  {
+    "nummer": "6305-2RS1/C3 SKF",
+    "bezeichnung": "Rillenkugellager 6305-2RS1/C3 SKF",
+    "vkPreis": "17.55",
+    "ekPreis": "7.02",
+    "perMeter": false
+  },
+  {
+    "nummer": "6311 310 022",
+    "bezeichnung": "Gewinde M18x1,5 fuer Rohr 12mm",
+    "vkPreis": "8.20",
+    "ekPreis": "4.44",
+    "perMeter": false
+  },
+  {
+    "nummer": "72 6311 310 022",
+    "bezeichnung": "SVK Stecker BG3 M18x1,5 Rohr 12mm",
+    "vkPreis": "3.43",
+    "ekPreis": "2.23",
+    "perMeter": false
+  },
+  {
+    "nummer": "72 6311 313 063",
+    "bezeichnung": "SVK Stecker R1/2",
+    "vkPreis": "4.52",
+    "ekPreis": "2.94",
+    "perMeter": false
+  },
+  {
+    "nummer": "BKH 15-L",
+    "bezeichnung": "Blockkugelkahn 15-L",
+    "vkPreis": "17.99",
+    "ekPreis": "6.90",
+    "perMeter": false
+  },
+  {
+    "nummer": "D 12-L/S",
+    "bezeichnung": "Schneidring 12er",
+    "vkPreis": "0.39",
+    "ekPreis": "0.12",
+    "perMeter": false
+  },
+  {
+    "nummer": "D 35-L",
+    "bezeichnung": "Schneidring",
+    "vkPreis": "1.56",
+    "ekPreis": "0.50",
+    "perMeter": false
+  },
+  {
+    "nummer": "D 5-LL",
+    "bezeichnung": "5er Schneidring",
+    "vkPreis": "0.31",
+    "ekPreis": "0.10",
+    "perMeter": false
+  },
+  {
+    "nummer": "EVL 12-L",
+    "bezeichnung": "EVL 12-L einstellbarer L-Stutzen",
+    "vkPreis": "9.62",
+    "ekPreis": "3.08",
+    "perMeter": false
+  },
+  {
+    "nummer": "EVL 15-L/A3C",
+    "bezeichnung": "15L einstellbarer L-Anschluss",
+    "vkPreis": "13.89",
+    "ekPreis": "4.38",
+    "perMeter": false
+  },
+  {
+    "nummer": "EVT 8-L",
+    "bezeichnung": "Einstellbarer T-Stutzen",
+    "vkPreis": "8.02",
+    "ekPreis": "2.57",
+    "perMeter": false
+  },
+  {
+    "nummer": "EVW 10-L/A3C",
+    "bezeichnung": "10er einstellbarer Winkelanschluss",
+    "vkPreis": "5.97",
+    "ekPreis": "1.88",
+    "perMeter": false
+  },
+  {
+    "nummer": "EVW 10-S",
+    "bezeichnung": "Einstellbarer Winkelstutzen",
+    "vkPreis": "7.71",
+    "ekPreis": "2.47",
+    "perMeter": false
+  },
+  {
+    "nummer": "EVW 12-L",
+    "bezeichnung": "Einstellbarer Winkelanschluss 12L",
+    "vkPreis": "7.62",
+    "ekPreis": "2.44",
+    "perMeter": false
+  },
+  {
+    "nummer": "EVW 15-L/A3C",
+    "bezeichnung": "15er einstellbarer Winkelanschluss",
+    "vkPreis": "8.59",
+    "ekPreis": "2.71",
+    "perMeter": false
+  },
+  {
+    "nummer": "EVW 18-L",
+    "bezeichnung": "Einstellbarer Winkelanschluss",
+    "vkPreis": "12.74",
+    "ekPreis": "4.08",
+    "perMeter": false
+  },
+  {
+    "nummer": "FF 12-2-IGF12",
+    "bezeichnung": "FF-Stecker 3/4 IG BG.3",
+    "vkPreis": "19.48",
+    "ekPreis": "12.66",
+    "perMeter": false
+  },
+  {
+    "nummer": "FF 12-4-IGF12",
+    "bezeichnung": "FF-Muffe 3/4 IG BG.3",
+    "vkPreis": "38.49",
+    "ekPreis": "25.02",
+    "perMeter": false
+  },
+  {
+    "nummer": "FF08-1-IGF08 TROFFR",
+    "bezeichnung": "FF-Muffe BG2 1/2 IG",
+    "vkPreis": "27.57",
+    "ekPreis": "17.92",
+    "perMeter": false
+  },
+  {
+    "nummer": "FF08-2-IGF08 TROFFR",
+    "bezeichnung": "FF-Stecker 1/2 IG",
+    "vkPreis": "13.31",
+    "ekPreis": "8.65",
+    "perMeter": false
+  },
+  {
+    "nummer": "FF-12-1",
+    "bezeichnung": "FF-Muffe BG3 1/2",
+    "vkPreis": "38.49",
+    "ekPreis": "25.02",
+    "perMeter": false
+  },
+  {
+    "nummer": "FKS40",
+    "bezeichnung": "Kuehlwasserschlauch 40er",
+    "vkPreis": "11.97",
+    "ekPreis": "7.18",
+    "perMeter": true
+  },
+  {
+    "nummer": "FKS42",
+    "bezeichnung": "Kuehlwasserschlauch 42er",
+    "vkPreis": "12.86",
+    "ekPreis": "7.72",
+    "perMeter": true
+  },
+  {
+    "nummer": "FKS45",
+    "bezeichnung": "Kuehlwasserschlauch 45er",
+    "vkPreis": "14.00",
+    "ekPreis": "8.40",
+    "perMeter": true
+  },
+  {
+    "nummer": "FKS48",
+    "bezeichnung": "Kuehlwasserschlauch 48er",
+    "vkPreis": "15.44",
+    "ekPreis": "9.26",
+    "perMeter": true
+  },
+  {
+    "nummer": "FKS51",
+    "bezeichnung": "Kuehlwasserschlauch 51er",
+    "vkPreis": "15.80",
+    "ekPreis": "9.48",
+    "perMeter": true
+  },
+  {
+    "nummer": "FKS55",
+    "bezeichnung": "Kuehlwasserschlauch 55er",
+    "vkPreis": "15.94",
+    "ekPreis": "9.56",
+    "perMeter": true
+  },
+  {
+    "nummer": "FKS60",
+    "bezeichnung": "Kuehlwasserschlauch 60er",
+    "vkPreis": "20.55",
+    "ekPreis": "12.33",
+    "perMeter": true
+  },
+  {
+    "nummer": "FKS65",
+    "bezeichnung": "Kuehlwasserschlauch 65er",
+    "vkPreis": "22.72",
+    "ekPreis": "13.63",
+    "perMeter": true
+  },
+  {
+    "nummer": "G 10-L",
+    "bezeichnung": "Gerader Verbindungsstutzen",
+    "vkPreis": "1.25",
+    "ekPreis": "0.40",
+    "perMeter": false
+  },
+  {
+    "nummer": "G 15-L",
+    "bezeichnung": "Gerade Verschraubung",
+    "vkPreis": "4.39",
+    "ekPreis": "1.40",
+    "perMeter": false
+  },
+  {
+    "nummer": "G 15-L OMD/A3C",
+    "bezeichnung": "15er gerader Verbindungsstutzen",
+    "vkPreis": "1.98",
+    "ekPreis": "0.62",
+    "perMeter": false
+  },
+  {
+    "nummer": "G 18-L",
+    "bezeichnung": "Gerader Verbindungsstutzen",
+    "vkPreis": "2.75",
+    "ekPreis": "0.88",
+    "perMeter": false
+  },
+  {
+    "nummer": "G 20-S",
+    "bezeichnung": "Gerade Verschraubung",
+    "vkPreis": "10.88",
+    "ekPreis": "3.48",
+    "perMeter": false
+  },
+  {
+    "nummer": "G 6-L",
+    "bezeichnung": "Gerade Verschraubung 6L",
+    "vkPreis": "2.06",
+    "ekPreis": "0.66",
+    "perMeter": false
+  },
+  {
+    "nummer": "G4 0200 R00 080",
+    "bezeichnung": "Nippel CEL-10 M16x1,5 DN08",
+    "vkPreis": "2.57",
+    "ekPreis": "0.69",
+    "perMeter": false
+  },
+  {
+    "nummer": "G4 0200 R00 200",
+    "bezeichnung": "Nippel CEL-22 M30x2,0 DN20",
+    "vkPreis": "6.22",
+    "ekPreis": "1.68",
+    "perMeter": false
+  },
+  {
+    "nummer": "G4 0230 R00 100",
+    "bezeichnung": "Nippel CEL-10 M16x1,5 DN10",
+    "vkPreis": "5.74",
+    "ekPreis": "1.55",
+    "perMeter": false
+  },
+  {
+    "nummer": "G4 0231 R00 100",
+    "bezeichnung": "Nippel CES-12 M20x1,5 DN10",
+    "vkPreis": "3.78",
+    "ekPreis": "1.02",
+    "perMeter": false
+  },
+  {
+    "nummer": "G4 0290 R00 060",
+    "bezeichnung": "Nippel DKL M14x1,5 DN06",
+    "vkPreis": "2.02",
+    "ekPreis": "0.55",
+    "perMeter": false
+  },
+  {
+    "nummer": "G4 0290 R00 080",
+    "bezeichnung": "Nippel DKL M16x1,5 DN08",
+    "vkPreis": "2.24",
+    "ekPreis": "0.60",
+    "perMeter": false
+  },
+  {
+    "nummer": "G4 0290 R00 100",
+    "bezeichnung": "Nippel DKL M18x1,5 DN10",
+    "vkPreis": "1.99",
+    "ekPreis": "0.54",
+    "perMeter": false
+  },
+  {
+    "nummer": "G4 0290 R00 130",
+    "bezeichnung": "Nippel DKL M22x1,5 DN12",
+    "vkPreis": "2.65",
+    "ekPreis": "0.72",
+    "perMeter": false
+  },
+  {
+    "nummer": "G4 0301 R00 130",
+    "bezeichnung": "Nippel DKR5/8 DN12",
+    "vkPreis": "3.22",
+    "ekPreis": "0.87",
+    "perMeter": false
+  },
+  {
+    "nummer": "G4 0301 R00 200",
+    "bezeichnung": "Nippel DKR 1 DN20 60 Grad",
+    "vkPreis": "7.38",
+    "ekPreis": "1.99",
+    "perMeter": false
+  },
+  {
+    "nummer": "G4 0302 R00 060",
+    "bezeichnung": "Nippel DKL M16x1,5 DN06",
+    "vkPreis": "2.35",
+    "ekPreis": "0.63",
+    "perMeter": false
+  },
+  {
+    "nummer": "G4 0315 R00 060",
+    "bezeichnung": "Nippel DKOL M12x1,5 DN06",
+    "vkPreis": "2.32",
+    "ekPreis": "0.63",
+    "perMeter": false
+  },
+  {
+    "nummer": "G4 0319 R00 060",
+    "bezeichnung": "Nippel DKR1/4 DN06",
+    "vkPreis": "2.02",
+    "ekPreis": "0.55",
+    "perMeter": false
+  },
+  {
+    "nummer": "G4 0319 R00 130",
+    "bezeichnung": "Nippel DKR1/2 DN12",
+    "vkPreis": "3.74",
+    "ekPreis": "1.01",
+    "perMeter": false
+  },
+  {
+    "nummer": "G4 0319 R00 200",
+    "bezeichnung": "Nippel DKR3/4 DN20",
+    "vkPreis": "15.03",
+    "ekPreis": "4.06",
+    "perMeter": false
+  },
+  {
+    "nummer": "G4 0345 R00 130",
+    "bezeichnung": "Nippel DKS M24x1,5 DN12",
+    "vkPreis": "3.55",
+    "ekPreis": "0.96",
+    "perMeter": false
+  },
+  {
+    "nummer": "G4 0345 R00 160",
+    "bezeichnung": "Nippel DKS M30x2,0 DN16",
+    "vkPreis": "5.15",
+    "ekPreis": "1.39",
+    "perMeter": false
+  },
+  {
+    "nummer": "G4 0345 R00 200",
+    "bezeichnung": "Nippel DKS M36x2,0 DN20",
+    "vkPreis": "6.93",
+    "ekPreis": "1.87",
+    "perMeter": false
+  },
+  {
+    "nummer": "G4 0347 R00 060",
+    "bezeichnung": "Nippel DKOL M14x1,5 DN06",
+    "vkPreis": "2.06",
+    "ekPreis": "0.56",
+    "perMeter": false
+  },
+  {
+    "nummer": "G4 0347 R00 080",
+    "bezeichnung": "Nippel DKOL M16x1,5 DN08",
+    "vkPreis": "1.99",
+    "ekPreis": "0.54",
+    "perMeter": false
+  },
+  {
+    "nummer": "G4 0347 R00 100",
+    "bezeichnung": "Nippel DKOL M18x1,5 DN12",
+    "vkPreis": "2.06",
+    "ekPreis": "0.56",
+    "perMeter": false
+  },
+  {
+    "nummer": "G4 0347 R00 160",
+    "bezeichnung": "Nippel DKS M18x1,5 DN16",
+    "vkPreis": "4.12",
+    "ekPreis": "1.11",
+    "perMeter": false
+  },
+  {
+    "nummer": "G4 0347 R00 200",
+    "bezeichnung": "Nippel DKOL M30x2,0 DN20",
+    "vkPreis": "7.55",
+    "ekPreis": "2.04",
+    "perMeter": false
+  },
+  {
+    "nummer": "G4 0348 R00 080",
+    "bezeichnung": "Nippel DKOS M20x1,5 DN08",
+    "vkPreis": "2.30",
+    "ekPreis": "0.62",
+    "perMeter": false
+  },
+  {
+    "nummer": "G4 0348 R00 100",
+    "bezeichnung": "Nippel DKOS M22x1,5 DN10",
+    "vkPreis": "3.05",
+    "ekPreis": "0.82",
+    "perMeter": false
+  },
+  {
+    "nummer": "G4 0348 R00 130",
+    "bezeichnung": "Nippel DKOS M22x1,5 DN12",
+    "vkPreis": "5.14",
+    "ekPreis": "1.39",
+    "perMeter": false
+  },
+  {
+    "nummer": "G4 0353 R00 100",
+    "bezeichnung": "Nippel DKOS M20x1,5 RA12 DN10",
+    "vkPreis": "3.40",
+    "ekPreis": "0.92",
+    "perMeter": false
+  },
+  {
+    "nummer": "G4 0400 R00 080",
+    "bezeichnung": "Nippel AGM-F M16x1,5 DN08",
+    "vkPreis": "6.35",
+    "ekPreis": "1.71",
+    "perMeter": false
+  },
+  {
+    "nummer": "G4 0401 R00 130",
+    "bezeichnung": "Nippel AGR-F R/2 DN12",
+    "vkPreis": "4.81",
+    "ekPreis": "1.30",
+    "perMeter": false
+  },
+  {
+    "nummer": "G4 0402 R00 060",
+    "bezeichnung": "Nippel AGN 1/4-18 NPTF DN06",
+    "vkPreis": "3.61",
+    "ekPreis": "0.97",
+    "perMeter": false
+  },
+  {
+    "nummer": "G4 0402 R00 100",
+    "bezeichnung": "Nippel AGN 3/8 DN10",
+    "vkPreis": "4.05",
+    "ekPreis": "1.09",
+    "perMeter": false
+  },
+  {
+    "nummer": "G4 0404 R00 060",
+    "bezeichnung": "Nippel AGJ 7/16-20 JIC DN06",
+    "vkPreis": "3.09",
+    "ekPreis": "0.83",
+    "perMeter": false
+  },
+  {
+    "nummer": "G4 0405 R00 060",
+    "bezeichnung": "Nippel AGJ1/2-20JIC DN06",
+    "vkPreis": "3.36",
+    "ekPreis": "0.91",
+    "perMeter": false
+  },
+  {
+    "nummer": "G4 0408 R00 080",
+    "bezeichnung": "Nippel AGN 3/8 DN08",
+    "vkPreis": "4.79",
+    "ekPreis": "1.29",
+    "perMeter": false
+  },
+  {
+    "nummer": "G4 0431 R00 250",
+    "bezeichnung": "Nippel AGR DN25",
+    "vkPreis": "14.85",
+    "ekPreis": "4.01",
+    "perMeter": false
+  },
+  {
+    "nummer": "G4 0453 R00 060",
+    "bezeichnung": "Ringnippel F.HS 14x1,5 DN6",
+    "vkPreis": "11.41",
+    "ekPreis": "3.08",
+    "perMeter": false
+  },
+  {
+    "nummer": "G4 0490 R00 060",
+    "bezeichnung": "Ringnippel 10x1,5 DN06",
+    "vkPreis": "9.67",
+    "ekPreis": "2.61",
+    "perMeter": false
+  },
+  {
+    "nummer": "G4 0804 R00 160",
+    "bezeichnung": "Nippel SFL 3/4 41,3mm",
+    "vkPreis": "21.73",
+    "ekPreis": "5.87",
+    "perMeter": false
+  },
+  {
+    "nummer": "G4 0806 R00 060",
+    "bezeichnung": "Nippel DKOL M12x1,5 45 Grad DN06",
+    "vkPreis": "7.93",
+    "ekPreis": "2.14",
+    "perMeter": false
+  },
+  {
+    "nummer": "G4 0807 R00 060",
+    "bezeichnung": "Nippel DKOL M12x1,5 DN06",
+    "vkPreis": "9.13",
+    "ekPreis": "2.47",
+    "perMeter": false
+  },
+  {
+    "nummer": "G4 0807 R00 130",
+    "bezeichnung": "Nippel DKOL M18x1,5 DN12",
+    "vkPreis": "13.72",
+    "ekPreis": "3.70",
+    "perMeter": false
+  },
+  {
+    "nummer": "G4 0833 R00 200",
+    "bezeichnung": "Nippel DKR3/4.DN20 45Grad",
+    "vkPreis": "19.00",
+    "ekPreis": "5.13",
+    "perMeter": false
+  },
+  {
+    "nummer": "G4 0842 R00 080",
+    "bezeichnung": "Nippel DKJ9/16-18JC 90 GRAD DN08",
+    "vkPreis": "6.90",
+    "ekPreis": "1.86",
+    "perMeter": false
+  },
+  {
+    "nummer": "G4 0842 R00 100",
+    "bezeichnung": "Nippel DKJ 3/4 DN10 90Grad",
+    "vkPreis": "8.34",
+    "ekPreis": "2.25",
+    "perMeter": false
+  },
+  {
+    "nummer": "G4 0912 R00 080",
+    "bezeichnung": "Nippel DKOL M16x1,5-DN08 45GR",
+    "vkPreis": "6.24",
+    "ekPreis": "1.68",
+    "perMeter": false
+  },
+  {
+    "nummer": "G4 0913 R00 100",
+    "bezeichnung": "Nippel DKOL M15x1,5 DN10",
+    "vkPreis": "5.34",
+    "ekPreis": "1.44",
+    "perMeter": false
+  },
+  {
+    "nummer": "G4 0913 R00 130",
+    "bezeichnung": "Nippel DKOL M22x1,5",
+    "vkPreis": "8.64",
+    "ekPreis": "2.33",
+    "perMeter": false
+  },
+  {
+    "nummer": "G4 0913 R00 160",
+    "bezeichnung": "Nippel DKOL M26x1,5 DN16 90 Grad",
+    "vkPreis": "13.76",
+    "ekPreis": "3.72",
+    "perMeter": false
+  },
+  {
+    "nummer": "G4 0914 R00 200",
+    "bezeichnung": "Nippel DKR 3/4 DN20 90Grad",
+    "vkPreis": "16.86",
+    "ekPreis": "4.55",
+    "perMeter": false
+  },
+  {
+    "nummer": "G4 0947 R00 060",
+    "bezeichnung": "Nippel DKOL M12x1,5 45 Grad DN06",
+    "vkPreis": "7.34",
+    "ekPreis": "1.98",
+    "perMeter": false
+  },
+  {
+    "nummer": "G4 0K10 R00 080",
+    "bezeichnung": "Kaercher Armatur 8er",
+    "vkPreis": "6.05",
+    "ekPreis": "1.63",
+    "perMeter": false
+  },
+  {
+    "nummer": "GE 10-LM/A3C",
+    "bezeichnung": "10er gerade Einschraubverschraubung",
+    "vkPreis": "1.86",
+    "ekPreis": "0.59",
+    "perMeter": false
+  },
+  {
+    "nummer": "GE 12-LM 14x1,5/A3C",
+    "bezeichnung": "12er gerade Einschraubverschraubung 14x1,5",
+    "vkPreis": "5.84",
+    "ekPreis": "1.84",
+    "perMeter": false
+  },
+  {
+    "nummer": "GE 12-LR 1/2",
+    "bezeichnung": "Gerade Einschraubverschraubung",
+    "vkPreis": "3.63",
+    "ekPreis": "1.14",
+    "perMeter": false
+  },
+  {
+    "nummer": "GE 15-LM 16x1,5",
+    "bezeichnung": "Gerader Einschraubstutzen",
+    "vkPreis": "6.74",
+    "ekPreis": "2.16",
+    "perMeter": false
+  },
+  {
+    "nummer": "GE 15-LR 3/8/A3C",
+    "bezeichnung": "15er 3/8 gerade Einschraubverschraubung",
+    "vkPreis": "3.60",
+    "ekPreis": "1.13",
+    "perMeter": false
+  },
+  {
+    "nummer": "GE 18-LR",
+    "bezeichnung": "Gerader Einschraubstutzen 18L",
+    "vkPreis": "2.39",
+    "ekPreis": "0.76",
+    "perMeter": false
+  },
+  {
+    "nummer": "GE 18-LR 3/4/A3C",
+    "bezeichnung": "18er 3/4 gerade Einschraubverschraubung",
+    "vkPreis": "8.05",
+    "ekPreis": "2.54",
+    "perMeter": false
+  },
+  {
+    "nummer": "GE 22-LR/A3C",
+    "bezeichnung": "22er gerade Einschraubverschraubung",
+    "vkPreis": "6.31",
+    "ekPreis": "1.99",
+    "perMeter": false
+  },
+  {
+    "nummer": "GR 10/8-L/A3C",
+    "bezeichnung": "10/8 gerade Reduzierverschraubung",
+    "vkPreis": "4.82",
+    "ekPreis": "1.52",
+    "perMeter": false
+  },
+  {
+    "nummer": "GR 12/10-L/A3C",
+    "bezeichnung": "Gerade Reduzierverschraubung",
+    "vkPreis": "5.55",
+    "ekPreis": "1.75",
+    "perMeter": false
+  },
+  {
+    "nummer": "GR 12-L/12-S",
+    "bezeichnung": "Gerade Reduzierverschraubungszwischenstutzen 12er",
+    "vkPreis": "10.14",
+    "ekPreis": "3.24",
+    "perMeter": false
+  },
+  {
+    "nummer": "GR 15/10-L",
+    "bezeichnung": "Gerade Reduzierstutzen",
+    "vkPreis": "5.24",
+    "ekPreis": "1.68",
+    "perMeter": false
+  },
+  {
+    "nummer": "GR 15/12-L",
+    "bezeichnung": "Gerade Reduzierstutzen",
+    "vkPreis": "5.25",
+    "ekPreis": "1.68",
+    "perMeter": false
+  },
+  {
+    "nummer": "GR 15/8-L/A3C",
+    "bezeichnung": "Gerade Reduzierverschraubung",
+    "vkPreis": "11.19",
+    "ekPreis": "3.52",
+    "perMeter": false
+  },
+  {
+    "nummer": "HYDRAULIKLEITUNG12",
+    "bezeichnung": "Hydraulikleitung 12x1,0mm",
+    "vkPreis": "8.94",
+    "ekPreis": "5.36",
+    "perMeter": true
+  },
+  {
+    "nummer": "HYDRAULIKLEITUNG16",
+    "bezeichnung": "Hydraulikleitung 16x2,0mm",
+    "vkPreis": "13.07",
+    "ekPreis": "7.84",
+    "perMeter": true
+  },
+  {
+    "nummer": "HYDRAULIKLEITUNG20",
+    "bezeichnung": "Hydraulikleitung 20x2,0mm",
+    "vkPreis": "14.39",
+    "ekPreis": "8.63",
+    "perMeter": true
+  },
+  {
+    "nummer": "HYDRAULIKLEITUNG22",
+    "bezeichnung": "Hydraulikleitung 22x2,0mm",
+    "vkPreis": "16.48",
+    "ekPreis": "9.88",
+    "perMeter": true
+  },
+  {
+    "nummer": "HYLEITUNG 10x1,0",
+    "bezeichnung": "Hydraulikleitung 10x1,0",
+    "vkPreis": "2.63",
+    "ekPreis": "2.10",
+    "perMeter": true
+  },
+  {
+    "nummer": "HYLEITUNG 10x1,5",
+    "bezeichnung": "Hydraulikleitung 10x1,5",
+    "vkPreis": "2.69",
+    "ekPreis": "2.15",
+    "perMeter": true
+  },
+  {
+    "nummer": "HYLEITUNG 10x2,0",
+    "bezeichnung": "Hydraulikleitung 10x2,0",
+    "vkPreis": "3.46",
+    "ekPreis": "2.77",
+    "perMeter": true
+  },
+  {
+    "nummer": "HYLEITUNG 12x1,0",
+    "bezeichnung": "Hydraulikleitung 12x1,0",
+    "vkPreis": "2.85",
+    "ekPreis": "2.28",
+    "perMeter": true
+  },
+  {
+    "nummer": "HYLEITUNG 12x2,0",
+    "bezeichnung": "Hydraulikleitung 12x2,0",
+    "vkPreis": "3.71",
+    "ekPreis": "2.97",
+    "perMeter": true
+  },
+  {
+    "nummer": "HYLEITUNG 12x2,5",
+    "bezeichnung": "Hydraulikleitung 12x2,5",
+    "vkPreis": "4.75",
+    "ekPreis": "3.80",
+    "perMeter": true
+  },
+  {
+    "nummer": "HYLEITUNG 14x2,0",
+    "bezeichnung": "Hydraulikleitung 14x2,0",
+    "vkPreis": "4.15",
+    "ekPreis": "3.32",
+    "perMeter": true
+  },
+  {
+    "nummer": "HYLEITUNG 15x1,0",
+    "bezeichnung": "Hydraulikleitung 15x1,0",
+    "vkPreis": "3.16",
+    "ekPreis": "2.53",
+    "perMeter": true
+  },
+  {
+    "nummer": "HYLEITUNG 16x2,0",
+    "bezeichnung": "Hydraulikleitung 16x2,0",
+    "vkPreis": "4.54",
+    "ekPreis": "3.61",
+    "perMeter": true
+  },
+  {
+    "nummer": "HYLEITUNG 16x2,5",
+    "bezeichnung": "Hydraulikleitung 16x2,5",
+    "vkPreis": "5.59",
+    "ekPreis": "4.47",
+    "perMeter": true
+  },
+  {
+    "nummer": "HYLEITUNG 16x3,0",
+    "bezeichnung": "Hydraulikleitung 16x3,0",
+    "vkPreis": "6.48",
+    "ekPreis": "5.18",
+    "perMeter": true
+  },
+  {
+    "nummer": "HYLEITUNG 18x1,5",
+    "bezeichnung": "Hydraulikleitung 18x1,5",
+    "vkPreis": "3.88",
+    "ekPreis": "3.10",
+    "perMeter": true
+  },
+  {
+    "nummer": "HYLEITUNG 18x2,5",
+    "bezeichnung": "Hydraulikleitung 18x2,5",
+    "vkPreis": "5.90",
+    "ekPreis": "4.72",
+    "perMeter": true
+  },
+  {
+    "nummer": "HYLEITUNG 20x2,0",
+    "bezeichnung": "Hydraulikleitung 20x2,0",
+    "vkPreis": "4.98",
+    "ekPreis": "3.98",
+    "perMeter": true
+  },
+  {
+    "nummer": "HYLEITUNG 20x2,5",
+    "bezeichnung": "Hydraulikleitung 20x2,5",
+    "vkPreis": "4.97",
+    "ekPreis": "3.98",
+    "perMeter": true
+  },
+  {
+    "nummer": "HYLEITUNG 20x3,0",
+    "bezeichnung": "Hydraulikleitung 20x3,0",
+    "vkPreis": "7.10",
+    "ekPreis": "5.68",
+    "perMeter": true
+  },
+  {
+    "nummer": "HYLEITUNG 22x2,0",
+    "bezeichnung": "Hydraulikleitung 22x2,0",
+    "vkPreis": "5.42",
+    "ekPreis": "4.34",
+    "perMeter": true
+  },
+  {
+    "nummer": "HYLEITUNG 22x3,0",
+    "bezeichnung": "Hydraulikleitung 22x3,0",
+    "vkPreis": "7.80",
+    "ekPreis": "6.24",
+    "perMeter": true
+  },
+  {
+    "nummer": "HYLEITUNG 25x2,5",
+    "bezeichnung": "Hydraulikleitung 25x2,5",
+    "vkPreis": "7.53",
+    "ekPreis": "6.02",
+    "perMeter": true
+  },
+  {
+    "nummer": "HYLEITUNG 25x3,0",
+    "bezeichnung": "Hydraulikleitung 25x3,0",
+    "vkPreis": "8.87",
+    "ekPreis": "6.95",
+    "perMeter": true
+  },
+  {
+    "nummer": "HYLEITUNG 25x4,0",
+    "bezeichnung": "Hydraulikleitung 25x4,0",
+    "vkPreis": "10.69",
+    "ekPreis": "8.55",
+    "perMeter": true
+  },
+  {
+    "nummer": "HYLEITUNG 28x2,0",
+    "bezeichnung": "Hydraulikleitung 28x2,0",
+    "vkPreis": "6.84",
+    "ekPreis": "5.47",
+    "perMeter": true
+  },
+  {
+    "nummer": "HYLEITUNG 28x2,5",
+    "bezeichnung": "Hydraulikleitung 28x2,5",
+    "vkPreis": "8.38",
+    "ekPreis": "6.70",
+    "perMeter": true
+  },
+  {
+    "nummer": "HYLEITUNG 28x3,0",
+    "bezeichnung": "Hydraulikleitung 28x3,0",
+    "vkPreis": "9.64",
+    "ekPreis": "7.71",
+    "perMeter": true
+  },
+  {
+    "nummer": "HYLEITUNG 30x2,5",
+    "bezeichnung": "Hydraulikleitung 30x2,5",
+    "vkPreis": "9.01",
+    "ekPreis": "7.21",
+    "perMeter": true
+  },
+  {
+    "nummer": "HYLEITUNG 30x3,0",
+    "bezeichnung": "Hydraulikleitung 30x3,0",
+    "vkPreis": "10.04",
+    "ekPreis": "8.03",
+    "perMeter": true
+  },
+  {
+    "nummer": "HYLEITUNG 30x4,0",
+    "bezeichnung": "Hydraulikleitung 30x4,0",
+    "vkPreis": "12.83",
+    "ekPreis": "10.26",
+    "perMeter": true
+  },
+  {
+    "nummer": "HYLEITUNG 35x2,5",
+    "bezeichnung": "Hydraulikleitung 35x2,5",
+    "vkPreis": "10.59",
+    "ekPreis": "8.47",
+    "perMeter": true
+  },
+  {
+    "nummer": "HYLEITUNG 35x3,0",
+    "bezeichnung": "Hydraulikleitung 35x3,0",
+    "vkPreis": "12.11",
+    "ekPreis": "9.69",
+    "perMeter": true
+  },
+  {
+    "nummer": "HYLEITUNG 35x4,0",
+    "bezeichnung": "Hydraulikleitung 35x4,0",
+    "vkPreis": "14.71",
+    "ekPreis": "11.77",
+    "perMeter": true
+  },
+  {
+    "nummer": "HYLEITUNG 38x3,0",
+    "bezeichnung": "Hydraulikleitung 38x3,0",
+    "vkPreis": "13.06",
+    "ekPreis": "10.45",
+    "perMeter": true
+  },
+  {
+    "nummer": "HYLEITUNG 38x4,0",
+    "bezeichnung": "Hydraulikleitung 38x4,0",
+    "vkPreis": "16.88",
+    "ekPreis": "13.50",
+    "perMeter": true
+  },
+  {
+    "nummer": "HYLEITUNG 38x5,0",
+    "bezeichnung": "Hydraulikleitung 38x5,0",
+    "vkPreis": "17.94",
+    "ekPreis": "14.35",
+    "perMeter": true
+  },
+  {
+    "nummer": "HYLEITUNG 42x2,0",
+    "bezeichnung": "Hydraulikleitung 42x2,0",
+    "vkPreis": "10.20",
+    "ekPreis": "8.16",
+    "perMeter": true
+  },
+  {
+    "nummer": "HYLEITUNG 42x3,0",
+    "bezeichnung": "Hydraulikleitung 42x3,0",
+    "vkPreis": "14.59",
+    "ekPreis": "11.67",
+    "perMeter": true
+  },
+  {
+    "nummer": "HYLEITUNG 4x0,5",
+    "bezeichnung": "Hydraulikleitung 4x0,5",
+    "vkPreis": "1.74",
+    "ekPreis": "1.39",
+    "perMeter": true
+  },
+  {
+    "nummer": "HYLEITUNG 4x1,0",
+    "bezeichnung": "Hydraulikleitung 4x1,0",
+    "vkPreis": "2.20",
+    "ekPreis": "1.72",
+    "perMeter": true
+  },
+  {
+    "nummer": "HYLEITUNG 5x1,0",
+    "bezeichnung": "Hydraulikleitung 5x1,0",
+    "vkPreis": "2.21",
+    "ekPreis": "1.77",
+    "perMeter": true
+  },
+  {
+    "nummer": "HYLEITUNG 6x1,0",
+    "bezeichnung": "Hydraulikleitung 6x1,0",
+    "vkPreis": "2.26",
+    "ekPreis": "1.81",
+    "perMeter": true
+  },
+  {
+    "nummer": "HYLEITUNG 6x1,5",
+    "bezeichnung": "Hydraulikleitung 6x1,5",
+    "vkPreis": "2.28",
+    "ekPreis": "1.82",
+    "perMeter": true
+  },
+  {
+    "nummer": "HYLEITUNG 6x2,0",
+    "bezeichnung": "Hydraulikleitung 6x2,0",
+    "vkPreis": "2.93",
+    "ekPreis": "2.34",
+    "perMeter": true
+  },
+  {
+    "nummer": "HYLEITUNG 8x1,0",
+    "bezeichnung": "Hydraulikleitung 8x1,0",
+    "vkPreis": "2.50",
+    "ekPreis": "2.00",
+    "perMeter": true
+  },
+  {
+    "nummer": "HYLEITUNG 8x1,5",
+    "bezeichnung": "Hydraulikleitung 8x1,5",
+    "vkPreis": "2.51",
+    "ekPreis": "2.04",
+    "perMeter": true
+  },
+  {
+    "nummer": "HYLEITUNG 8x2,0",
+    "bezeichnung": "Hydraulikleitung 8x2,0",
+    "vkPreis": "3.28",
+    "ekPreis": "2.62",
+    "perMeter": true
+  },
+  {
+    "nummer": "HYLEITUNG15x1,5",
+    "bezeichnung": "Hydraulikleitung 15x1,5",
+    "vkPreis": "3.44",
+    "ekPreis": "2.75",
+    "perMeter": true
+  },
+  {
+    "nummer": "KOR 10/8-L/A3C",
+    "bezeichnung": "Konus-Reduzierverschraubung 10/8",
+    "vkPreis": "3.52",
+    "ekPreis": "1.11",
+    "perMeter": false
+  },
+  {
+    "nummer": "KOR 12/10-L/A3C",
+    "bezeichnung": "Konusreduzierverschraubung 12/10",
+    "vkPreis": "3.90",
+    "ekPreis": "1.23",
+    "perMeter": false
+  },
+  {
+    "nummer": "KOR 15/12-L/A3C",
+    "bezeichnung": "Konus-Reduzierverschraubung 15/12",
+    "vkPreis": "4.41",
+    "ekPreis": "1.39",
+    "perMeter": false
+  },
+  {
+    "nummer": "KOR 22/18-L/A3C",
+    "bezeichnung": "Konus-Reduzierverschraubung 22/18",
+    "vkPreis": "8.61",
+    "ekPreis": "2.71",
+    "perMeter": false
+  },
+  {
+    "nummer": "MAN0G63.250U",
+    "bezeichnung": "Manometer 63mm -250bar",
+    "vkPreis": "15.18",
+    "ekPreis": "13.66",
+    "perMeter": false
+  },
+  {
+    "nummer": "MC 04-04 NP",
+    "bezeichnung": "Armatur JIS DN06 1/4 30 Grad",
+    "vkPreis": "10.31",
+    "ekPreis": "3.09",
+    "perMeter": false
+  },
+  {
+    "nummer": "MC 04-10 R016A45",
+    "bezeichnung": "Armatur DKOL45 DN06 10-L16x1,5",
+    "vkPreis": "13.14",
+    "ekPreis": "5.26",
+    "perMeter": false
+  },
+  {
+    "nummer": "MC 06-06 MURN",
+    "bezeichnung": "Armatur R3/8 DN10",
+    "vkPreis": "21.34",
+    "ekPreis": "6.40",
+    "perMeter": false
+  },
+  {
+    "nummer": "MC 06-08 MURN",
+    "bezeichnung": "Armatur RN F.HS R1/2 DN10",
+    "vkPreis": "17.50",
+    "ekPreis": "7.00",
+    "perMeter": false
+  },
+  {
+    "nummer": "MC 10-18 R026A",
+    "bezeichnung": "Armatur DKOL DN16 18L",
+    "vkPreis": "10.37",
+    "ekPreis": "3.11",
+    "perMeter": false
+  },
+  {
+    "nummer": "PF1-DN06",
+    "bezeichnung": "Pressfassung 1SN DN06",
+    "vkPreis": "1.69",
+    "ekPreis": "0.46",
+    "perMeter": false
+  },
+  {
+    "nummer": "PF1-DN10",
+    "bezeichnung": "Pressfassung 1SN DN10",
+    "vkPreis": "1.81",
+    "ekPreis": "0.49",
+    "perMeter": false
+  },
+  {
+    "nummer": "PF1-DN12",
+    "bezeichnung": "Pressfassung 1SN DN12",
+    "vkPreis": "2.72",
+    "ekPreis": "0.73",
+    "perMeter": false
+  },
+  {
+    "nummer": "PF2-DN06",
+    "bezeichnung": "Pressfassung 2SN DN06",
+    "vkPreis": "1.54",
+    "ekPreis": "0.42",
+    "perMeter": false
+  },
+  {
+    "nummer": "PF2-DN10",
+    "bezeichnung": "Pressfassung 2SN DN10",
+    "vkPreis": "1.81",
+    "ekPreis": "0.49",
+    "perMeter": false
+  },
+  {
+    "nummer": "PF2-DN12",
+    "bezeichnung": "Pressfassung 2SN DN12",
+    "vkPreis": "2.12",
+    "ekPreis": "0.57",
+    "perMeter": false
+  },
+  {
+    "nummer": "PF2-DN16",
+    "bezeichnung": "Pressfassung 2SN DN16",
+    "vkPreis": "2.94",
+    "ekPreis": "0.79",
+    "perMeter": false
+  },
+  {
+    "nummer": "PF2-DN20",
+    "bezeichnung": "Pressfassung 2SN DN20",
+    "vkPreis": "5.21",
+    "ekPreis": "1.22",
+    "perMeter": false
+  },
+  {
+    "nummer": "PF2-DN25",
+    "bezeichnung": "Pressfassung 2SN DN25",
+    "vkPreis": "13.82",
+    "ekPreis": "3.73",
+    "perMeter": false
+  },
+  {
+    "nummer": "PF2-DN32",
+    "bezeichnung": "Pressfassung 2SN DN32",
+    "vkPreis": "14.80",
+    "ekPreis": "4.00",
+    "perMeter": false
+  },
+  {
+    "nummer": "PF3-DN20",
+    "bezeichnung": "Pressfassung 4SP DN20",
+    "vkPreis": "6.04",
+    "ekPreis": "1.63",
+    "perMeter": false
+  },
+  {
+    "nummer": "SCHUTZ 15-25MM",
+    "bezeichnung": "Scheuerschutzwendel 15-25mm",
+    "vkPreis": "6.72",
+    "ekPreis": "2.69",
+    "perMeter": false
+  },
+  {
+    "nummer": "SCHUTZ 17-28MM",
+    "bezeichnung": "Scheuerschutzwendel 17-28mm",
+    "vkPreis": "7.50",
+    "ekPreis": "3.00",
+    "perMeter": false
+  },
+  {
+    "nummer": "SCHUTZ 22-40MM",
+    "bezeichnung": "Scheuerschutzwendel 22-40mm",
+    "vkPreis": "8.80",
+    "ekPreis": "3.52",
+    "perMeter": false
+  },
+  {
+    "nummer": "SCHUTZ 40-55MM",
+    "bezeichnung": "Scheuerschutzwendel 40-55mm",
+    "vkPreis": "12.96",
+    "ekPreis": "5.18",
+    "perMeter": false
+  },
+  {
+    "nummer": "SCHUTZ 55-70MM",
+    "bezeichnung": "Scheuerschutzwendel 55-70mm",
+    "vkPreis": "24.72",
+    "ekPreis": "9.89",
+    "perMeter": false
+  },
+  {
+    "nummer": "SPA1657",
+    "bezeichnung": "Schmalkeilriemen SPA1657",
+    "vkPreis": "17.59",
+    "ekPreis": "10.55",
+    "perMeter": false
+  },
+  {
+    "nummer": "SPA1850",
+    "bezeichnung": "Schmalkeilriemen SPA1850",
+    "vkPreis": "20.48",
+    "ekPreis": "4.71",
+    "perMeter": false
+  },
+  {
+    "nummer": "SV 10-L",
+    "bezeichnung": "Gerade Schottverschraubung 10er",
+    "vkPreis": "5.12",
+    "ekPreis": "1.64",
+    "perMeter": false
+  },
+  {
+    "nummer": "SV 12-L",
+    "bezeichnung": "Gerade Schottverschraubung 12er",
+    "vkPreis": "5.84",
+    "ekPreis": "1.87",
+    "perMeter": false
+  },
+  {
+    "nummer": "SV 8-L",
+    "bezeichnung": "Gerade Schottverschraubung 8er",
+    "vkPreis": "4.12",
+    "ekPreis": "1.32",
+    "perMeter": false
+  },
+  {
+    "nummer": "T 12-L/A3C",
+    "bezeichnung": "12L-T-Verschraubung",
+    "vkPreis": "8.90",
+    "ekPreis": "2.80",
+    "perMeter": false
+  },
+  {
+    "nummer": "TWS19",
+    "bezeichnung": "Tankwagenschlauch DN19",
+    "vkPreis": "16.29",
+    "ekPreis": "9.77",
+    "perMeter": false
+  },
+  {
+    "nummer": "UCX16",
+    "bezeichnung": "Gehaeuse-Lager",
+    "vkPreis": "212.00",
+    "ekPreis": "212.00",
+    "perMeter": false
+  },
+  {
+    "nummer": "W 12L",
+    "bezeichnung": "Winkel-Verbindungsstutzen",
+    "vkPreis": "4.79",
+    "ekPreis": "1.53",
+    "perMeter": false
+  },
+  {
+    "nummer": "W 15L",
+    "bezeichnung": "Winkel-Verbindungsstutzen 15er",
+    "vkPreis": "6.52",
+    "ekPreis": "2.09",
+    "perMeter": false
+  },
+  {
+    "nummer": "W 16-S",
+    "bezeichnung": "Winkelverschraubung 16er",
+    "vkPreis": "12.47",
+    "ekPreis": "3.99",
+    "perMeter": false
+  },
+  {
+    "nummer": "W 20-S",
+    "bezeichnung": "Winkelverschraubung 20er",
+    "vkPreis": "17.12",
+    "ekPreis": "5.48",
+    "perMeter": false
+  },
+  {
+    "nummer": "XPB2000",
+    "bezeichnung": "Keilriemen XPB2000",
+    "vkPreis": "46.75",
+    "ekPreis": "16.36",
+    "perMeter": false
+  },
+  {
+    "nummer": "XPB2120",
+    "bezeichnung": "Keilriemen XPB2120",
+    "vkPreis": "49.47",
+    "ekPreis": "17.31",
+    "perMeter": false
+  },
+  {
+    "nummer": "XPB2240",
+    "bezeichnung": "Keilriemen XPB2240",
+    "vkPreis": "52.88",
+    "ekPreis": "18.51",
+    "perMeter": false
+  }
+]
