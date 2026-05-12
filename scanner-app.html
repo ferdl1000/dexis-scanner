@@ -148,6 +148,23 @@ html,body{height:100%;background:var(--bg);color:var(--text);font-family:'Segoe 
   background:#c62828;border-color:#c62828;color:#fff;
   animation:micPulse 1s ease-in-out infinite;
 }
+
+/* Voice-Eingabe fuer Kundendaten */
+.voiceWrap{display:flex;gap:8px;align-items:flex-start;}
+.voiceWrap input,.voiceWrap textarea{flex:1;}
+.voiceMicBtn{
+  width:52px;min-height:52px;border-radius:12px;
+  border:2px solid var(--primary-light);
+  background:#fff;color:var(--primary);
+  font-size:22px;cursor:pointer;flex-shrink:0;
+  display:flex;align-items:center;justify-content:center;
+  transition:.2s;
+}
+.voiceMicBtn:hover{background:#f0f3ff;}
+.voiceMicBtn.active{
+  background:#c62828;border-color:#c62828;color:#fff;
+  animation:micPulse 1s ease-in-out infinite;
+}
 @keyframes micPulse{
   0%,100%{box-shadow:0 0 0 0 rgba(198,40,40,.5);}
   50%{box-shadow:0 0 0 10px rgba(198,40,40,0);}
@@ -449,11 +466,21 @@ html,body{height:100%;background:var(--bg);color:var(--text);font-family:'Segoe 
     <h2><span class="icon">👤</span> Kundendaten</h2>
     <div class="formRow">
       <label for="custName">Name <span class="req">*</span></label>
-      <input type="text" id="custName" placeholder="Kundenname" oninput="saveCustomer()">
+      <div class="voiceWrap">
+        <input type="text" id="custName" placeholder="Kundenname" oninput="saveCustomer()">
+        <button type="button" class="voiceMicBtn" id="micName"
+                onclick="voiceInput('custName',{capitalize:true})"
+                title="Namen sprechen">🎤</button>
+      </div>
     </div>
     <div class="formRow">
       <label for="custAddr">Adresse</label>
-      <textarea id="custAddr" placeholder="Strasse, PLZ Ort (optional)" oninput="saveCustomer()"></textarea>
+      <div class="voiceWrap">
+        <textarea id="custAddr" placeholder="Strasse, PLZ Ort (optional)" oninput="saveCustomer()"></textarea>
+        <button type="button" class="voiceMicBtn" id="micAddr"
+                onclick="voiceInput('custAddr',{append:true})"
+                title="Adresse sprechen">🎤</button>
+      </div>
     </div>
   </div>
 
@@ -986,6 +1013,90 @@ function stopVoice(){
   btn.classList.remove('active');
   btn.textContent = '\ud83c\udf99\ufe0f';
   if(voiceRecognition){ try{ voiceRecognition.stop(); }catch(e){} voiceRecognition = null; }
+}
+
+// ===== GENERELLE SPRACHEINGABE (Kundendaten u.a.) =====
+let voiceTargetRec = null;
+let voiceTargetActive = null; // ID des aktuell aufnehmenden Buttons
+
+function voiceInput(targetId, opts){
+  opts = opts || {};
+  const SR = window.SpeechRecognition || window.webkitSpeechRecognition;
+  if(!SR){
+    showToast('Spracheingabe nicht unterst\u00fctzt (bitte Chrome/Safari aktuell)', 'warn');
+    return;
+  }
+  const target = document.getElementById(targetId);
+  const btn    = document.getElementById('mic' + targetId.replace(/^cust/,''));
+  if(!target) return;
+
+  // Bereits aktiv? Dann stoppen.
+  if(voiceTargetActive === targetId){
+    stopVoiceInput();
+    return;
+  }
+  // Andere Aufnahme l\u00e4uft? Erst stoppen.
+  if(voiceTargetActive) stopVoiceInput();
+
+  voiceTargetRec = new SR();
+  voiceTargetRec.lang = 'de-DE';
+  voiceTargetRec.continuous = false;
+  voiceTargetRec.interimResults = true;
+  voiceTargetRec.maxAlternatives = 1;
+
+  const initial = target.value;
+
+  voiceTargetRec.onstart = () => {
+    voiceTargetActive = targetId;
+    if(btn){ btn.classList.add('active'); btn.textContent = '\ud83d\udd34'; }
+    showToast('Sprechen Sie jetzt\u2026', '');
+  };
+
+  voiceTargetRec.onresult = (e) => {
+    const transcript = Array.from(e.results)
+      .map(r => r[0].transcript).join('').trim();
+    if(!transcript) return;
+
+    let text = transcript;
+    if(opts.capitalize){
+      // jedes Wort gross
+      text = text.split(/\s+/).map(w =>
+        w.length ? w.charAt(0).toUpperCase() + w.slice(1) : w
+      ).join(' ');
+    }
+    if(opts.append && initial){
+      target.value = initial + (initial.endsWith('\n') ? '' : '\n') + text;
+    } else {
+      target.value = text;
+    }
+    // saveCustomer triggern
+    target.dispatchEvent(new Event('input', {bubbles:true}));
+  };
+
+  voiceTargetRec.onerror = (e) => {
+    if(e.error === 'not-allowed'){
+      showToast('Mikrofon nicht erlaubt \u2013 in Browser-Einstellungen freigeben','error');
+    } else if(e.error !== 'no-speech'){
+      showToast('Spracheingabe: ' + e.error, 'warn');
+    }
+    stopVoiceInput();
+  };
+  voiceTargetRec.onend = () => stopVoiceInput();
+
+  try{ voiceTargetRec.start(); }
+  catch(err){ showToast('Sprachfehler: ' + err.message, 'error'); stopVoiceInput(); }
+}
+
+function stopVoiceInput(){
+  if(voiceTargetActive){
+    const btn = document.getElementById('mic' + voiceTargetActive.replace(/^cust/,''));
+    if(btn){ btn.classList.remove('active'); btn.textContent = '\ud83c\udfa4'; }
+  }
+  if(voiceTargetRec){
+    try{ voiceTargetRec.stop(); }catch(e){}
+    voiceTargetRec = null;
+  }
+  voiceTargetActive = null;
 }
 
 // ===== SCAN INPUT =====
