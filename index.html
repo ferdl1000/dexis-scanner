@@ -395,6 +395,44 @@ html,body{height:100%;background:var(--bg);color:var(--text);font-family:'Segoe 
 .toggleSwitch input:checked + .toggleSlider{background:var(--success);}
 .toggleSwitch input:checked + .toggleSlider:before{transform:translateX(24px);}
 
+
+/* Lagerbestand */
+.stockRow{
+  display:flex;align-items:center;gap:8px;margin-top:6px;
+  padding:4px 8px;background:#e3f2fd;border-radius:8px;font-size:14px;
+  flex-wrap:wrap;
+}
+.stockRow.low{background:#ffebee;color:#c62828;font-weight:600;}
+.stockRow.warn{background:#fff8e1;color:#e65100;}
+.stockRow.unknown{background:#f5f5f5;color:#888;font-style:italic;}
+.stockRow .stockLabel{font-weight:600;}
+.stockInput{
+  width:54px;text-align:center;border:1px solid #bbb;border-radius:6px;
+  padding:3px 4px;font-size:14px;background:#fff;
+}
+.stockInput:focus{outline:2px solid var(--primary);outline-offset:1px;}
+.lowBadge{
+  display:inline-block;background:#c62828;color:#fff;
+  padding:2px 7px;border-radius:10px;font-size:11px;font-weight:700;
+}
+#orderSection{display:none;}
+#orderSection.show{display:block;}
+.orderItem{
+  display:flex;align-items:center;justify-content:space-between;
+  padding:8px 10px;border:1px solid #ffcdd2;background:#fff5f5;
+  border-radius:8px;margin-bottom:6px;gap:8px;
+}
+.orderItem .oNum{font-weight:700;color:#c62828;}
+.orderItem .oName{flex:1;margin:0 6px;font-size:14px;color:#444;}
+.orderItem .oQty{font-size:13px;color:#666;white-space:nowrap;}
+#orderBtn{
+  width:100%;min-height:54px;font-size:18px;font-weight:700;
+  background:#e65100;color:#fff;border:none;border-radius:12px;
+  cursor:pointer;margin-top:10px;
+  display:flex;align-items:center;justify-content:center;gap:8px;
+}
+#orderBtn:hover{background:#bf360c;}
+
 /* FAB Scroll-to-top */
 #fabScroll{
   display:none;position:fixed;bottom:84px;right:16px;z-index:50;
@@ -480,6 +518,15 @@ html,body{height:100%;background:var(--bg);color:var(--text);font-family:'Segoe 
     </div>
   </div>
 
+  <!-- NACHBESTELLEN -->
+  <div class="section" id="orderSection">
+    <h2><span class="icon">📦</span> Nachzubestellen <span id="orderCount" style="font-size:14px;color:#666;font-weight:400;margin-left:8px;"></span></h2>
+    <div id="orderList"></div>
+    <button id="orderBtn" onclick="onBestellen()">
+      📧 Bestellung versenden
+    </button>
+  </div>
+
   <!-- KUNDENDATEN -->
   <div class="section">
     <h2><span class="icon">👤</span> Kundendaten</h2>
@@ -536,6 +583,24 @@ html,body{height:100%;background:var(--bg);color:var(--text);font-family:'Segoe 
       </label>
     </div>
     <div class="settingInfo">Aus = Mitarbeiter sehen keine Preise. Default: aus.</div>
+  </div>
+
+  
+  <div class="settingRow">
+    <div class="toggleRow">
+      <label for="setShowStock">Lagerbestand anzeigen</label>
+      <label class="toggleSwitch">
+        <input type="checkbox" id="setShowStock" onchange="toggleStock(this)">
+        <span class="toggleSlider"></span>
+      </label>
+    </div>
+    <div class="settingInfo">Aus = niemand sieht Bestand. An = alle sehen, Admin kann editieren.</div>
+  </div>
+  <div class="settingRow">
+    <label>Bestell-E-Mail (DEXIS / Lieferant)</label>
+    <input type="email" id="setOrderEmail" placeholder="office@kfz-dorn.at"
+           oninput="saveSetting('orderEmail',this.value)">
+    <div class="settingInfo">An diese Adresse geht die Nachbestellung.</div>
   </div>
 
   <div class="settingRow">
@@ -657,6 +722,8 @@ function fmtTotal(item){
 const DEFAULTS = {
   firma:'Firma Dorn',
   showPrices:'false',
+  showStock:'false',
+  orderEmail:'office@kfz-dorn.at',
   email:'office@kfz-dorn.at',
   emailCC:'',
   mode:'auto',
@@ -672,6 +739,8 @@ function loadSettings(){
   document.getElementById('setMode').value      = getSetting('mode');
   document.getElementById('setUpdateUrl').value = getSetting('updateUrl');
   document.getElementById('setShowPrices').checked = (getSetting('showPrices') === 'true');
+  document.getElementById('setShowStock').checked  = (getSetting('showStock')  === 'true');
+  document.getElementById('setOrderEmail').value   = getSetting('orderEmail');
   document.getElementById('setAdminPw').value   = getSetting('adminPw');
   document.getElementById('dbCount').textContent = ARTICLES_DB.length;
 }
@@ -922,6 +991,7 @@ function renderList(){
         <div class="cardNum">${esc(item.number)}${item.unknown?' <span class="unknownBadge">\u26a0 Unbekannt</span>':''}</div>
         <div class="cardName" title="${esc(name)}">${esc(name)}</div>
         <div class="cardBC">Barcode: ${esc(item.barcode)}</div>
+        ${buildStockRowHtml(item.number, 'list')}
         ${(price && pricesVisible()) ? `<div class="cardPrice">VK: ${esc(price)}${total?' &nbsp;|&nbsp; \u03a3 '+esc(total):''}` + `</div>` : ''}
       </div>
       <div class="cardRight">
@@ -992,6 +1062,7 @@ function renderSearchResults(query){
       </div>
       <div class="srRight">
         ${(price && pricesVisible()) ? `<div class="srPrice">${esc(price)}</div>` : ''}
+        ${stockVisible() ? buildStockRowHtml(a.number, 'search') : ''}
         ${a.perMeter ? '<div class="srMeter">\ud83d\udccf pro Meter</div>' : ''}
       </div>
     </div>`;
@@ -1774,14 +1845,145 @@ function applyUrlPreiseFlag(){
   }catch(e){}
 }
 
+
+// ===== LAGERBESTAND =====
+let stockData = {};  // { artikelnummer: {s: stock, m: minStock} }
+
+function loadStockLocal(){
+  try{ stockData = JSON.parse(localStorage.getItem('dorn_stock') || '{}'); }
+  catch{ stockData = {}; }
+}
+function saveStockLocal(){
+  localStorage.setItem('dorn_stock', JSON.stringify(stockData));
+}
+function stockVisible(){
+  return getSetting('showStock') === 'true';
+}
+function getStock(num){
+  return stockData[num] || {};
+}
+function setStockValue(num, key, raw){
+  const v = parseInt(String(raw).replace(/[^0-9-]/g,''), 10);
+  if(!stockData[num]) stockData[num] = {};
+  if(isNaN(v) || v < 0){ delete stockData[num][key]; }
+  else { stockData[num][key] = v; }
+  if(stockData[num].s === undefined && stockData[num].m === undefined){
+    delete stockData[num];
+  }
+  saveStockLocal();
+  renderOrderList();
+  refreshStockRow(num);
+}
+function refreshStockRow(num){
+  document.querySelectorAll('[data-stock-for="' + CSS.escape(num) + '"]').forEach(el => {
+    el.outerHTML = buildStockRowHtml(num, el.dataset.context);
+  });
+}
+function buildStockRowHtml(num, context){
+  if(!stockVisible()) return '';
+  const sd = getStock(num);
+  const has = sd.s !== undefined;
+  const hasMin = sd.m !== undefined;
+  const low  = has && hasMin && sd.s <= sd.m;
+  const warn = has && hasMin && !low && sd.s <= sd.m * 1.5;
+  const cls  = low ? 'low' : (warn ? 'warn' : (has ? '' : 'unknown'));
+  const editable = isAdminUnlocked();
+  const lbl  = has ? sd.s : '–';
+  const lblMin = hasMin ? sd.m : '–';
+  const lowBadge = low ? '<span class="lowBadge">NACHBESTELLEN</span>' : '';
+
+  if(editable){
+    return '<div class="stockRow ' + cls + '" data-stock-for="' + esc(num) + '" data-context="' + (context||'') + '">' +
+      '<span class="stockLabel">📦 Lager:</span>' +
+      '<input type="number" class="stockInput" value="' + (has?sd.s:'') + '" min="0" placeholder="—" ' +
+        'onchange="setStockValue(\'' + esc(num) + '\',\'s\',this.value)" onclick="this.select()">' +
+      '<span class="stockLabel">Min:</span>' +
+      '<input type="number" class="stockInput" value="' + (hasMin?sd.m:'') + '" min="0" placeholder="—" ' +
+        'onchange="setStockValue(\'' + esc(num) + '\',\'m\',this.value)" onclick="this.select()">' +
+      lowBadge +
+      '</div>';
+  } else {
+    return '<div class="stockRow ' + cls + '" data-stock-for="' + esc(num) + '" data-context="' + (context||'') + '">' +
+      '<span>📦 Lager: <b>' + lbl + '</b> / Min: ' + lblMin + '</span>' +
+      lowBadge +
+      '</div>';
+  }
+}
+function toggleStock(checkbox){
+  saveSetting('showStock', checkbox.checked ? 'true' : 'false');
+  renderList();
+  const sq = document.getElementById('searchInput').value.trim();
+  if(sq.length >= 2) renderSearchResults(sq);
+  renderOrderList();
+}
+
+// ===== NACHBESTELL-LISTE =====
+function getLowStockArticles(){
+  const out = [];
+  for(const num in stockData){
+    const sd = stockData[num];
+    if(sd.s === undefined || sd.m === undefined) continue;
+    if(sd.s <= sd.m){
+      const art = NUMBER_MAP[num] || BARCODE_MAP[num];
+      if(art){
+        out.push({article: art, stock: sd.s, min: sd.m});
+      }
+    }
+  }
+  return out.sort(function(a,b){ return (a.stock - a.min) - (b.stock - b.min); });
+}
+function renderOrderList(){
+  const sec  = document.getElementById('orderSection');
+  const list = document.getElementById('orderList');
+  const cnt  = document.getElementById('orderCount');
+  if(!sec) return;
+  if(!stockVisible()){ sec.classList.remove('show'); return; }
+  const low = getLowStockArticles();
+  if(!low.length){ sec.classList.remove('show'); return; }
+  sec.classList.add('show');
+  cnt.textContent = '(' + low.length + ' Artikel unter Mindestbestand)';
+  list.innerHTML = low.map(function(l){
+    return '<div class="orderItem">' +
+      '<div class="oNum">' + esc(l.article.number) + '</div>' +
+      '<div class="oName">' + esc(l.article.bez1 || l.article.description || '') + '</div>' +
+      '<div class="oQty">Lager ' + l.stock + ' / Min ' + l.min + ' <b>(-' + (l.min - l.stock) + ')</b></div>' +
+      '</div>';
+  }).join('');
+}
+function onBestellen(){
+  const low = getLowStockArticles();
+  if(!low.length){ showToast('Keine Artikel unter Mindestbestand','warn'); return; }
+  const to    = getSetting('orderEmail') || 'office@kfz-dorn.at';
+  const firma = getSetting('firma') || 'Firma Dorn';
+  const now   = new Date();
+  const dateStr = now.toLocaleDateString('de-AT');
+  const subj  = encodeURIComponent('Nachbestellung ' + firma + ' - ' + dateStr);
+  let body = firma + ' - Nachbestellung\n';
+  body += 'Datum: ' + dateStr + '\n\n';
+  body += 'Bitte folgende Artikel nachliefern:\n';
+  body += '----------------------------------------\n';
+  low.forEach(function(l, i){
+    const fehlt = Math.max(1, l.min - l.stock);
+    body += (i+1) + ') Art.Nr.: ' + l.article.number + '\n';
+    body += '   Bezeichnung: ' + (l.article.bez1 || l.article.description || '') + '\n';
+    body += '   Lagerbestand: ' + l.stock + '   Mindestbestand: ' + l.min + '\n';
+    body += '   Nachzubestellen: ' + fehlt + ' Stk\n\n';
+  });
+  body += '----------------------------------------\n';
+  body += 'Gesamt: ' + low.length + ' verschiedene Artikel\n';
+  window.location.href = 'mailto:' + to + '?subject=' + subj + '&body=' + encodeURIComponent(body);
+}
+
 // ===== INIT =====
 document.addEventListener('DOMContentLoaded', async () => {
   applyUrlPreiseFlag();
   loadCachedDB();   // Offline-Cache laden bevor irgendwas anderes
+  loadStockLocal();
   loadItems();
   loadSettings();
   loadCustomer();
   renderList();
+  renderOrderList();
   warnInAppBrowser();
   // Auto-Update im Hintergrund (nicht blockierend)
   setTimeout(() => checkForUpdates(false), 500);
