@@ -376,6 +376,25 @@ html,body{height:100%;background:var(--bg);color:var(--text);font-family:'Segoe 
   border-radius:12px;cursor:pointer;font-weight:600;margin-top:8px;
 }
 
+
+.webSearchBtn{
+  background:#fff;border:2px solid #0277bd;color:#0277bd;
+  width:38px;height:38px;border-radius:8px;cursor:pointer;
+  font-size:16px;display:flex;align-items:center;justify-content:center;
+  margin-bottom:4px;
+}
+.webSearchBtn:hover{background:#e1f5fe;}
+
+/* Toggle-Switch (Preise) */
+.toggleRow{display:flex;align-items:center;justify-content:space-between;gap:12px;}
+.toggleRow label{font-size:16px;font-weight:600;margin-bottom:0;flex:1;}
+.toggleSwitch{position:relative;display:inline-block;width:54px;height:30px;flex-shrink:0;}
+.toggleSwitch input{opacity:0;width:0;height:0;}
+.toggleSlider{position:absolute;cursor:pointer;inset:0;background:#bbb;border-radius:30px;transition:.2s;}
+.toggleSlider:before{position:absolute;content:'';height:24px;width:24px;left:3px;bottom:3px;background:#fff;border-radius:50%;transition:.2s;}
+.toggleSwitch input:checked + .toggleSlider{background:var(--success);}
+.toggleSwitch input:checked + .toggleSlider:before{transform:translateX(24px);}
+
 /* FAB Scroll-to-top */
 #fabScroll{
   display:none;position:fixed;bottom:84px;right:16px;z-index:50;
@@ -507,6 +526,18 @@ html,body{height:100%;background:var(--bg);color:var(--text);font-family:'Segoe 
 <div id="settingsPanel">
   <h2>⚙️ Einstellungen</h2>
 
+  
+  <div class="settingRow">
+    <div class="toggleRow">
+      <label for="setShowPrices">Preise anzeigen (PDF, Liste, Druck)</label>
+      <label class="toggleSwitch">
+        <input type="checkbox" id="setShowPrices" onchange="togglePrices(this)">
+        <span class="toggleSlider"></span>
+      </label>
+    </div>
+    <div class="settingInfo">Aus = Mitarbeiter sehen keine Preise. Default: aus.</div>
+  </div>
+
   <div class="settingRow">
     <label>Firmenname (PDF-Kopfzeile)</label>
     <input type="text" id="setFirma" value="Firma Dorn" oninput="saveSetting('firma',this.value)">
@@ -625,6 +656,7 @@ function fmtTotal(item){
 // ===== SETTINGS =====
 const DEFAULTS = {
   firma:'Firma Dorn',
+  showPrices:'false',
   email:'office@kfz-dorn.at',
   emailCC:'',
   mode:'auto',
@@ -639,6 +671,7 @@ function loadSettings(){
   document.getElementById('setEmailCC').value   = getSetting('emailCC');
   document.getElementById('setMode').value      = getSetting('mode');
   document.getElementById('setUpdateUrl').value = getSetting('updateUrl');
+  document.getElementById('setShowPrices').checked = (getSetting('showPrices') === 'true');
   document.getElementById('setAdminPw').value   = getSetting('adminPw');
   document.getElementById('dbCount').textContent = ARTICLES_DB.length;
 }
@@ -889,10 +922,11 @@ function renderList(){
         <div class="cardNum">${esc(item.number)}${item.unknown?' <span class="unknownBadge">\u26a0 Unbekannt</span>':''}</div>
         <div class="cardName" title="${esc(name)}">${esc(name)}</div>
         <div class="cardBC">Barcode: ${esc(item.barcode)}</div>
-        ${price ? `<div class="cardPrice">VK: ${esc(price)}${total?' &nbsp;|&nbsp; \u03a3 '+esc(total):''}` + `</div>` : ''}
+        ${(price && pricesVisible()) ? `<div class="cardPrice">VK: ${esc(price)}${total?' &nbsp;|&nbsp; \u03a3 '+esc(total):''}` + `</div>` : ''}
       </div>
       <div class="cardRight">
         ${qtyHtml}
+        <button class="webSearchBtn" onclick="webSearch('${esc(item.number)}','${esc(item.bez1||'')}')" title="Im Web suchen">\ud83d\udd0d</button>
         <button class="deleteBtn" onclick="removeItem('${esc(item.barcode)}')" title="L\u00f6schen">\ud83d\uddd1</button>
       </div>
     </div>`;
@@ -905,7 +939,7 @@ function renderTotal(){
   const bar = document.getElementById('totalBar');
   const amt = document.getElementById('totalAmt');
   const hasPrices = scannedItems.some(i => i.vkPreis && parseFloat(i.vkPreis) > 0);
-  if(!hasPrices || !scannedItems.length){ bar.style.display = 'none'; return; }
+  if(!hasPrices || !scannedItems.length || !pricesVisible()){ bar.style.display = 'none'; return; }
   let total = 0;
   scannedItems.forEach(i => {
     const p = parseFloat(i.vkPreis) || 0;
@@ -957,7 +991,7 @@ function renderSearchResults(query){
         <div class="srName">${esc(name)}</div>
       </div>
       <div class="srRight">
-        ${price ? `<div class="srPrice">${esc(price)}</div>` : ''}
+        ${(price && pricesVisible()) ? `<div class="srPrice">${esc(price)}</div>` : ''}
         ${a.perMeter ? '<div class="srMeter">\ud83d\udccf pro Meter</div>' : ''}
       </div>
     </div>`;
@@ -1342,7 +1376,7 @@ async function onFertig(){
   const fileDateStr = now.toISOString().slice(0,10).replace(/-/g,'');
 
   // Gesamtbetrag berechnen
-  const hasPrices = scannedItems.some(i => i.vkPreis && parseFloat(i.vkPreis) > 0);
+  const hasPrices = pricesVisible() && scannedItems.some(i => i.vkPreis && parseFloat(i.vkPreis) > 0);
   let grandTotal  = 0;
   if(hasPrices){
     scannedItems.forEach(i => {
@@ -1650,7 +1684,7 @@ function onDrucken(){
   const dateStr = now.toLocaleDateString('de-AT');
   const timeStr = now.toLocaleTimeString('de-AT',{hour:'2-digit',minute:'2-digit'});
 
-  const hasPrices = scannedItems.some(i => i.vkPreis && parseFloat(i.vkPreis) > 0);
+  const hasPrices = pricesVisible() && scannedItems.some(i => i.vkPreis && parseFloat(i.vkPreis) > 0);
   let total = 0;
 
   const rows = scannedItems.map((item, i) => {
@@ -1716,8 +1750,33 @@ function warnInAppBrowser(){
   }, 1200);
 }
 
+
+// ===== PREISE-SCHALTER + WEB-SUCHE =====
+function pricesVisible(){
+  return getSetting('showPrices') === 'true';
+}
+function togglePrices(checkbox){
+  saveSetting('showPrices', checkbox.checked ? 'true' : 'false');
+  renderList();
+  // Such-Ergebnisse neu, falls offen
+  const sq = document.getElementById('searchInput').value.trim();
+  if(sq.length >= 2) renderSearchResults(sq);
+}
+function webSearch(num, bez){
+  const q = encodeURIComponent((num + ' ' + (bez||'')).trim() + ' passt');
+  window.open('https://www.google.com/search?q=' + q, '_blank', 'noopener');
+}
+function applyUrlPreiseFlag(){
+  try{
+    const p = new URLSearchParams(location.search).get('preise');
+    if(p === 'ja'   || p === '1' || p === 'an') saveSetting('showPrices','true');
+    if(p === 'nein' || p === '0' || p === 'aus') saveSetting('showPrices','false');
+  }catch(e){}
+}
+
 // ===== INIT =====
 document.addEventListener('DOMContentLoaded', async () => {
+  applyUrlPreiseFlag();
   loadCachedDB();   // Offline-Cache laden bevor irgendwas anderes
   loadItems();
   loadSettings();
